@@ -8,13 +8,28 @@ struct CalendarEvent: Identifiable, Equatable {
     let calendarName: String
 }
 
+struct CalendarEventDraft: Equatable {
+    let title: String
+    let startDate: Date
+    let endDate: Date
+}
+
 enum GoogleCalendarError: Error {
     case missingAccessToken
     case invalidResponse
 }
 
 struct GoogleCalendarClient {
+    typealias DataLoader = (URLRequest) async throws -> (Data, URLResponse)
+
     private let calendarEndpoint = URL(string: "https://www.googleapis.com/calendar/v3/calendars/primary/events")!
+    private let dataLoader: DataLoader
+
+    init(dataLoader: @escaping DataLoader = { request in
+        try await URLSession.shared.data(for: request)
+    }) {
+        self.dataLoader = dataLoader
+    }
 
     func upcomingEvents(accessToken: String, now: Date = Date()) async throws -> [CalendarEvent] {
         var components = URLComponents(url: calendarEndpoint, resolvingAgainstBaseURL: false)
@@ -30,15 +45,35 @@ struct GoogleCalendarClient {
         }
 
         var request = URLRequest(url: url)
+        request.httpMethod = "GET"
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await dataLoader(request)
         guard let httpResponse = response as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
             throw GoogleCalendarError.invalidResponse
         }
 
         let apiResponse = try JSONDecoder.googleCalendar.decode(GoogleCalendarEventsResponse.self, from: data)
         return apiResponse.items.compactMap(\.calendarEvent)
+    }
+
+    func createEvent(accessToken: String, draft: CalendarEventDraft) async throws -> CalendarEvent {
+        var request = URLRequest(url: calendarEndpoint)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder.googleCalendar.encode(GoogleCalendarCreateRequest(draft: draft))
+
+        let (data, response) = try await dataLoader(request)
+        guard let httpResponse = response as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
+            throw GoogleCalendarError.invalidResponse
+        }
+
+        guard let event = try JSONDecoder.googleCalendar.decode(GoogleCalendarEvent.self, from: data).calendarEvent else {
+            throw GoogleCalendarError.invalidResponse
+        }
+
+        return event
     }
 
     private struct GoogleCalendarEventsResponse: Decodable {
@@ -63,6 +98,23 @@ struct GoogleCalendarClient {
         }
     }
 
+    private struct GoogleCalendarCreateRequest: Encodable {
+        let summary: String
+        let start: EventDateTime
+        let end: EventDateTime
+
+        init(draft: CalendarEventDraft) {
+            summary = draft.title
+            start = EventDateTime(dateTime: draft.startDate)
+            end = EventDateTime(dateTime: draft.endDate)
+        }
+    }
+
+    private struct EventDateTime: Encodable {
+        let dateTime: Date
+        let timeZone = TimeZone.current.identifier
+    }
+
     private struct EventDate: Decodable {
         let date: Date?
         let dateTime: Date?
@@ -70,6 +122,17 @@ struct GoogleCalendarClient {
         var resolvedDate: Date? {
             dateTime ?? date
         }
+    }
+}
+
+private extension JSONEncoder {
+    static var googleCalendar: JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(ISO8601DateFormatter.internetDateTime.string(from: date))
+        }
+        return encoder
     }
 }
 

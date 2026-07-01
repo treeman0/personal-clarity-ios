@@ -26,7 +26,7 @@ struct GoogleOAuthClient {
     private let tokenEndpoint = URL(string: "https://oauth2.googleapis.com/token")!
     private let authorizationEndpoint = URL(string: "https://accounts.google.com/o/oauth2/v2/auth")!
     private let scopes = [
-        "https://www.googleapis.com/auth/calendar.events.readonly"
+        "https://www.googleapis.com/auth/calendar.events"
     ]
 
     func makeAuthorizationRequest(configuration: GoogleOAuthConfiguration) -> GoogleOAuthRequest? {

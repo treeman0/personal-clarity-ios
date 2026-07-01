@@ -9,6 +9,9 @@ struct CalendarView: View {
     @State private var statusMessage = "Configure and connect Google Calendar to load upcoming events."
     @State private var isLoading = false
     @State private var authSession: ASWebAuthenticationSession?
+    @State private var newBlockTitle = "Focus block"
+    @State private var newBlockStart = Date()
+    @State private var newBlockDurationMinutes = 60
 
     private let oauthClient = GoogleOAuthClient()
     private let tokenStore = KeychainTokenStore()
@@ -75,6 +78,21 @@ struct CalendarView: View {
                     .buttonStyle(.bordered)
                     .disabled(isLoading)
                 }
+            }
+
+            SectionPanel(title: "Create block") {
+                TextField("Block title", text: $newBlockTitle)
+                    .textFieldStyle(.roundedBorder)
+                DatePicker("Starts", selection: $newBlockStart, displayedComponents: [.date, .hourAndMinute])
+                Stepper("Duration \(newBlockDurationMinutes) min", value: $newBlockDurationMinutes, in: 15...240, step: 15)
+
+                Button {
+                    Task { await createBlock() }
+                } label: {
+                    Label("Add to Google Calendar", systemImage: "calendar.badge.plus")
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(!configuration.isConfigured || isLoading || newBlockTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
         .task {
@@ -166,4 +184,33 @@ struct CalendarView: View {
         }
     }
 
+    private func createBlock() async {
+        let trimmedTitle = newBlockTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty else { return }
+
+        guard configuration.isConfigured else {
+            statusMessage = "Add a Google OAuth client ID in Settings."
+            return
+        }
+
+        guard let accessToken = await calendarSession.validAccessToken(configuration: configuration) else {
+            statusMessage = "Connect Google Calendar before creating blocks."
+            return
+        }
+
+        isLoading = true
+        defer { isLoading = false }
+
+        let endDate = Calendar.current.date(byAdding: .minute, value: newBlockDurationMinutes, to: newBlockStart) ?? newBlockStart
+        let draft = CalendarEventDraft(title: trimmedTitle, startDate: newBlockStart, endDate: endDate)
+
+        do {
+            _ = try await googleCalendarClient.createEvent(accessToken: accessToken, draft: draft)
+            statusMessage = "Added \(trimmedTitle) to Google Calendar."
+            newBlockTitle = "Focus block"
+            await refreshEvents()
+        } catch {
+            statusMessage = "Google Calendar block could not be created."
+        }
+    }
 }

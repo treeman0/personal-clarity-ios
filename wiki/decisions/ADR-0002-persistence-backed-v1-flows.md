@@ -21,8 +21,9 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - HealthKit body weight remains an external authorized source and is refreshed on demand rather than copied into app-owned storage.
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.
 - Weight goal and morning reminder preferences are stored through `AppPreferenceRecord` and surfaced in Settings instead of being hard-coded in feature views.
-- Google Calendar OAuth configuration lives in Settings while OAuth tokens live in Keychain; calendar events are fetched from Google's `events.list` API instead of preview data when connected.
+- Google Calendar OAuth configuration lives in Settings while OAuth tokens live in Keychain; calendar events are fetched and user-created blocks are inserted through Google's Events API instead of preview data when connected.
 - Google Calendar token refresh is shared by Calendar and Today so both surfaces use the same public, user-authorized API boundary.
 - Today includes a setup checklist so first-run readiness is visible in the primary operating surface rather than hidden across tabs.
 - The Xcode scheme includes app-level SwiftData integration tests for V1 records, preferences, and mapping fields in addition to core package tests.
+- Google Calendar app tests use injected transport to verify OAuth scopes, event-list requests, event-create requests, and non-success API errors without live network calls.
 - XCTest launches use an in-memory app container so unsigned CI builds do not attempt to initialize private CloudKit before tests execute.

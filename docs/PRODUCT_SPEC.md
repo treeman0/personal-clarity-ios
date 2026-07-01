@@ -12,7 +12,7 @@ ClarityHub keeps one person on track across the daily systems that affect clarit
 - Goals: measurable goals with starting, current, and target values so progress reflects the actual distance from the point where the user began.
 - Habits: daily and weekly habit cadence with streaks and completion windows.
 - Lists: todos, projects, and reusable lists, with task capture able to link a next action to a goal.
-- Calendar: Google Calendar event context through the official API boundary.
+- Calendar: Google Calendar event context and block creation through the official API boundary.
 - Nutrition: HealthKit nutrition totals first, manual/imported Cal AI daily totals second.
 - Review: daily reflection and weekly progress review.
 
@@ -22,7 +22,7 @@ All integrations must be public, user-authorized, and App Store-compatible. V1 m
 
 ## Google Calendar Setup
 
-Google Calendar uses native OAuth with PKCE and the Google Calendar `events.list` REST endpoint. A Google OAuth client ID must be entered in Settings before connecting. The default redirect URI is:
+Google Calendar uses native OAuth with PKCE and the Google Calendar Events API for upcoming event reads and user-created block writes. A Google OAuth client ID must be entered in Settings before connecting. The default redirect URI is:
 
 ```text
 com.treeman0.ClarityHub:/oauth2redirect/google
@@ -30,7 +30,7 @@ com.treeman0.ClarityHub:/oauth2redirect/google
 
 Tokens are stored in the device Keychain rather than CloudKit-backed preferences.
 
-Today reuses the same token refresh path as Calendar and shows remaining same-day events as compact blocks. If Google Calendar is not configured or connected, Today shows the setup state without attempting private calendar access.
+Today reuses the same token refresh path as Calendar and shows remaining same-day events as compact blocks. Calendar can create titled blocks on the primary Google calendar after user authorization. If Google Calendar is not configured or connected, Today shows the setup state without attempting private calendar access.
 
 ## Today Weight Behavior
 
@@ -38,4 +38,4 @@ Today loads the last 90 days of authorized Apple Health body-weight samples and 
 
 ## Verification Coverage
 
-CI runs core Swift package tests plus the generated Xcode app scheme. The app scheme includes SwiftData integration tests for the V1 records, preference upserts, and record mappings used by goal/task integrations. XCTest launches use an in-memory SwiftData container because CI builds are unsigned and cannot exercise private CloudKit entitlements.
+CI runs core Swift package tests plus the generated Xcode app scheme. The app scheme includes SwiftData integration tests for the V1 records, preference upserts, record mappings used by goal/task integrations, and Google Calendar OAuth/API request behavior. XCTest launches use an in-memory SwiftData container because CI builds are unsigned and cannot exercise private CloudKit entitlements.
