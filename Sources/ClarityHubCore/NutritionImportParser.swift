@@ -1,7 +1,11 @@
 import Foundation
 
 public enum NutritionImportParser {
-    public static func parseDailyTotals(_ text: String, date: Date = Date()) -> NutritionDay? {
+    public static func parseDailyTotals(
+        _ text: String,
+        date: Date = Date(),
+        source: String = "Manual import"
+    ) -> NutritionDay? {
         let normalized = text.lowercased()
         guard let calories = value(afterAnyOf: ["calories", "cal", "kcal"], in: normalized) else {
             return nil
@@ -13,7 +17,7 @@ public enum NutritionImportParser {
             proteinGrams: value(afterAnyOf: ["protein", "p"], in: normalized) ?? 0,
             carbohydrateGrams: value(afterAnyOf: ["carbs", "carbohydrates", "c"], in: normalized) ?? 0,
             fatGrams: value(afterAnyOf: ["fat", "f"], in: normalized) ?? 0,
-            source: "Manual import"
+            source: source
         )
     }
 
@@ -40,4 +44,3 @@ public enum NutritionImportParser {
         return Double(text[valueRange])
     }
 }
-

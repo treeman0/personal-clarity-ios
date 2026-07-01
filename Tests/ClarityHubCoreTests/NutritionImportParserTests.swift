@@ -15,5 +15,18 @@ final class NutritionImportParserTests: XCTestCase {
     func testReturnsNilWithoutCalories() {
         XCTAssertNil(NutritionImportParser.parseDailyTotals("Protein 172 Carbs 286 Fat 92"))
     }
-}
 
+    func testPreservesSelectedDateAndSource() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let date = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1)))
+
+        let result = try XCTUnwrap(NutritionImportParser.parseDailyTotals(
+            "kcal 3100 p 180 c 340 f 95",
+            date: date,
+            source: "Cal AI import"
+        ))
+
+        XCTAssertEqual(result.date, date)
+        XCTAssertEqual(result.source, "Cal AI import")
+    }
+}

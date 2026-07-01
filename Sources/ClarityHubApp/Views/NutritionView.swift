@@ -6,8 +6,11 @@ struct NutritionView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.nutritionHealthStore) private var nutritionHealthStore
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
-    @State private var importText = "Calories 2840 Protein 172 Carbs 286 Fat 92"
+    @State private var selectedDate = Date()
+    @State private var importSource = NutritionImportSource.calAI
+    @State private var importText = ""
     @State private var parsedDay: NutritionDay?
+    @State private var statusMessage = ""
 
     private var day: NutritionDay? {
         RecordDateMatcher.records(nutritionRecords, on: Date()) { $0.date }.first?.day
@@ -31,31 +34,56 @@ struct NutritionView: View {
             }
 
             SectionPanel(title: "Import daily totals") {
-                TextEditor(text: $importText)
-                    .frame(minHeight: 92)
-                    .padding(8)
-                    .background(Color(.secondarySystemGroupedBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                DatePicker("Date", selection: $selectedDate, displayedComponents: .date)
+
+                Picker("Source", selection: $importSource) {
+                    Text("Cal AI").tag(NutritionImportSource.calAI)
+                    Text("Manual").tag(NutritionImportSource.manual)
+                }
+                .pickerStyle(.segmented)
+
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: $importText)
+                        .frame(minHeight: 92)
+                        .padding(8)
+                        .background(Color(.secondarySystemGroupedBackground))
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                    if importText.isEmpty {
+                        Text("Calories 2840 Protein 172 Carbs 286 Fat 92")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                            .padding(.horizontal, 13)
+                            .padding(.vertical, 16)
+                            .allowsHitTesting(false)
+                    }
+                }
 
                 Button {
-                    parsedDay = NutritionImportParser.parseDailyTotals(importText)
+                    parseImport()
                 } label: {
                     Label("Parse import", systemImage: "square.and.arrow.down")
                 }
                 .buttonStyle(.borderedProminent)
+                .disabled(importText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
                 if let parsedDay {
-                    HStack {
-                        Text("\(parsedDay.calories.formatted(.number.precision(.fractionLength(0)))) calories, \(parsedDay.proteinGrams.oneDecimal)g protein")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(importSummary(for: parsedDay))
                             .font(.subheadline.weight(.semibold))
-                        Spacer()
                         Button {
                             save(parsedDay)
                         } label: {
-                            Label("Save", systemImage: "checkmark")
+                            Label("Save \(selectedDate.formatted(date: .abbreviated, time: .omitted))", systemImage: "checkmark")
                         }
                         .buttonStyle(.bordered)
                     }
+                }
+
+                if !statusMessage.isEmpty {
+                    Text(statusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
 
@@ -67,7 +95,48 @@ struct NutritionView: View {
                 }
                 .buttonStyle(.bordered)
             }
+
+            SectionPanel(title: "Recent nutrition") {
+                let recent = nutritionRecords.prefix(7)
+                if recent.isEmpty {
+                    Text("Saved calorie and macro days will appear here.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(Array(recent)) { record in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(record.date, format: .dateTime.month().day().year())
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(.secondary)
+                                Text("\(record.calories.formatted(.number.precision(.fractionLength(0)))) cal - P \(record.proteinGrams.oneDecimal)g C \(record.carbohydrateGrams.oneDecimal)g F \(record.fatGrams.oneDecimal)g")
+                                    .font(.subheadline.weight(.semibold))
+                                Text(record.source)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Button(role: .destructive) {
+                                modelContext.delete(record)
+                            } label: {
+                                Image(systemName: "trash")
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    private func parseImport() {
+        let trimmed = importText.trimmingCharacters(in: .whitespacesAndNewlines)
+        parsedDay = NutritionImportParser.parseDailyTotals(
+            trimmed,
+            date: selectedDate,
+            source: importSource.rawValue
+        )
+        statusMessage = parsedDay == nil ? "Could not find calories in that import." : "Import parsed. Review before saving."
     }
 
     private func save(_ day: NutritionDay) {
@@ -80,6 +149,9 @@ struct NutritionView: View {
             fatGrams: day.fatGrams,
             source: day.source
         ))
+        parsedDay = nil
+        importText = ""
+        statusMessage = "Saved \(day.date.formatted(date: .abbreviated, time: .omitted))."
     }
 
     private func connectAndSaveHealthNutrition() async {
@@ -87,13 +159,25 @@ struct NutritionView: View {
             try await nutritionHealthStore.requestAuthorization()
             if let healthDay = try await nutritionHealthStore.fetchTodayNutrition() {
                 save(healthDay)
+            } else {
+                statusMessage = "Apple Health has no calorie or macro totals for today."
             }
         } catch {
             parsedDay = nil
+            statusMessage = "Apple Health nutrition could not be loaded."
         }
     }
 
     private func deleteExistingRecord(on date: Date) {
         RecordDateMatcher.records(nutritionRecords, on: date) { $0.date }.forEach(modelContext.delete)
     }
+
+    private func importSummary(for day: NutritionDay) -> String {
+        "\(day.calories.formatted(.number.precision(.fractionLength(0)))) calories, \(day.proteinGrams.oneDecimal)g protein, \(day.carbohydrateGrams.oneDecimal)g carbs, \(day.fatGrams.oneDecimal)g fat"
+    }
+}
+
+private enum NutritionImportSource: String, Hashable {
+    case calAI = "Cal AI import"
+    case manual = "Manual import"
 }
