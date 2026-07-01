@@ -18,6 +18,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Goals, habits, task capture, nutrition import, and daily review have first write paths.
 - Goal records store a starting value separately from current and target values so progress remains meaningful after the user updates the current value.
 - Task capture can attach a task to an existing goal, and Today surfaces that goal context in next actions.
+- Weigh-in reminders use local notifications with a daily repeating request plus a one-shot snooze request that can be skipped from Body.
 - HealthKit body weight remains an external authorized source and is refreshed on demand rather than copied into app-owned storage.
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.
 - Weight goal and morning reminder preferences are stored through `AppPreferenceRecord` and surfaced in Settings instead of being hard-coded in feature views.
@@ -26,4 +27,5 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Today includes a setup checklist so first-run readiness is visible in the primary operating surface rather than hidden across tabs.
 - The Xcode scheme includes app-level SwiftData integration tests for V1 records, preferences, and mapping fields in addition to core package tests.
 - Google Calendar app tests use injected transport to verify OAuth scopes, event-list requests, event-create requests, and non-success API errors without live network calls.
+- Weigh-in reminder tests use injected notification operations and static request builders to verify authorization options, daily triggers, snooze triggers, and cancellation IDs without prompting CI for notification permission.
 - XCTest launches use an in-memory app container so unsigned CI builds do not attempt to initialize private CloudKit before tests execute.

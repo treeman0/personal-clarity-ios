@@ -2,13 +2,54 @@ import Foundation
 import UserNotifications
 
 struct WeighInReminderScheduler {
-    private let notificationID = "clarityhub.weigh-in.morning"
+    typealias AuthorizationRequester = (UNAuthorizationOptions) async throws -> Bool
+    typealias RequestScheduler = (UNNotificationRequest) async throws -> Void
+    typealias RequestCanceller = ([String]) -> Void
+
+    static let dailyNotificationID = "clarityhub.weigh-in.morning"
+    static let snoozeNotificationID = "clarityhub.weigh-in.snooze"
+
+    private let authorizationRequester: AuthorizationRequester
+    private let requestScheduler: RequestScheduler
+    private let requestCanceller: RequestCanceller
+
+    init(
+        authorizationRequester: @escaping AuthorizationRequester = { options in
+            try await UNUserNotificationCenter.current().requestAuthorization(options: options)
+        },
+        requestScheduler: @escaping RequestScheduler = { request in
+            try await UNUserNotificationCenter.current().add(request)
+        },
+        requestCanceller: @escaping RequestCanceller = { identifiers in
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: identifiers)
+        }
+    ) {
+        self.authorizationRequester = authorizationRequester
+        self.requestScheduler = requestScheduler
+        self.requestCanceller = requestCanceller
+    }
 
     func requestAuthorization() async throws -> Bool {
-        try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound])
+        try await authorizationRequester([.alert, .badge, .sound])
     }
 
     func scheduleDailyReminder(hour: Int, minute: Int) async throws {
+        try await requestScheduler(Self.dailyRequest(hour: hour, minute: minute))
+    }
+
+    func snoozeReminder(minutes: Int = 15) async throws {
+        try await requestScheduler(Self.snoozeRequest(minutes: minutes))
+    }
+
+    func skipPendingSnooze() {
+        requestCanceller([Self.snoozeNotificationID])
+    }
+
+    func cancelDailyReminder() {
+        requestCanceller([Self.dailyNotificationID])
+    }
+
+    static func dailyRequest(hour: Int, minute: Int) -> UNNotificationRequest {
         let content = UNMutableNotificationContent()
         content.title = "Weigh in"
         content.body = "Step on the scale before the day gets noisy."
@@ -19,12 +60,16 @@ struct WeighInReminderScheduler {
         components.minute = minute
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-        let request = UNNotificationRequest(identifier: notificationID, content: content, trigger: trigger)
-        try await UNUserNotificationCenter.current().add(request)
+        return UNNotificationRequest(identifier: dailyNotificationID, content: content, trigger: trigger)
     }
 
-    func cancelDailyReminder() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [notificationID])
+    static func snoozeRequest(minutes: Int = 15) -> UNNotificationRequest {
+        let content = UNMutableNotificationContent()
+        content.title = "Weigh in"
+        content.body = "Snoozed for \(minutes) minutes."
+        content.sound = .default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(minutes * 60), repeats: false)
+        return UNNotificationRequest(identifier: snoozeNotificationID, content: content, trigger: trigger)
     }
 }
-

@@ -9,6 +9,7 @@ struct BodyView: View {
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var entries: [WeightEntry] = []
     @State private var statusMessage = "Connect Apple Health to load smart-scale weight."
+    @State private var reminderMessage = ""
     @State private var isLoading = false
 
     private var goalWeight: Double {
@@ -66,12 +67,47 @@ struct BodyView: View {
                 Button {
                     Task {
                         _ = try? await reminderScheduler.requestAuthorization()
-                        try? await reminderScheduler.scheduleDailyReminder(hour: reminderHour, minute: reminderMinute)
+                        do {
+                            try await reminderScheduler.scheduleDailyReminder(hour: reminderHour, minute: reminderMinute)
+                            reminderMessage = "Daily reminder scheduled for \(reminderLabel)."
+                        } catch {
+                            reminderMessage = "Reminder scheduling failed."
+                        }
                     }
                 } label: {
                     Label("Schedule \(reminderLabel) weigh-in reminder", systemImage: "bell.badge")
                 }
                 .buttonStyle(.borderedProminent)
+
+                HStack {
+                    Button {
+                        Task {
+                            do {
+                                try await reminderScheduler.snoozeReminder(minutes: 15)
+                                reminderMessage = "Snoozed for 15 minutes."
+                            } catch {
+                                reminderMessage = "Snooze could not be scheduled."
+                            }
+                        }
+                    } label: {
+                        Label("Snooze", systemImage: "clock.badge")
+                    }
+                    .buttonStyle(.bordered)
+
+                    Button(role: .destructive) {
+                        reminderScheduler.skipPendingSnooze()
+                        reminderMessage = "Pending snooze skipped."
+                    } label: {
+                        Label("Skip snooze", systemImage: "bell.slash")
+                    }
+                    .buttonStyle(.bordered)
+                }
+
+                if !reminderMessage.isEmpty {
+                    Text(reminderMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
 
                 Button {
                     Task { await connectAndRefreshWeight() }
