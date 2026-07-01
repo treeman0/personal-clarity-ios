@@ -15,7 +15,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 ## Consequences
 
 - Today now reflects stored goals, habits, tasks, nutrition, authorized HealthKit weight, and same-day Google Calendar blocks instead of only sample data.
-- Goals, habits, task capture, nutrition import, and daily review have first write paths.
+- Goals, daily/custom weekday habits, task capture, nutrition import, and daily review have first write paths.
 - Goal records store a starting value separately from current and target values so progress remains meaningful after the user updates the current value.
 - Task capture can attach a task to an existing list, project, and goal, and Today surfaces goal context in next actions.
 - Weigh-in reminders use local notifications with a daily repeating request plus a one-shot snooze request that can be skipped from Body.

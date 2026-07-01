@@ -74,6 +74,14 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(AppPreferences.double(.goalWeightPounds, in: preferences, default: 180), 190)
     }
 
+    func testHabitWeekdayMaskPreservesWeeklyCadence() {
+        let mondayWednesdayFridayMask = [2, 4, 6].reduce(0) { $0 | (1 << ($1 - 1)) }
+        let habit = HabitRecord(title: "Lift", weekdayMask: mondayWednesdayFridayMask)
+
+        XCTAssertEqual(habit.weekdays, Set([2, 4, 6]))
+        XCTAssertFalse(habit.isDaily)
+    }
+
     func testRecordMappingsPreserveGoalAndTaskIntegrationFields() {
         let goalID = UUID()
         let listID = UUID()

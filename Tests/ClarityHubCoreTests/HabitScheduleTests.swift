@@ -11,6 +11,15 @@ final class HabitScheduleTests: XCTestCase {
         XCTAssertTrue(HabitSchedule.isDue(habit, on: monday, calendar: calendar))
     }
 
+    func testHabitNotDueOnUnconfiguredWeekday() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let tuesday = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 7)))
+        let habit = HabitPlan(title: "Lift", weekdays: [2, 4, 6], completions: [])
+
+        XCTAssertFalse(HabitSchedule.isDue(habit, on: tuesday, calendar: calendar))
+    }
+
     func testCompletionStreakCountsBackwardsFromEndDate() throws {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(secondsFromGMT: 0)!
@@ -24,4 +33,3 @@ final class HabitScheduleTests: XCTestCase {
         XCTAssertEqual(HabitSchedule.streakDays(completionDates: completions, endingOn: today, calendar: calendar), 3)
     }
 }
-
