@@ -3,25 +3,25 @@ import SwiftUI
 struct RootTabView: View {
     var body: some View {
         TabView {
-            TodayDashboardView(snapshot: PreviewData.dailySnapshot)
+            TodayDashboardView()
                 .tabItem { Label("Today", systemImage: "sun.max") }
 
-            BodyView(entries: PreviewData.weights, trend: PreviewData.weightTrend, goalWeight: PreviewData.goalWeight)
+            BodyView()
                 .tabItem { Label("Body", systemImage: "figure.strengthtraining.traditional") }
 
-            GoalsView(goals: PreviewData.goals)
+            GoalsView()
                 .tabItem { Label("Goals", systemImage: "target") }
 
             HabitsView()
                 .tabItem { Label("Habits", systemImage: "checkmark.circle") }
 
-            ListsView(tasks: PreviewData.tasks)
+            ListsView()
                 .tabItem { Label("Lists", systemImage: "list.bullet.rectangle") }
 
             CalendarView(events: PreviewData.calendarEvents)
                 .tabItem { Label("Calendar", systemImage: "calendar") }
 
-            NutritionView(day: PreviewData.nutrition)
+            NutritionView()
                 .tabItem { Label("Nutrition", systemImage: "fork.knife") }
 
             ReviewView()
@@ -34,4 +34,3 @@ struct RootTabView: View {
 #Preview {
     RootTabView()
 }
-

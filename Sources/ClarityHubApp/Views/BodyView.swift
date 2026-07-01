@@ -3,11 +3,17 @@ import ClarityHubCore
 import SwiftUI
 
 struct BodyView: View {
-    let entries: [WeightEntry]
-    let trend: WeightTrend
-    let goalWeight: Double
     @Environment(\.healthKitWeightStore) private var healthKitWeightStore
     @Environment(\.weighInReminderScheduler) private var reminderScheduler
+    @State private var entries: [WeightEntry] = []
+    @State private var statusMessage = "Connect Apple Health to load smart-scale weight."
+    @State private var isLoading = false
+
+    private let goalWeight = 180.0
+
+    private var trend: WeightTrend {
+        WeightTrendCalculator.trend(entries: entries, goalWeight: goalWeight)
+    }
 
     var body: some View {
         ScreenScaffold(title: "Body", subtitle: "Weight trend, goal distance, and weigh-in rhythm.") {
@@ -19,16 +25,23 @@ struct BodyView: View {
             }
 
             SectionPanel(title: "Trend") {
-                Chart(entries, id: \.date) { entry in
-                    LineMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
-                        .foregroundStyle(.blue)
-                    PointMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
-                        .foregroundStyle(.blue)
-                    RuleMark(y: .value("Goal", goalWeight))
-                        .foregroundStyle(.green)
-                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                if entries.isEmpty {
+                    Text(statusMessage)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
+                } else {
+                    Chart(entries, id: \.date) { entry in
+                        LineMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
+                            .foregroundStyle(.blue)
+                        PointMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
+                            .foregroundStyle(.blue)
+                        RuleMark(y: .value("Goal", goalWeight))
+                            .foregroundStyle(.green)
+                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                    }
+                    .frame(height: 220)
                 }
-                .frame(height: 220)
             }
 
             SectionPanel(title: "Automation") {
@@ -43,17 +56,31 @@ struct BodyView: View {
                 .buttonStyle(.borderedProminent)
 
                 Button {
-                    Task { try? await healthKitWeightStore.requestAuthorization() }
+                    Task { await connectAndRefreshWeight() }
                 } label: {
-                    Label("Connect Apple Health weight", systemImage: "heart.text.square")
+                    Label(isLoading ? "Loading weight..." : "Connect and refresh Apple Health", systemImage: "heart.text.square")
                 }
                 .buttonStyle(.bordered)
+                .disabled(isLoading)
             }
+        }
+    }
+
+    private func connectAndRefreshWeight() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            try await healthKitWeightStore.requestAuthorization()
+            let start = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
+            entries = try await healthKitWeightStore.fetchWeights(since: start)
+            statusMessage = entries.isEmpty ? "No body-weight samples were found in Apple Health." : "Loaded \(entries.count) Apple Health weight samples."
+        } catch {
+            statusMessage = "Apple Health weight could not be loaded."
         }
     }
 }
 
 #Preview {
-    BodyView(entries: PreviewData.weights, trend: PreviewData.weightTrend, goalWeight: PreviewData.goalWeight)
+    BodyView()
 }
-

@@ -1,8 +1,33 @@
 import ClarityHubCore
+import SwiftData
 import SwiftUI
 
 struct TodayDashboardView: View {
-    let snapshot: DailyClaritySnapshot
+    @Query(sort: \GoalRecord.createdAt) private var goalRecords: [GoalRecord]
+    @Query(sort: \HabitRecord.createdAt) private var habitRecords: [HabitRecord]
+    @Query(sort: \HabitCheckInRecord.date) private var habitCheckIns: [HabitCheckInRecord]
+    @Query(sort: \TaskRecord.createdAt) private var taskRecords: [TaskRecord]
+    @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
+
+    private var snapshot: DailyClaritySnapshot {
+        let today = Date()
+        let calendar = Calendar.current
+        let dueHabits = habitRecords.filter { $0.weekdays.contains(calendar.component(.weekday, from: today)) }
+        let todayCheckIns = RecordDateMatcher.records(habitCheckIns, on: today, calendar: calendar) { $0.date }
+        let doneHabitIDs = Set(todayCheckIns.filter { $0.state == "done" }.map(\.habitID))
+        let openTasks = TaskPlanner.priorityQueue(taskRecords.map(\.item))
+        let nutrition = RecordDateMatcher.records(nutritionRecords, on: today, calendar: calendar) { $0.date }.first?.day
+
+        return DailyClaritySnapshot(
+            date: today,
+            weightTrend: WeightTrendCalculator.trend(entries: [], goalWeight: nil, today: today, calendar: calendar),
+            goals: goalRecords.map(\.snapshot),
+            habitsDue: dueHabits.count,
+            habitsDone: dueHabits.filter { doneHabitIDs.contains($0.id) }.count,
+            openTasks: openTasks,
+            nutrition: nutrition
+        )
+    }
 
     var body: some View {
         ScreenScaffold(title: "Today", subtitle: "One clean read on the day.") {
@@ -38,34 +63,46 @@ struct TodayDashboardView: View {
             }
 
             SectionPanel(title: "Next actions") {
-                ForEach(snapshot.openTasks.prefix(3), id: \.title) { task in
-                    HStack {
-                        Image(systemName: "circle")
-                            .foregroundStyle(.secondary)
-                        Text(task.title)
-                        Spacer()
-                        Text("P\(task.priority)")
-                            .font(.caption.weight(.bold))
-                            .foregroundStyle(.secondary)
+                if snapshot.openTasks.isEmpty {
+                    Text("No open tasks. Add one in Lists.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(snapshot.openTasks.prefix(3), id: \.title) { task in
+                        HStack {
+                            Image(systemName: "circle")
+                                .foregroundStyle(.secondary)
+                            Text(task.title)
+                            Spacer()
+                            Text("P\(task.priority)")
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.subheadline)
                     }
-                    .font(.subheadline)
                 }
             }
 
             SectionPanel(title: "Goal signal") {
-                ForEach(snapshot.goals, id: \.title) { goal in
-                    let progress = GoalProgressCalculator.progress(for: goal, startingValue: 0)
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Text(goal.title)
-                                .font(.subheadline.weight(.semibold))
-                            Spacer()
-                            Text(progress.fractionComplete, format: .percent.precision(.fractionLength(0)))
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(.secondary)
+                if snapshot.goals.isEmpty {
+                    Text("No goals yet. Add your first measurable target in Goals.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(snapshot.goals, id: \.title) { goal in
+                        let progress = GoalProgressCalculator.progress(for: goal, startingValue: 0)
+                        VStack(alignment: .leading, spacing: 6) {
+                            HStack {
+                                Text(goal.title)
+                                    .font(.subheadline.weight(.semibold))
+                                Spacer()
+                                Text(progress.fractionComplete, format: .percent.precision(.fractionLength(0)))
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(.secondary)
+                            }
+                            ProgressView(value: progress.fractionComplete)
+                                .tint(.teal)
                         }
-                        ProgressView(value: progress.fractionComplete)
-                            .tint(.teal)
                     }
                 }
             }
@@ -74,6 +111,6 @@ struct TodayDashboardView: View {
 }
 
 #Preview {
-    TodayDashboardView(snapshot: PreviewData.dailySnapshot)
+    TodayDashboardView()
+        .modelContainer(try! ClarityHubModelContainerFactory.make(inMemory: true))
 }
-
