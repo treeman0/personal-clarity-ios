@@ -12,6 +12,7 @@ struct CalendarView: View {
 
     private let oauthClient = GoogleOAuthClient()
     private let tokenStore = KeychainTokenStore()
+    private let calendarSession = GoogleCalendarSession()
 
     private var configuration: GoogleOAuthConfiguration {
         GoogleOAuthConfiguration(
@@ -147,7 +148,7 @@ struct CalendarView: View {
             return
         }
 
-        guard let accessToken = await validAccessToken() else {
+        guard let accessToken = await calendarSession.validAccessToken(configuration: configuration) else {
             if showMissingTokenMessage {
                 statusMessage = "Connect Google Calendar before refreshing."
             }
@@ -165,19 +166,4 @@ struct CalendarView: View {
         }
     }
 
-    private func validAccessToken() async -> String? {
-        guard let tokens = tokenStore.load() else { return nil }
-        if tokens.isAccessTokenFresh {
-            return tokens.accessToken
-        }
-
-        guard let refreshToken = tokens.refreshToken else { return nil }
-        do {
-            let refreshed = try await oauthClient.refreshTokens(refreshToken: refreshToken, configuration: configuration)
-            tokenStore.save(refreshed)
-            return refreshed.accessToken
-        } catch {
-            return nil
-        }
-    }
 }

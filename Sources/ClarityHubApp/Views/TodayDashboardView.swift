@@ -4,6 +4,7 @@ import SwiftUI
 
 struct TodayDashboardView: View {
     @Environment(\.healthKitWeightStore) private var healthKitWeightStore
+    @Environment(\.googleCalendarClient) private var googleCalendarClient
     @Query(sort: \GoalRecord.createdAt) private var goalRecords: [GoalRecord]
     @Query(sort: \HabitRecord.createdAt) private var habitRecords: [HabitRecord]
     @Query(sort: \HabitCheckInRecord.date) private var habitCheckIns: [HabitCheckInRecord]
@@ -13,9 +14,25 @@ struct TodayDashboardView: View {
     @State private var weightEntries: [WeightEntry] = []
     @State private var weightStatus = "Connect Apple Health to show today's weight."
     @State private var isLoadingWeight = false
+    @State private var calendarEvents: [CalendarEvent] = []
+    @State private var calendarStatus = "Connect Google Calendar to show today's blocks."
+    @State private var isLoadingCalendar = false
+
+    private let calendarSession = GoogleCalendarSession()
 
     private var goalWeight: Double {
         AppPreferences.double(.goalWeightPounds, in: preferences, default: AppPreferences.defaultGoalWeightPounds)
+    }
+
+    private var calendarConfiguration: GoogleOAuthConfiguration {
+        GoogleOAuthConfiguration(
+            clientID: AppPreferences.string(.googleCalendarClientID, in: preferences),
+            redirectURI: AppPreferences.string(
+                .googleCalendarRedirectURI,
+                in: preferences,
+                default: AppPreferences.defaultGoogleRedirectURI
+            )
+        )
     }
 
     private var snapshot: DailyClaritySnapshot {
@@ -94,6 +111,61 @@ struct TodayDashboardView: View {
                 }
             }
 
+            SectionPanel(title: "Calendar blocks") {
+                if calendarEvents.isEmpty {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "calendar.badge.clock")
+                            .font(.title3)
+                            .foregroundStyle(.teal)
+                            .frame(width: 28)
+                        Text(calendarStatus)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Button {
+                            Task { await refreshCalendar() }
+                        } label: {
+                            Label(isLoadingCalendar ? "Loading" : "Refresh", systemImage: "arrow.clockwise")
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(isLoadingCalendar)
+                    }
+                } else {
+                    VStack(spacing: 10) {
+                        ForEach(calendarEvents.prefix(4)) { event in
+                            HStack(alignment: .top, spacing: 12) {
+                                VStack(spacing: 2) {
+                                    Text(event.startDate, format: .dateTime.hour().minute())
+                                        .font(.caption.weight(.bold))
+                                    Text(event.endDate, format: .dateTime.hour().minute())
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .frame(width: 54, alignment: .leading)
+
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(event.title)
+                                        .font(.subheadline.weight(.semibold))
+                                    Text(event.calendarName)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+
+                                Spacer()
+                            }
+                        }
+
+                        Button {
+                            Task { await refreshCalendar() }
+                        } label: {
+                            Label(isLoadingCalendar ? "Loading calendar" : "Refresh calendar", systemImage: "arrow.clockwise")
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(isLoadingCalendar)
+                    }
+                }
+            }
+
             SectionPanel(title: "Body signal") {
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: snapshot.weightTrend.latestWeight == nil ? "heart.text.square" : "scalemass")
@@ -153,6 +225,7 @@ struct TodayDashboardView: View {
         }
         .task {
             await refreshWeight()
+            await refreshCalendar(showMissingTokenMessage: false)
         }
     }
 
@@ -183,6 +256,41 @@ struct TodayDashboardView: View {
         } catch {
             weightStatus = "Apple Health weight is unavailable. Authorize it in Setup or Body."
         }
+    }
+
+    private func refreshCalendar(showMissingTokenMessage: Bool = true) async {
+        guard calendarConfiguration.isConfigured else {
+            calendarStatus = "Add a Google OAuth client ID in Settings."
+            return
+        }
+
+        guard let accessToken = await calendarSession.validAccessToken(configuration: calendarConfiguration) else {
+            if showMissingTokenMessage {
+                calendarStatus = "Connect Google Calendar from the Calendar tab."
+            }
+            return
+        }
+
+        isLoadingCalendar = true
+        defer { isLoadingCalendar = false }
+
+        do {
+            let events = try await googleCalendarClient.upcomingEvents(accessToken: accessToken)
+            calendarEvents = todayEvents(from: events)
+            calendarStatus = calendarEvents.isEmpty ? "No remaining Google Calendar blocks today." : "Loaded \(calendarEvents.count) calendar blocks."
+        } catch {
+            calendarStatus = "Google Calendar blocks could not be loaded."
+        }
+    }
+
+    private func todayEvents(from events: [CalendarEvent]) -> [CalendarEvent] {
+        let now = Date()
+        let calendar = Calendar.current
+        return events
+            .filter { event in
+                calendar.isDate(event.startDate, inSameDayAs: now) && event.endDate >= now
+            }
+            .sorted { $0.startDate < $1.startDate }
     }
 }
 

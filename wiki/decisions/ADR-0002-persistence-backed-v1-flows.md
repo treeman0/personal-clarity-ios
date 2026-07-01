@@ -14,10 +14,11 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 
 ## Consequences
 
-- Today now reflects stored goals, habits, tasks, nutrition, and authorized HealthKit weight instead of only sample data.
+- Today now reflects stored goals, habits, tasks, nutrition, authorized HealthKit weight, and same-day Google Calendar blocks instead of only sample data.
 - Goals, habits, task capture, nutrition import, and daily review have first write paths.
 - HealthKit body weight remains an external authorized source and is refreshed on demand rather than copied into app-owned storage.
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.
 - Weight goal and morning reminder preferences are stored through `AppPreferenceRecord` and surfaced in Settings instead of being hard-coded in feature views.
 - Google Calendar OAuth configuration lives in Settings while OAuth tokens live in Keychain; calendar events are fetched from Google's `events.list` API instead of preview data when connected.
+- Google Calendar token refresh is shared by Calendar and Today so both surfaces use the same public, user-authorized API boundary.
 - Today includes a setup checklist so first-run readiness is visible in the primary operating surface rather than hidden across tabs.
