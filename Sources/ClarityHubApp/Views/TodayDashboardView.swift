@@ -8,6 +8,11 @@ struct TodayDashboardView: View {
     @Query(sort: \HabitCheckInRecord.date) private var habitCheckIns: [HabitCheckInRecord]
     @Query(sort: \TaskRecord.createdAt) private var taskRecords: [TaskRecord]
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
+    @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
+
+    private var goalWeight: Double {
+        AppPreferences.double(.goalWeightPounds, in: preferences, default: AppPreferences.defaultGoalWeightPounds)
+    }
 
     private var snapshot: DailyClaritySnapshot {
         let today = Date()
@@ -20,7 +25,7 @@ struct TodayDashboardView: View {
 
         return DailyClaritySnapshot(
             date: today,
-            weightTrend: WeightTrendCalculator.trend(entries: [], goalWeight: nil, today: today, calendar: calendar),
+            weightTrend: WeightTrendCalculator.trend(entries: [], goalWeight: goalWeight, today: today, calendar: calendar),
             goals: goalRecords.map(\.snapshot),
             habitsDue: dueHabits.count,
             habitsDone: dueHabits.filter { doneHabitIDs.contains($0.id) }.count,

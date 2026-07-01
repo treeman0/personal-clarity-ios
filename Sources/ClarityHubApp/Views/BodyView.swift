@@ -1,15 +1,33 @@
 import Charts
 import ClarityHubCore
+import SwiftData
 import SwiftUI
 
 struct BodyView: View {
     @Environment(\.healthKitWeightStore) private var healthKitWeightStore
     @Environment(\.weighInReminderScheduler) private var reminderScheduler
+    @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var entries: [WeightEntry] = []
     @State private var statusMessage = "Connect Apple Health to load smart-scale weight."
     @State private var isLoading = false
 
-    private let goalWeight = 180.0
+    private var goalWeight: Double {
+        AppPreferences.double(.goalWeightPounds, in: preferences, default: AppPreferences.defaultGoalWeightPounds)
+    }
+
+    private var reminderHour: Int {
+        AppPreferences.integer(.weighInReminderHour, in: preferences, default: AppPreferences.defaultReminderHour)
+    }
+
+    private var reminderMinute: Int {
+        AppPreferences.integer(.weighInReminderMinute, in: preferences, default: AppPreferences.defaultReminderMinute)
+    }
+
+    private var reminderLabel: String {
+        DateComponents(calendar: .current, hour: reminderHour, minute: reminderMinute)
+            .date?
+            .formatted(date: .omitted, time: .shortened) ?? "morning"
+    }
 
     private var trend: WeightTrend {
         WeightTrendCalculator.trend(entries: entries, goalWeight: goalWeight)
@@ -48,10 +66,10 @@ struct BodyView: View {
                 Button {
                     Task {
                         _ = try? await reminderScheduler.requestAuthorization()
-                        try? await reminderScheduler.scheduleDailyReminder(hour: 7, minute: 30)
+                        try? await reminderScheduler.scheduleDailyReminder(hour: reminderHour, minute: reminderMinute)
                     }
                 } label: {
-                    Label("Schedule 7:30 AM weigh-in reminder", systemImage: "bell.badge")
+                    Label("Schedule \(reminderLabel) weigh-in reminder", systemImage: "bell.badge")
                 }
                 .buttonStyle(.borderedProminent)
 

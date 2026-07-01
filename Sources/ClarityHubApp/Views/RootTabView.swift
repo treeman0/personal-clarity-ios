@@ -26,6 +26,9 @@ struct RootTabView: View {
 
             ReviewView()
                 .tabItem { Label("Review", systemImage: "square.and.pencil") }
+
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape") }
         }
         .tint(.teal)
     }
