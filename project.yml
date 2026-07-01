@@ -14,6 +14,10 @@ targets:
     platform: iOS
     sources:
       - Sources/ClarityHubCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.treeman0.ClarityHubCore
+        GENERATE_INFOPLIST_FILE: YES
   ClarityHub:
     type: application
     platform: iOS
