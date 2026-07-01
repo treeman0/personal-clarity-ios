@@ -34,6 +34,10 @@ struct BodyView: View {
         WeightTrendCalculator.trend(entries: entries, goalWeight: goalWeight)
     }
 
+    private var movingAverageSeries: [WeightMovingAveragePoint] {
+        WeightTrendCalculator.movingAverageSeries(entries: entries)
+    }
+
     var body: some View {
         ScreenScaffold(title: "Body", subtitle: "Weight trend, goal distance, and weigh-in rhythm.") {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -50,16 +54,34 @@ struct BodyView: View {
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, minHeight: 120, alignment: .center)
                 } else {
-                    Chart(entries, id: \.date) { entry in
-                        LineMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
-                            .foregroundStyle(.blue)
-                        PointMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
-                            .foregroundStyle(.blue)
+                    Chart {
+                        ForEach(entries, id: \.date) { entry in
+                            LineMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
+                                .foregroundStyle(.blue)
+                            PointMark(x: .value("Date", entry.date), y: .value("Weight", entry.pounds))
+                                .foregroundStyle(.blue)
+                        }
+                        ForEach(movingAverageSeries, id: \.date) { point in
+                            LineMark(x: .value("Date", point.date), y: .value("Moving average", point.pounds))
+                                .foregroundStyle(.teal)
+                                .lineStyle(StrokeStyle(lineWidth: 2))
+                        }
                         RuleMark(y: .value("Goal", goalWeight))
                             .foregroundStyle(.green)
                             .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
                     }
                     .frame(height: 220)
+
+                    HStack(spacing: 14) {
+                        Label("Weight", systemImage: "circle.fill")
+                            .foregroundStyle(.blue)
+                        Label("Moving average", systemImage: "line.diagonal")
+                            .foregroundStyle(.teal)
+                        Label("Goal", systemImage: "flag")
+                            .foregroundStyle(.green)
+                    }
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 }
             }
 
@@ -110,7 +132,7 @@ struct BodyView: View {
                 }
 
                 Button {
-                    Task { await connectAndRefreshWeight() }
+                    Task { await refreshWeight(requestAuthorization: true) }
                 } label: {
                     Label(isLoading ? "Loading weight..." : "Connect and refresh Apple Health", systemImage: "heart.text.square")
                 }
@@ -118,14 +140,19 @@ struct BodyView: View {
                 .disabled(isLoading)
             }
         }
+        .task {
+            await refreshWeight(requestAuthorization: false)
+        }
     }
 
-    private func connectAndRefreshWeight() async {
+    private func refreshWeight(requestAuthorization: Bool) async {
         isLoading = true
         defer { isLoading = false }
 
         do {
-            try await healthKitWeightStore.requestAuthorization()
+            if requestAuthorization {
+                try await healthKitWeightStore.requestAuthorization()
+            }
             let start = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
             entries = try await healthKitWeightStore.fetchWeights(since: start)
             statusMessage = entries.isEmpty ? "No body-weight samples were found in Apple Health." : "Loaded \(entries.count) Apple Health weight samples."

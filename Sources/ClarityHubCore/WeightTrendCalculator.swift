@@ -23,6 +23,18 @@ public enum WeightTrendCalculator {
         )
     }
 
+    public static func movingAverageSeries(entries: [WeightEntry], window: Int = 7) -> [WeightMovingAveragePoint] {
+        guard window > 0 else { return [] }
+        let sorted = entries.sorted { $0.date < $1.date }
+
+        return sorted.indices.map { index in
+            let start = max(sorted.startIndex, index - window + 1)
+            let values = sorted[start...index].map(\.pounds)
+            let average = values.reduce(0, +) / Double(values.count)
+            return WeightMovingAveragePoint(date: sorted[index].date, pounds: average)
+        }
+    }
+
     private static func changeOverSevenDays(
         entries: [WeightEntry],
         today: Date,
@@ -48,4 +60,3 @@ public enum WeightTrendCalculator {
         return streak
     }
 }
-

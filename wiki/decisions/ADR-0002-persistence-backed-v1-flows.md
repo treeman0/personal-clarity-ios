@@ -19,7 +19,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Goal records store a starting value separately from current and target values so progress remains meaningful after the user updates the current value.
 - Task capture can attach a task to an existing list, project, and goal, and Today surfaces goal context in next actions.
 - Weigh-in reminders use local notifications with a daily repeating request plus a one-shot snooze request that can be skipped from Body.
-- HealthKit body weight remains an external authorized source and is refreshed on demand rather than copied into app-owned storage.
+- HealthKit body weight remains an external authorized source and is automatically refreshed into Body/Today views rather than copied into app-owned storage.
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.
 - Weight goal and morning reminder preferences are stored through `AppPreferenceRecord` and surfaced in Settings instead of being hard-coded in feature views.
 - Google Calendar OAuth configuration lives in Settings while OAuth tokens live in Keychain; calendar events are fetched and user-created blocks are inserted through Google's Events API instead of preview data when connected.

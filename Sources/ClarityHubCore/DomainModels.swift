@@ -109,6 +109,16 @@ public struct WeightTrend: Equatable, Sendable {
     }
 }
 
+public struct WeightMovingAveragePoint: Equatable, Sendable {
+    public let date: Date
+    public let pounds: Double
+
+    public init(date: Date, pounds: Double) {
+        self.date = date
+        self.pounds = pounds
+    }
+}
+
 public struct NutritionDay: Equatable, Sendable {
     public let date: Date
     public let calories: Double
