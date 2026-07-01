@@ -21,7 +21,11 @@ final class ReleaseMetadataTests: XCTestCase {
     func testPrivacyManifestDeclaresV1DataCategoriesAndNoTracking() throws {
         let manifestURL = try XCTUnwrap(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"))
         let data = try Data(contentsOf: manifestURL)
-        let manifest = try XCTUnwrap(PropertyListSerialization.propertyList(from: data) as? [String: Any])
+        let manifest = try XCTUnwrap(PropertyListSerialization.propertyList(
+            from: data,
+            options: [],
+            format: nil
+        ) as? [String: Any])
 
         XCTAssertEqual(manifest["NSPrivacyTracking"] as? Bool, false)
 
