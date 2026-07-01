@@ -1,0 +1,27 @@
+import XCTest
+@testable import ClarityHubCore
+
+final class HabitScheduleTests: XCTestCase {
+    func testHabitDueOnConfiguredWeekday() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let monday = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 6)))
+        let habit = HabitPlan(title: "Weigh in", weekdays: [2], completions: [])
+
+        XCTAssertTrue(HabitSchedule.isDue(habit, on: monday, calendar: calendar))
+    }
+
+    func testCompletionStreakCountsBackwardsFromEndDate() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let today = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 8)))
+        let completions: Set<DateComponents> = [
+            DateComponents(year: 2026, month: 7, day: 8),
+            DateComponents(year: 2026, month: 7, day: 7),
+            DateComponents(year: 2026, month: 7, day: 6)
+        ]
+
+        XCTAssertEqual(HabitSchedule.streakDays(completionDates: completions, endingOn: today, calendar: calendar), 3)
+    }
+}
+

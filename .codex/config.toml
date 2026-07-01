@@ -1,0 +1,11 @@
+# Project-scoped Codex config for this loop scaffold.
+# Codex loads this only when the project is trusted.
+#
+# Keep active settings conservative here. Repo behavior lives primarily in
+# AGENTS.md, .agents/skills, and .claude-loop.json so Claude Code and Codex
+# can share one policy file.
+
+project_doc_max_bytes = 65536
+
+[features]
+hooks = true

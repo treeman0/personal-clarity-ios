@@ -1,0 +1,9 @@
+﻿{
+    "timestamp":  "2026-07-01T16:59:13.4810943-04:00",
+    "kitVersion":  "2026.06.28.2",
+    "runtimes":  {
+                     "claudeCode":  true,
+                     "codex":  true
+                 },
+    "mode":  "install"
+}

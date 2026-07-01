@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "_example_github_http": {
+      "type": "http",
+      "url": "https://example.invalid/mcp",
+      "disabled": true
+    },
+    "_example_local_stdio": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "tools/mcp/server.js"
+      ],
+      "disabled": true
+    }
+  }
+}
+

@@ -1,0 +1,22 @@
+{
+  "profile": "personal-windows",
+  "kitVersion": "2026.06.28.2",
+  "runtimes": {
+    "claudeCode": true,
+    "codex": true
+  },
+  "loop": {
+    "tdd": true,
+    "verificationGate": true,
+    "wikiMemory": true,
+    "wikiGate": true,
+    "skillTracking": true,
+    "codeReview": "manual",
+    "safetyGuard": true,
+    "statusReport": true
+  },
+  "wikiGate": true,
+  "skillTracking": true,
+  "markdownMigration": "opt-in",
+  "forceRequiresIntent": true
+}
