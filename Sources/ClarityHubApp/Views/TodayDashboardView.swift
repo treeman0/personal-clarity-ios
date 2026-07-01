@@ -100,7 +100,14 @@ struct TodayDashboardView: View {
                         HStack {
                             Image(systemName: "circle")
                                 .foregroundStyle(.secondary)
-                            Text(task.title)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(task.title)
+                                if let goalTitle = goalTitle(for: task.goalID) {
+                                    Text(goalTitle)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
                             Spacer()
                             Text("P\(task.priority)")
                                 .font(.caption.weight(.bold))
@@ -291,6 +298,11 @@ struct TodayDashboardView: View {
                 calendar.isDate(event.startDate, inSameDayAs: now) && event.endDate >= now
             }
             .sorted { $0.startDate < $1.startDate }
+    }
+
+    private func goalTitle(for id: UUID?) -> String? {
+        guard let id else { return nil }
+        return goalRecords.first(where: { $0.id == id })?.title
     }
 }
 

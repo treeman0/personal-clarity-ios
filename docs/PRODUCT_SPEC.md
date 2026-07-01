@@ -11,7 +11,7 @@ ClarityHub keeps one person on track across the daily systems that affect clarit
 - Body: HealthKit weight trend, goal weight comparison, moving average, and weigh-in streak.
 - Goals: measurable goals with starting, current, and target values so progress reflects the actual distance from the point where the user began.
 - Habits: daily and weekly habit cadence with streaks and completion windows.
-- Lists: todos, projects, and reusable lists.
+- Lists: todos, projects, and reusable lists, with task capture able to link a next action to a goal.
 - Calendar: Google Calendar event context through the official API boundary.
 - Nutrition: HealthKit nutrition totals first, manual/imported Cal AI daily totals second.
 - Review: daily reflection and weekly progress review.

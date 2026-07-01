@@ -5,8 +5,10 @@ import SwiftUI
 struct ListsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \TaskRecord.createdAt) private var taskRecords: [TaskRecord]
+    @Query(sort: \GoalRecord.createdAt) private var goals: [GoalRecord]
     @State private var title = ""
     @State private var priority = 1
+    @State private var selectedGoalID: UUID?
 
     private var tasks: [TaskRecord] {
         taskRecords.filter { $0.status == "open" }.sorted {
@@ -23,6 +25,12 @@ struct ListsView: View {
                 TextField("Task", text: $title)
                     .textFieldStyle(.roundedBorder)
                 Stepper("Priority \(priority)", value: $priority, in: 0...5)
+                Picker("Goal", selection: $selectedGoalID) {
+                    Text("No linked goal").tag(UUID?.none)
+                    ForEach(goals) { goal in
+                        Text(goal.title).tag(Optional(goal.id))
+                    }
+                }
                 Button {
                     addTask()
                 } label: {
@@ -47,7 +55,7 @@ struct ListsView: View {
                                     .foregroundStyle(.secondary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(task.title)
-                                    Text("Priority \(task.priority)")
+                                    Text(taskDetail(for: task))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -65,8 +73,22 @@ struct ListsView: View {
     private func addTask() {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }
-        modelContext.insert(TaskRecord(title: trimmedTitle, priority: priority))
+        modelContext.insert(TaskRecord(goalID: selectedGoalID, title: trimmedTitle, priority: priority))
         title = ""
         priority = 1
+        selectedGoalID = nil
+    }
+
+    private func taskDetail(for task: TaskRecord) -> String {
+        if let goalTitle = goalTitle(for: task.goalID) {
+            return "Priority \(task.priority) · \(goalTitle)"
+        }
+
+        return "Priority \(task.priority)"
+    }
+
+    private func goalTitle(for id: UUID?) -> String? {
+        guard let id else { return nil }
+        return goals.first(where: { $0.id == id })?.title
     }
 }
