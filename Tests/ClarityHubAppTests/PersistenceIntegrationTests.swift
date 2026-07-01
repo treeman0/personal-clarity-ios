@@ -40,6 +40,13 @@ final class PersistenceIntegrationTests: XCTestCase {
             source: "Manual import"
         ))
         context.insert(DailyReviewRecord(date: Date(), wins: "Moved forward", friction: "", nextFocus: "Weight"))
+        context.insert(WeeklyReviewRecord(
+            weekStart: Date(),
+            keepDoing: "Morning review",
+            changeNextWeek: "Plan earlier",
+            focus: "Ship V1",
+            commitments: "Lift three times"
+        ))
         context.insert(AppPreferenceRecord(key: AppPreferenceKey.goalWeightPounds.rawValue, value: "180"))
 
         try context.save()
@@ -52,6 +59,7 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(try context.fetch(FetchDescriptor<ProjectRecord>()).count, 1)
         XCTAssertEqual(try context.fetch(FetchDescriptor<NutritionDayRecord>()).count, 1)
         XCTAssertEqual(try context.fetch(FetchDescriptor<DailyReviewRecord>()).count, 1)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<WeeklyReviewRecord>()).count, 1)
         XCTAssertEqual(try context.fetch(FetchDescriptor<AppPreferenceRecord>()).count, 1)
     }
 

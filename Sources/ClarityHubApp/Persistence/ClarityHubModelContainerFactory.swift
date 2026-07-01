@@ -11,6 +11,7 @@ enum ClarityHubModelContainerFactory {
             ProjectRecord.self,
             NutritionDayRecord.self,
             DailyReviewRecord.self,
+            WeeklyReviewRecord.self,
             AppPreferenceRecord.self
         ])
 
@@ -24,4 +25,3 @@ enum ClarityHubModelContainerFactory {
         return try ModelContainer(for: schema, configurations: [configuration])
     }
 }
-

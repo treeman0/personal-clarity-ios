@@ -175,6 +175,32 @@ final class DailyReviewRecord {
 }
 
 @Model
+final class WeeklyReviewRecord {
+    var id: UUID = UUID()
+    var weekStart: Date = Date()
+    var keepDoing: String = ""
+    var changeNextWeek: String = ""
+    var focus: String = ""
+    var commitments: String = ""
+
+    init(
+        id: UUID = UUID(),
+        weekStart: Date,
+        keepDoing: String,
+        changeNextWeek: String,
+        focus: String,
+        commitments: String
+    ) {
+        self.id = id
+        self.weekStart = weekStart
+        self.keepDoing = keepDoing
+        self.changeNextWeek = changeNextWeek
+        self.focus = focus
+        self.commitments = commitments
+    }
+}
+
+@Model
 final class AppPreferenceRecord {
     var id: UUID = UUID()
     var key: String = ""
