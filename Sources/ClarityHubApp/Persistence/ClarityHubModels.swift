@@ -3,13 +3,13 @@ import SwiftData
 
 @Model
 final class GoalRecord {
-    var id: UUID
-    var title: String
-    var currentValue: Double
-    var targetValue: Double
-    var directionRawValue: String
+    var id: UUID = UUID()
+    var title: String = ""
+    var currentValue: Double = 0
+    var targetValue: Double = 0
+    var directionRawValue: String = "increase"
     var dueDate: Date?
-    var createdAt: Date
+    var createdAt: Date = Date()
 
     init(
         id: UUID = UUID(),
@@ -32,10 +32,10 @@ final class GoalRecord {
 
 @Model
 final class HabitRecord {
-    var id: UUID
-    var title: String
-    var weekdayMask: Int
-    var createdAt: Date
+    var id: UUID = UUID()
+    var title: String = ""
+    var weekdayMask: Int = 0
+    var createdAt: Date = Date()
 
     init(id: UUID = UUID(), title: String, weekdayMask: Int, createdAt: Date = Date()) {
         self.id = id
@@ -47,10 +47,10 @@ final class HabitRecord {
 
 @Model
 final class HabitCheckInRecord {
-    var id: UUID
-    var habitID: UUID
-    var date: Date
-    var state: String
+    var id: UUID = UUID()
+    var habitID: UUID = UUID()
+    var date: Date = Date()
+    var state: String = "done"
 
     init(id: UUID = UUID(), habitID: UUID, date: Date, state: String = "done") {
         self.id = id
@@ -62,10 +62,10 @@ final class HabitCheckInRecord {
 
 @Model
 final class ClarityListRecord {
-    var id: UUID
-    var title: String
-    var kind: String
-    var createdAt: Date
+    var id: UUID = UUID()
+    var title: String = ""
+    var kind: String = "todo"
+    var createdAt: Date = Date()
 
     init(id: UUID = UUID(), title: String, kind: String, createdAt: Date = Date()) {
         self.id = id
@@ -77,14 +77,14 @@ final class ClarityListRecord {
 
 @Model
 final class TaskRecord {
-    var id: UUID
+    var id: UUID = UUID()
     var listID: UUID?
     var goalID: UUID?
-    var title: String
-    var status: String
+    var title: String = ""
+    var status: String = "open"
     var dueDate: Date?
-    var priority: Int
-    var createdAt: Date
+    var priority: Int = 0
+    var createdAt: Date = Date()
 
     init(
         id: UUID = UUID(),
@@ -109,10 +109,10 @@ final class TaskRecord {
 
 @Model
 final class ProjectRecord {
-    var id: UUID
-    var title: String
-    var desiredOutcome: String
-    var createdAt: Date
+    var id: UUID = UUID()
+    var title: String = ""
+    var desiredOutcome: String = ""
+    var createdAt: Date = Date()
 
     init(id: UUID = UUID(), title: String, desiredOutcome: String, createdAt: Date = Date()) {
         self.id = id
@@ -124,13 +124,13 @@ final class ProjectRecord {
 
 @Model
 final class NutritionDayRecord {
-    var id: UUID
-    var date: Date
-    var calories: Double
-    var proteinGrams: Double
-    var carbohydrateGrams: Double
-    var fatGrams: Double
-    var source: String
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var calories: Double = 0
+    var proteinGrams: Double = 0
+    var carbohydrateGrams: Double = 0
+    var fatGrams: Double = 0
+    var source: String = "Manual import"
 
     init(
         id: UUID = UUID(),
@@ -153,11 +153,11 @@ final class NutritionDayRecord {
 
 @Model
 final class DailyReviewRecord {
-    var id: UUID
-    var date: Date
-    var wins: String
-    var friction: String
-    var nextFocus: String
+    var id: UUID = UUID()
+    var date: Date = Date()
+    var wins: String = ""
+    var friction: String = ""
+    var nextFocus: String = ""
 
     init(id: UUID = UUID(), date: Date, wins: String, friction: String, nextFocus: String) {
         self.id = id
@@ -170,9 +170,9 @@ final class DailyReviewRecord {
 
 @Model
 final class AppPreferenceRecord {
-    var id: UUID
-    var key: String
-    var value: String
+    var id: UUID = UUID()
+    var key: String = ""
+    var value: String = ""
 
     init(id: UUID = UUID(), key: String, value: String) {
         self.id = id
@@ -180,4 +180,3 @@ final class AppPreferenceRecord {
         self.value = value
     }
 }
-
