@@ -14,14 +14,25 @@ final class TaskPlannerTests: XCTestCase {
         XCTAssertEqual(queue.map(\.title), ["High", "Low"])
     }
 
-    func testPriorityQueuePreservesLinkedGoalID() {
+    func testPriorityQueuePreservesLinkedContextIDs() {
+        let listID = UUID()
         let goalID = UUID()
+        let projectID = UUID()
         let tasks = [
-            TaskItem(goalID: goalID, title: "Goal action", status: .open, priority: 2)
+            TaskItem(
+                listID: listID,
+                goalID: goalID,
+                projectID: projectID,
+                title: "Goal action",
+                status: .open,
+                priority: 2
+            )
         ]
 
         let queue = TaskPlanner.priorityQueue(tasks)
 
+        XCTAssertEqual(queue.first?.listID, listID)
         XCTAssertEqual(queue.first?.goalID, goalID)
+        XCTAssertEqual(queue.first?.projectID, projectID)
     }
 }

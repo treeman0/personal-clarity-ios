@@ -29,7 +29,9 @@ extension HabitRecord {
 extension TaskRecord {
     var item: TaskItem {
         TaskItem(
+            listID: listID,
             goalID: goalID,
+            projectID: projectID,
             title: title,
             status: TaskStatus(rawValue: status) ?? .open,
             dueDate: dueDate,

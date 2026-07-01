@@ -10,6 +10,7 @@ final class PersistenceIntegrationTests: XCTestCase {
         let goalID = UUID()
         let habitID = UUID()
         let listID = UUID()
+        let projectID = UUID()
 
         context.insert(GoalRecord(
             id: goalID,
@@ -22,8 +23,14 @@ final class PersistenceIntegrationTests: XCTestCase {
         context.insert(HabitRecord(id: habitID, title: "Morning weigh-in", weekdayMask: HabitRecord.dailyWeekdayMask))
         context.insert(HabitCheckInRecord(habitID: habitID, date: Date(), state: "done"))
         context.insert(ClarityListRecord(id: listID, title: "Today", kind: "todo"))
-        context.insert(TaskRecord(listID: listID, goalID: goalID, title: "Plan training meal", priority: 3))
-        context.insert(ProjectRecord(title: "V1 launch", desiredOutcome: "Ship a usable personal app"))
+        context.insert(ProjectRecord(id: projectID, title: "V1 launch", desiredOutcome: "Ship a usable personal app"))
+        context.insert(TaskRecord(
+            listID: listID,
+            goalID: goalID,
+            projectID: projectID,
+            title: "Plan training meal",
+            priority: 3
+        ))
         context.insert(NutritionDayRecord(
             date: Date(),
             calories: 2800,
@@ -69,6 +76,8 @@ final class PersistenceIntegrationTests: XCTestCase {
 
     func testRecordMappingsPreserveGoalAndTaskIntegrationFields() {
         let goalID = UUID()
+        let listID = UUID()
+        let projectID = UUID()
         let goal = GoalRecord(
             id: goalID,
             title: "Gain weight",
@@ -77,11 +86,13 @@ final class PersistenceIntegrationTests: XCTestCase {
             targetValue: 180,
             directionRawValue: "increase"
         )
-        let task = TaskRecord(goalID: goalID, title: "Buy groceries", priority: 2)
+        let task = TaskRecord(listID: listID, goalID: goalID, projectID: projectID, title: "Buy groceries", priority: 2)
 
         XCTAssertEqual(goal.snapshot.startingValue, 165)
         XCTAssertEqual(goal.snapshot.currentValue, 170)
+        XCTAssertEqual(task.item.listID, listID)
         XCTAssertEqual(task.item.goalID, goalID)
+        XCTAssertEqual(task.item.projectID, projectID)
         XCTAssertEqual(task.item.title, "Buy groceries")
     }
 }

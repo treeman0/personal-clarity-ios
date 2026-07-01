@@ -83,6 +83,7 @@ final class TaskRecord {
     var id: UUID = UUID()
     var listID: UUID?
     var goalID: UUID?
+    var projectID: UUID?
     var title: String = ""
     var status: String = "open"
     var dueDate: Date?
@@ -93,6 +94,7 @@ final class TaskRecord {
         id: UUID = UUID(),
         listID: UUID? = nil,
         goalID: UUID? = nil,
+        projectID: UUID? = nil,
         title: String,
         status: String = "open",
         dueDate: Date? = nil,
@@ -102,6 +104,7 @@ final class TaskRecord {
         self.id = id
         self.listID = listID
         self.goalID = goalID
+        self.projectID = projectID
         self.title = title
         self.status = status
         self.dueDate = dueDate
