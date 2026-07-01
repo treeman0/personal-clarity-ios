@@ -34,6 +34,14 @@ targets:
       - Tests/ClarityHubCoreTests
     dependencies:
       - target: ClarityHubCore
+  ClarityHubAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - Tests/ClarityHubAppTests
+    dependencies:
+      - target: ClarityHub
+    hostApplication: ClarityHub
 schemes:
   ClarityHub:
     build:
@@ -43,4 +51,4 @@ schemes:
     test:
       targets:
         - ClarityHubTests
-
+        - ClarityHubAppTests

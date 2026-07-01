@@ -24,3 +24,4 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Google Calendar OAuth configuration lives in Settings while OAuth tokens live in Keychain; calendar events are fetched from Google's `events.list` API instead of preview data when connected.
 - Google Calendar token refresh is shared by Calendar and Today so both surfaces use the same public, user-authorized API boundary.
 - Today includes a setup checklist so first-run readiness is visible in the primary operating surface rather than hidden across tabs.
+- The Xcode scheme includes app-level SwiftData integration tests for V1 records, preferences, and mapping fields in addition to core package tests.
