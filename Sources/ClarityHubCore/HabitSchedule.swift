@@ -7,8 +7,8 @@ public enum HabitSchedule {
     }
 
     public static func isComplete(_ habit: HabitPlan, on date: Date, calendar: Calendar = .current) -> Bool {
-        let components = calendar.dateComponents([.year, .month, .day], from: date)
-        return habit.completions.contains(components)
+        let targetDay = DayKey(date: date, calendar: calendar)
+        return habit.completions.map(DayKey.init).contains(targetDay)
     }
 
     public static func streakDays(
@@ -18,10 +18,10 @@ public enum HabitSchedule {
     ) -> Int {
         var streak = 0
         var cursor = calendar.startOfDay(for: date)
+        let completedDays = Set(completionDates.map(DayKey.init))
 
         while true {
-            let components = calendar.dateComponents([.year, .month, .day], from: cursor)
-            guard completionDates.contains(components) else { break }
+            guard completedDays.contains(DayKey(date: cursor, calendar: calendar)) else { break }
             streak += 1
             guard let previous = calendar.date(byAdding: .day, value: -1, to: cursor) else { break }
             cursor = previous
@@ -29,5 +29,22 @@ public enum HabitSchedule {
 
         return streak
     }
-}
 
+    private struct DayKey: Hashable {
+        let year: Int
+        let month: Int
+        let day: Int
+
+        init(_ components: DateComponents) {
+            year = components.year ?? 0
+            month = components.month ?? 0
+            day = components.day ?? 0
+        }
+
+        init(date: Date, calendar: Calendar) {
+            year = calendar.component(.year, from: date)
+            month = calendar.component(.month, from: date)
+            day = calendar.component(.day, from: date)
+        }
+    }
+}
