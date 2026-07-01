@@ -38,4 +38,4 @@ Today loads the last 90 days of authorized Apple Health body-weight samples and 
 
 ## Verification Coverage
 
-CI runs core Swift package tests plus the generated Xcode app scheme. The app scheme includes SwiftData integration tests for the V1 records, preference upserts, and record mappings used by goal/task integrations.
+CI runs core Swift package tests plus the generated Xcode app scheme. The app scheme includes SwiftData integration tests for the V1 records, preference upserts, and record mappings used by goal/task integrations. XCTest launches use an in-memory SwiftData container because CI builds are unsigned and cannot exercise private CloudKit entitlements.

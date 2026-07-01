@@ -1,3 +1,4 @@
+import Foundation
 import SwiftData
 import SwiftUI
 
@@ -7,7 +8,7 @@ struct ClarityHubApp: App {
 
     init() {
         do {
-            modelContainer = try ClarityHubModelContainerFactory.make()
+            modelContainer = try ClarityHubModelContainerFactory.make(inMemory: Self.isRunningTests)
         } catch {
             fatalError("Unable to create ClarityHub model container: \(error)")
         }
@@ -23,5 +24,8 @@ struct ClarityHubApp: App {
                 .environment(\.googleCalendarClient, GoogleCalendarClient())
         }
     }
-}
 
+    private static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
+}

@@ -25,3 +25,4 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Google Calendar token refresh is shared by Calendar and Today so both surfaces use the same public, user-authorized API boundary.
 - Today includes a setup checklist so first-run readiness is visible in the primary operating surface rather than hidden across tabs.
 - The Xcode scheme includes app-level SwiftData integration tests for V1 records, preferences, and mapping fields in addition to core package tests.
+- XCTest launches use an in-memory app container so unsigned CI builds do not attempt to initialize private CloudKit before tests execute.
