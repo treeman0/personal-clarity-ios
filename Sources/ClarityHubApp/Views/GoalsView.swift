@@ -48,11 +48,13 @@ struct GoalsView: View {
 
             ForEach(goals) { record in
                 let goal = record.snapshot
-                let progress = GoalProgressCalculator.progress(for: goal, startingValue: 0)
+                let progress = GoalProgressCalculator.progress(for: goal)
                 SectionPanel(title: goal.title) {
                     ProgressView(value: progress.fractionComplete)
                         .tint(.teal)
                     HStack {
+                        Text("\(goal.startingValue.oneDecimal) start")
+                        Spacer()
                         Text("\(goal.currentValue.oneDecimal) now")
                         Spacer()
                         Text("\(goal.targetValue.oneDecimal) target")
@@ -62,9 +64,9 @@ struct GoalsView: View {
 
                     HStack {
                         Button {
-                            record.currentValue = min(record.targetValue, record.currentValue + 1)
+                            nudge(record)
                         } label: {
-                            Label("Increase", systemImage: "plus.circle")
+                            Label(nudgeLabel(for: goal.direction), systemImage: nudgeSystemImage(for: goal.direction))
                         }
                         .buttonStyle(.bordered)
 
@@ -86,6 +88,7 @@ struct GoalsView: View {
 
         modelContext.insert(GoalRecord(
             title: trimmedTitle,
+            startingValue: currentValue,
             currentValue: currentValue,
             targetValue: targetValue,
             directionRawValue: direction.rawValue
@@ -95,5 +98,39 @@ struct GoalsView: View {
         currentValue = 0
         targetValue = 100
         direction = .increase
+    }
+
+    private func nudge(_ record: GoalRecord) {
+        let direction = GoalDirection(rawValue: record.directionRawValue) ?? .increase
+        switch direction {
+        case .increase:
+            record.currentValue = min(record.targetValue, record.currentValue + 1)
+        case .decrease:
+            record.currentValue = max(record.targetValue, record.currentValue - 1)
+        case .maintain:
+            record.currentValue = record.targetValue
+        }
+    }
+
+    private func nudgeLabel(for direction: GoalDirection) -> String {
+        switch direction {
+        case .increase:
+            return "Increase"
+        case .decrease:
+            return "Decrease"
+        case .maintain:
+            return "Set to target"
+        }
+    }
+
+    private func nudgeSystemImage(for direction: GoalDirection) -> String {
+        switch direction {
+        case .increase:
+            return "plus.circle"
+        case .decrease:
+            return "minus.circle"
+        case .maintain:
+            return "scope"
+        }
     }
 }

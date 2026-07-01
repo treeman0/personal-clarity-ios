@@ -206,7 +206,7 @@ struct TodayDashboardView: View {
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(snapshot.goals, id: \.title) { goal in
-                        let progress = GoalProgressCalculator.progress(for: goal, startingValue: 0)
+                        let progress = GoalProgressCalculator.progress(for: goal)
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {
                                 Text(goal.title)

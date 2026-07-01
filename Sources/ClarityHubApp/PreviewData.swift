@@ -20,9 +20,9 @@ enum PreviewData {
     }
 
     static let goals = [
-        GoalSnapshot(title: "Reach 180 lb", currentValue: 166.5, targetValue: 180, direction: .increase),
-        GoalSnapshot(title: "Publish V1", currentValue: 42, targetValue: 100, direction: .increase),
-        GoalSnapshot(title: "Deep work rhythm", currentValue: 4, targetValue: 5, direction: .increase)
+        GoalSnapshot(title: "Reach 180 lb", startingValue: 162, currentValue: 166.5, targetValue: 180, direction: .increase),
+        GoalSnapshot(title: "Publish V1", startingValue: 0, currentValue: 42, targetValue: 100, direction: .increase),
+        GoalSnapshot(title: "Deep work rhythm", startingValue: 2, currentValue: 4, targetValue: 5, direction: .increase)
     ]
 
     static let tasks = [
@@ -71,4 +71,3 @@ enum PreviewData {
         )
     }
 }
-

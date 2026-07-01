@@ -8,6 +8,7 @@ public enum GoalDirection: String, Codable, Sendable {
 
 public struct GoalSnapshot: Equatable, Sendable {
     public let title: String
+    public let startingValue: Double
     public let currentValue: Double
     public let targetValue: Double
     public let direction: GoalDirection
@@ -15,12 +16,14 @@ public struct GoalSnapshot: Equatable, Sendable {
 
     public init(
         title: String,
+        startingValue: Double = 0,
         currentValue: Double,
         targetValue: Double,
         direction: GoalDirection,
         dueDate: Date? = nil
     ) {
         self.title = title
+        self.startingValue = startingValue
         self.currentValue = currentValue
         self.targetValue = targetValue
         self.direction = direction
@@ -144,4 +147,3 @@ public struct DailyClaritySnapshot: Equatable, Sendable {
         self.nutrition = nutrition
     }
 }
-

@@ -13,6 +13,10 @@ public struct GoalProgress: Equatable, Sendable {
 }
 
 public enum GoalProgressCalculator {
+    public static func progress(for goal: GoalSnapshot) -> GoalProgress {
+        progress(for: goal, startingValue: goal.startingValue)
+    }
+
     public static func progress(for goal: GoalSnapshot, startingValue: Double) -> GoalProgress {
         let totalDistance = abs(goal.targetValue - startingValue)
         let currentDistance = abs(goal.currentValue - startingValue)
@@ -46,4 +50,3 @@ public enum GoalProgressCalculator {
         return GoalProgress(fractionComplete: clamped, remaining: remaining, isComplete: isComplete)
     }
 }
-

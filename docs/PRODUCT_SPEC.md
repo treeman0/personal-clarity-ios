@@ -9,7 +9,7 @@ ClarityHub keeps one person on track across the daily systems that affect clarit
 - Today: current HealthKit weight state, goal progress, due habits, priority tasks, same-day Google Calendar blocks, and nutrition status.
 - Setup: a Today checklist for body target, reminder, Google Calendar, first goal, first habit, task capture, and nutrition path.
 - Body: HealthKit weight trend, goal weight comparison, moving average, and weigh-in streak.
-- Goals: measurable goals with linked habits, tasks, and weekly review prompts.
+- Goals: measurable goals with starting, current, and target values so progress reflects the actual distance from the point where the user began.
 - Habits: daily and weekly habit cadence with streaks and completion windows.
 - Lists: todos, projects, and reusable lists.
 - Calendar: Google Calendar event context through the official API boundary.

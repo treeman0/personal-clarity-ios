@@ -5,6 +5,7 @@ extension GoalRecord {
     var snapshot: GoalSnapshot {
         GoalSnapshot(
             title: title,
+            startingValue: startingValue,
             currentValue: currentValue,
             targetValue: targetValue,
             direction: GoalDirection(rawValue: directionRawValue) ?? .increase,
@@ -59,4 +60,3 @@ enum RecordDateMatcher {
         records.filter { calendar.isDate(dateKey($0), inSameDayAs: date) }
     }
 }
-

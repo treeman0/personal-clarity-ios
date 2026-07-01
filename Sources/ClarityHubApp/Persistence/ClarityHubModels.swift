@@ -5,6 +5,7 @@ import SwiftData
 final class GoalRecord {
     var id: UUID = UUID()
     var title: String = ""
+    var startingValue: Double = 0
     var currentValue: Double = 0
     var targetValue: Double = 0
     var directionRawValue: String = "increase"
@@ -14,6 +15,7 @@ final class GoalRecord {
     init(
         id: UUID = UUID(),
         title: String,
+        startingValue: Double = 0,
         currentValue: Double,
         targetValue: Double,
         directionRawValue: String,
@@ -22,6 +24,7 @@ final class GoalRecord {
     ) {
         self.id = id
         self.title = title
+        self.startingValue = startingValue
         self.currentValue = currentValue
         self.targetValue = targetValue
         self.directionRawValue = directionRawValue

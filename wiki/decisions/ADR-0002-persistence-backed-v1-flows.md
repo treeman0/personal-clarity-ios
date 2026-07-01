@@ -16,6 +16,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 
 - Today now reflects stored goals, habits, tasks, nutrition, authorized HealthKit weight, and same-day Google Calendar blocks instead of only sample data.
 - Goals, habits, task capture, nutrition import, and daily review have first write paths.
+- Goal records store a starting value separately from current and target values so progress remains meaningful after the user updates the current value.
 - HealthKit body weight remains an external authorized source and is refreshed on demand rather than copied into app-owned storage.
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.
 - Weight goal and morning reminder preferences are stored through `AppPreferenceRecord` and surfaced in Settings instead of being hard-coded in feature views.
