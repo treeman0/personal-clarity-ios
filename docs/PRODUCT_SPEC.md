@@ -20,6 +20,8 @@ ClarityHub keeps one person on track across the daily systems that affect clarit
 
 All integrations must be public, user-authorized, and App Store-compatible. V1 must not scrape Cal AI, automate private app UI, or depend on private APIs.
 
+Release configuration that cannot be completed from unsigned CI is tracked in `docs/RELEASE_SETUP.md`.
+
 ## Google Calendar Setup
 
 Google Calendar uses native OAuth with PKCE and the Google Calendar Events API for upcoming event reads and user-created block writes. A Google OAuth client ID must be entered in Settings before connecting. The default redirect URI is:
@@ -43,3 +45,5 @@ The morning weigh-in reminder uses local notifications with a configurable daily
 ## Verification Coverage
 
 CI runs core Swift package tests plus the generated Xcode app scheme. The app scheme includes SwiftData integration tests for the V1 records, preference upserts, record mappings used by goal/task integrations, Google Calendar OAuth/API request behavior, and local notification request construction for weigh-in reminders. XCTest launches use an in-memory SwiftData container because CI builds are unsigned and cannot exercise private CloudKit entitlements.
+
+App-hosted tests also verify release metadata for HealthKit usage strings, CloudKit remote-notification background mode, and the privacy manifest.

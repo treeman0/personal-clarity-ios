@@ -29,3 +29,4 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Google Calendar app tests use injected transport to verify OAuth scopes, event-list requests, event-create requests, and non-success API errors without live network calls.
 - Weigh-in reminder tests use injected notification operations and static request builders to verify authorization options, daily triggers, snooze triggers, and cancellation IDs without prompting CI for notification permission.
 - XCTest launches use an in-memory app container so unsigned CI builds do not attempt to initialize private CloudKit before tests execute.
+- Release metadata tests verify HealthKit usage descriptions, CloudKit remote-notification background mode, and the bundled privacy manifest; Apple/Google console setup remains documented in `docs/RELEASE_SETUP.md`.
