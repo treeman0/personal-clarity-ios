@@ -5,12 +5,19 @@ enum AppPreferenceKey: String {
     case goalWeightPounds
     case weighInReminderHour
     case weighInReminderMinute
+    case googleCalendarClientID
+    case googleCalendarRedirectURI
 }
 
 enum AppPreferences {
     static let defaultGoalWeightPounds = 180.0
     static let defaultReminderHour = 7
     static let defaultReminderMinute = 30
+    static let defaultGoogleRedirectURI = "com.treeman0.ClarityHub:/oauth2redirect/google"
+
+    static func string(_ key: AppPreferenceKey, in preferences: [AppPreferenceRecord], default defaultValue: String = "") -> String {
+        preferences.first(where: { $0.key == key.rawValue })?.value ?? defaultValue
+    }
 
     static func double(_ key: AppPreferenceKey, in preferences: [AppPreferenceRecord], default defaultValue: Double) -> Double {
         guard
@@ -42,4 +49,3 @@ enum AppPreferences {
         }
     }
 }
-

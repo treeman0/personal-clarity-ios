@@ -18,7 +18,7 @@ struct RootTabView: View {
             ListsView()
                 .tabItem { Label("Lists", systemImage: "list.bullet.rectangle") }
 
-            CalendarView(events: PreviewData.calendarEvents)
+            CalendarView()
                 .tabItem { Label("Calendar", systemImage: "calendar") }
 
             NutritionView()

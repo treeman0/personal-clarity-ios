@@ -19,3 +19,12 @@ ClarityHub keeps one person on track across the daily systems that affect clarit
 
 All integrations must be public, user-authorized, and App Store-compatible. V1 must not scrape Cal AI, automate private app UI, or depend on private APIs.
 
+## Google Calendar Setup
+
+Google Calendar uses native OAuth with PKCE and the Google Calendar `events.list` REST endpoint. A Google OAuth client ID must be entered in Settings before connecting. The default redirect URI is:
+
+```text
+com.treeman0.ClarityHub:/oauth2redirect/google
+```
+
+Tokens are stored in the device Keychain rather than CloudKit-backed preferences.

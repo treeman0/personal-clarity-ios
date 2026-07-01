@@ -7,6 +7,8 @@ struct SettingsView: View {
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var goalWeight = AppPreferences.defaultGoalWeightPounds
     @State private var reminderDate = Date()
+    @State private var googleClientID = ""
+    @State private var googleRedirectURI = AppPreferences.defaultGoogleRedirectURI
     @State private var saveMessage = ""
 
     var body: some View {
@@ -39,6 +41,25 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+
+            SectionPanel(title: "Google Calendar") {
+                TextField("OAuth client ID", text: $googleClientID)
+                    .textFieldStyle(.roundedBorder)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                TextField("Redirect URI", text: $googleRedirectURI)
+                    .textFieldStyle(.roundedBorder)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                Button {
+                    saveGoogleCalendarSettings()
+                } label: {
+                    Label("Save Google settings", systemImage: "calendar.badge.checkmark")
+                }
+                .buttonStyle(.bordered)
+            }
         }
         .onAppear(perform: loadPreferences)
     }
@@ -61,6 +82,12 @@ struct SettingsView: View {
             default: AppPreferences.defaultReminderMinute
         )
         reminderDate = Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Self.defaultReminderDate()
+        googleClientID = AppPreferences.string(.googleCalendarClientID, in: preferences)
+        googleRedirectURI = AppPreferences.string(
+            .googleCalendarRedirectURI,
+            in: preferences,
+            default: AppPreferences.defaultGoogleRedirectURI
+        )
     }
 
     private func saveAndSchedule() async {
@@ -79,6 +106,22 @@ struct SettingsView: View {
         } catch {
             saveMessage = "Saved, but notification permission or scheduling failed."
         }
+    }
+
+    private func saveGoogleCalendarSettings() {
+        AppPreferences.upsert(
+            .googleCalendarClientID,
+            value: googleClientID.trimmingCharacters(in: .whitespacesAndNewlines),
+            in: modelContext,
+            preferences: preferences
+        )
+        AppPreferences.upsert(
+            .googleCalendarRedirectURI,
+            value: googleRedirectURI.trimmingCharacters(in: .whitespacesAndNewlines),
+            in: modelContext,
+            preferences: preferences
+        )
+        saveMessage = "Google settings saved."
     }
 
     private static func defaultReminderDate() -> Date {
