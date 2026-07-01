@@ -36,6 +36,8 @@ struct TodayDashboardView: View {
 
     var body: some View {
         ScreenScaffold(title: "Today", subtitle: "One clean read on the day.") {
+            SetupChecklistView()
+
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                 MetricTile(
                     title: "Weight",
