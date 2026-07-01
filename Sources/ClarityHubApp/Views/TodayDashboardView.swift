@@ -3,12 +3,16 @@ import SwiftData
 import SwiftUI
 
 struct TodayDashboardView: View {
+    @Environment(\.healthKitWeightStore) private var healthKitWeightStore
     @Query(sort: \GoalRecord.createdAt) private var goalRecords: [GoalRecord]
     @Query(sort: \HabitRecord.createdAt) private var habitRecords: [HabitRecord]
     @Query(sort: \HabitCheckInRecord.date) private var habitCheckIns: [HabitCheckInRecord]
     @Query(sort: \TaskRecord.createdAt) private var taskRecords: [TaskRecord]
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
+    @State private var weightEntries: [WeightEntry] = []
+    @State private var weightStatus = "Connect Apple Health to show today's weight."
+    @State private var isLoadingWeight = false
 
     private var goalWeight: Double {
         AppPreferences.double(.goalWeightPounds, in: preferences, default: AppPreferences.defaultGoalWeightPounds)
@@ -25,7 +29,7 @@ struct TodayDashboardView: View {
 
         return DailyClaritySnapshot(
             date: today,
-            weightTrend: WeightTrendCalculator.trend(entries: [], goalWeight: goalWeight, today: today, calendar: calendar),
+            weightTrend: WeightTrendCalculator.trend(entries: weightEntries, goalWeight: goalWeight, today: today, calendar: calendar),
             goals: goalRecords.map(\.snapshot),
             habitsDue: dueHabits.count,
             habitsDone: dueHabits.filter { doneHabitIDs.contains($0.id) }.count,
@@ -42,7 +46,7 @@ struct TodayDashboardView: View {
                 MetricTile(
                     title: "Weight",
                     value: snapshot.weightTrend.latestWeight.map { "\($0.oneDecimal) lb" } ?? "No data",
-                    detail: snapshot.weightTrend.deltaToGoal.map { "\($0.oneDecimal) lb to goal" } ?? "Connect Health",
+                    detail: weightDetail,
                     systemImage: "scalemass",
                     tint: .blue
                 )
@@ -90,6 +94,39 @@ struct TodayDashboardView: View {
                 }
             }
 
+            SectionPanel(title: "Body signal") {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: snapshot.weightTrend.latestWeight == nil ? "heart.text.square" : "scalemass")
+                        .font(.title3)
+                        .foregroundStyle(.blue)
+                        .frame(width: 28)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(weightStatus)
+                            .font(.subheadline.weight(.semibold))
+                        if let sevenDayChange = snapshot.weightTrend.sevenDayChange {
+                            Text("\(sevenDayChange.oneDecimal) lb over 7 days")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            Text("Open Body for the full trend and goal line.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    Spacer()
+
+                    Button {
+                        Task { await refreshWeight() }
+                    } label: {
+                        Label(isLoadingWeight ? "Loading" : "Refresh", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(isLoadingWeight)
+                }
+            }
+
             SectionPanel(title: "Goal signal") {
                 if snapshot.goals.isEmpty {
                     Text("No goals yet. Add your first measurable target in Goals.")
@@ -113,6 +150,38 @@ struct TodayDashboardView: View {
                     }
                 }
             }
+        }
+        .task {
+            await refreshWeight()
+        }
+    }
+
+    private var weightDetail: String {
+        if let delta = snapshot.weightTrend.deltaToGoal {
+            return "\(delta.oneDecimal) lb to goal"
+        }
+
+        if isLoadingWeight {
+            return "Loading Health"
+        }
+
+        return weightEntries.isEmpty ? "Connect Health" : "Goal unavailable"
+    }
+
+    private func refreshWeight() async {
+        isLoadingWeight = true
+        defer { isLoadingWeight = false }
+
+        do {
+            let start = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
+            weightEntries = try await healthKitWeightStore.fetchWeights(since: start)
+            if let latest = weightEntries.last {
+                weightStatus = "Last weigh-in: \(latest.pounds.oneDecimal) lb"
+            } else {
+                weightStatus = "No Apple Health body-weight samples found yet."
+            }
+        } catch {
+            weightStatus = "Apple Health weight is unavailable. Authorize it in Setup or Body."
         }
     }
 }

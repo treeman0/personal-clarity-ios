@@ -6,7 +6,7 @@ ClarityHub keeps one person on track across the daily systems that affect clarit
 
 ## V1 Surfaces
 
-- Today: current weight state, goal progress, due habits, priority tasks, next events, and nutrition status.
+- Today: current HealthKit weight state, goal progress, due habits, priority tasks, next events, and nutrition status.
 - Setup: a Today checklist for body target, reminder, Google Calendar, first goal, first habit, task capture, and nutrition path.
 - Body: HealthKit weight trend, goal weight comparison, moving average, and weigh-in streak.
 - Goals: measurable goals with linked habits, tasks, and weekly review prompts.
@@ -29,3 +29,7 @@ com.treeman0.ClarityHub:/oauth2redirect/google
 ```
 
 Tokens are stored in the device Keychain rather than CloudKit-backed preferences.
+
+## Today Weight Behavior
+
+Today loads the last 90 days of authorized Apple Health body-weight samples and uses the same trend calculator as Body. If HealthKit is not authorized or has no samples, Today shows a clear empty state and keeps Body/Setup as the authorization path.

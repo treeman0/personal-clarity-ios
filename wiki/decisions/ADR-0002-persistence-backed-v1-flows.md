@@ -14,7 +14,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 
 ## Consequences
 
-- Today now reflects stored goals, habits, tasks, and nutrition instead of only sample data.
+- Today now reflects stored goals, habits, tasks, nutrition, and authorized HealthKit weight instead of only sample data.
 - Goals, habits, task capture, nutrition import, and daily review have first write paths.
 - HealthKit body weight remains an external authorized source and is refreshed on demand rather than copied into app-owned storage.
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.
