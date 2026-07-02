@@ -35,7 +35,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | --- | --- | --- | --- |
 | App shell | Native SwiftUI iPhone app with Today, Body, Goals, Habits, Lists, Calendar, Nutrition, Review, Settings | `RootTabView.swift`, generated Xcode CI build | Needs latest CI rerun |
 | Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier | Needs latest CI rerun and signed-device sync smoke |
-| Body | HealthKit body weight, goal comparison, trend chart, moving average, streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests | Needs device/manual HealthKit pass |
+| Body | HealthKit body weight, goal comparison, trend chart, moving average, unique-day weigh-in streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests | Needs device/manual HealthKit pass |
 | Reminders | Morning weigh-in reminders with configurable time, permission-denied handling, snooze, skip | `WeighInReminderScheduler.swift`, tests, Body/Settings UI | Needs device/manual notification pass |
 | Goals | Measurable goals, optional due dates, current-value update, linked next actions, linked-task cleanup on delete | `GoalsView.swift`, persistence tests | Needs manual UI pass |
 | Habits | Daily/custom weekday habits, completion, cadence-aware streaks, delete with check-ins | `HabitsView.swift`, `HabitScheduleTests.swift`, persistence tests | Needs manual UI pass |
