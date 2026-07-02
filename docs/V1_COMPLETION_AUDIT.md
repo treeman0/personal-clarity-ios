@@ -44,7 +44,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Calendar | Google OAuth PKCE, official Calendar API read/write, direct disconnect, clear states | `CalendarView.swift`, `GoogleOAuthClient.swift`, `GoogleCalendarClient.swift`, tests | Needs real Google OAuth manual pass |
 | Nutrition | Apple Health nutrition totals or Cal AI/manual import, stale import clearing, history, averages, same-day replace/delete | `NutritionHealthStore.swift`, `NutritionView.swift`, parser/summary and persistence tests | Needs device/manual nutrition pass |
 | Today | Operating screen integrates setup, weight, focus, goals, habits, tasks, calendar, nutrition | `TodayDashboardView.swift`, current local identity fix | Needs latest CI rerun and manual dense-data pass |
-| Review | Daily/weekly reviews, same-day and same-week edit, next-focus task creation | `ReviewView.swift`, review planner and persistence tests | Needs manual UI pass |
+| Review | Daily/weekly reviews, same-day and same-week edit, deduplicated next-focus task creation | `ReviewView.swift`, review planner and persistence tests | Needs manual UI pass |
 | Settings | Goal weight, reminder time, Google OAuth settings, reminder scheduling with denied-permission feedback | `SettingsView.swift`, preference and reminder tests | Needs manual UI pass |
 
 ## Integration Policy

@@ -168,11 +168,7 @@ struct ReviewView: View {
 
     private func insertFocusTaskIfNeeded(reviewDate: Date) {
         guard let action = ReviewFocusPlanner.nextAction(from: nextFocus, reviewDate: reviewDate) else { return }
-        let alreadyExists = tasks.contains { task in
-            task.status == TaskStatus.open.rawValue
-                && task.title == action.title
-                && sameDueDay(task.dueDate, action.dueDate)
-        }
+        let alreadyExists = ReviewFocusPlanner.containsMatchingOpenAction(tasks.map(\.item), action: action)
 
         guard !alreadyExists else { return }
         modelContext.insert(TaskRecord(
@@ -181,16 +177,5 @@ struct ReviewView: View {
             dueDate: action.dueDate,
             priority: action.priority
         ))
-    }
-
-    private func sameDueDay(_ lhs: Date?, _ rhs: Date?) -> Bool {
-        switch (lhs, rhs) {
-        case let (.some(left), .some(right)):
-            return Calendar.current.isDate(left, inSameDayAs: right)
-        case (.none, .none):
-            return true
-        default:
-            return false
-        }
     }
 }

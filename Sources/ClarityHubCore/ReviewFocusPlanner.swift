@@ -17,4 +17,27 @@ public enum ReviewFocusPlanner {
 
         return TaskItem(title: title, status: .open, dueDate: tomorrow, priority: 3)
     }
+
+    public static func containsMatchingOpenAction(
+        _ tasks: [TaskItem],
+        action: TaskItem,
+        calendar: Calendar = .current
+    ) -> Bool {
+        tasks.contains { task in
+            task.status == .open
+                && task.title == action.title
+                && sameDueDay(task.dueDate, action.dueDate, calendar: calendar)
+        }
+    }
+
+    private static func sameDueDay(_ lhs: Date?, _ rhs: Date?, calendar: Calendar) -> Bool {
+        switch (lhs, rhs) {
+        case let (.some(left), .some(right)):
+            return calendar.isDate(left, inSameDayAs: right)
+        case (.none, .none):
+            return true
+        default:
+            return false
+        }
+    }
 }
