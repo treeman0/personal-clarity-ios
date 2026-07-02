@@ -7,6 +7,8 @@ info_plist="Sources/ClarityHubApp/Info.plist"
 privacy_manifest="Sources/ClarityHubApp/PrivacyInfo.xcprivacy"
 model_factory="Sources/ClarityHubApp/Persistence/ClarityHubModelContainerFactory.swift"
 project_config="project.yml"
+ios_ci_workflow=".github/workflows/ios-ci.yml"
+codeql_workflow=".github/workflows/codeql.yml"
 expected_google_callback_scheme="com.treeman0.ClarityHub"
 
 python_bin="python3"
@@ -108,5 +110,9 @@ grep -F "CODE_SIGN_ENTITLEMENTS: Sources/ClarityHubApp/ClarityHub.entitlements" 
 grep -F "ClarityHubUITests:" "$project_config" >/dev/null
 grep -F "Tests/ClarityHubUITests" "$project_config" >/dev/null
 grep -F ".private(\"$expected_container\")" "$model_factory" >/dev/null
+grep -F "actions/checkout@v7" "$ios_ci_workflow" >/dev/null
+grep -F "actions/checkout@v7" "$codeql_workflow" >/dev/null
+grep -F "github/codeql-action/init@v4" "$codeql_workflow" >/dev/null
+grep -F "github/codeql-action/analyze@v4" "$codeql_workflow" >/dev/null
 
 echo "Release configuration verified."
