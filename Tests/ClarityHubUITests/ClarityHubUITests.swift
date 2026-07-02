@@ -211,13 +211,13 @@ final class ClarityHubUITests: XCTestCase {
         openMoreTab("Nutrition", in: app)
         assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
 
-        XCTAssertTrue(scrollUntilButton(withIdentifier: "nutrition.parseImport", in: app))
-        app.buttons["nutrition.parseImport"].tap()
+        XCTAssertTrue(scrollUntilButton("Parse import", in: app))
+        app.buttons["Parse import"].tap()
         XCTAssertTrue(scrollUntilStaticText("Import parsed. Review before saving.", in: app))
         XCTAssertTrue(scrollUntilStaticText("3,120 calories, 188.0g protein, 355.0g carbs, 91.0g fat", in: app))
 
-        XCTAssertTrue(scrollUntilButton(withIdentifier: "nutrition.saveParsedImport", in: app))
-        app.buttons["nutrition.saveParsedImport"].tap()
+        XCTAssertTrue(scrollUntilButton(containing: "Save", in: app))
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Save")).firstMatch.tap()
         XCTAssertTrue(scrollUntilStaticText(containing: "Saved", in: app))
         XCTAssertTrue(scrollUntilStaticText("Cal AI import", in: app))
         XCTAssertTrue(scrollUntilStaticText("1-day average", in: app))
