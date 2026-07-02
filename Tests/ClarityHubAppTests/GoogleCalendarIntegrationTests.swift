@@ -22,6 +22,7 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
         XCTAssertEqual(query["scope"], "https://www.googleapis.com/auth/calendar.events")
         XCTAssertEqual(query["code_challenge_method"], "S256")
         XCTAssertEqual(query["access_type"], "offline")
+        XCTAssertEqual(query["prompt"], "consent")
         XCTAssertFalse(request.codeVerifier.isEmpty)
         XCTAssertFalse(request.state.isEmpty)
     }
@@ -69,6 +70,7 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
         XCTAssertEqual(components.path, "/calendar/v3/calendars/primary/events")
         XCTAssertEqual(query["singleEvents"], "true")
         XCTAssertEqual(query["orderBy"], "startTime")
+        XCTAssertEqual(query["timeMin"], "2026-07-01T12:00:00Z")
         XCTAssertEqual(query["maxResults"], "20")
         XCTAssertEqual(events.map(\.title), ["Training", "Untitled event"])
     }
