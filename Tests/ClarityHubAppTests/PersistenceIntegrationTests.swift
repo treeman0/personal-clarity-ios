@@ -106,6 +106,7 @@ final class PersistenceIntegrationTests: XCTestCase {
 
         XCTAssertEqual(goal.snapshot.startingValue, 165)
         XCTAssertEqual(goal.snapshot.currentValue, 170)
+        XCTAssertEqual(task.item.id, task.id)
         XCTAssertEqual(task.item.listID, listID)
         XCTAssertEqual(task.item.goalID, goalID)
         XCTAssertEqual(task.item.projectID, projectID)

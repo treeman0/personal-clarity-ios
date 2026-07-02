@@ -9,6 +9,8 @@ struct TodayDashboardView: View {
     @Query(sort: \HabitRecord.createdAt) private var habitRecords: [HabitRecord]
     @Query(sort: \HabitCheckInRecord.date) private var habitCheckIns: [HabitCheckInRecord]
     @Query(sort: \TaskRecord.createdAt) private var taskRecords: [TaskRecord]
+    @Query(sort: \ClarityListRecord.createdAt) private var listRecords: [ClarityListRecord]
+    @Query(sort: \ProjectRecord.createdAt) private var projectRecords: [ProjectRecord]
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var weightEntries: [WeightEntry] = []
@@ -55,6 +57,11 @@ struct TodayDashboardView: View {
         )
     }
 
+    private var priorityTaskRecords: [TaskRecord] {
+        let orderedIDs = TaskPlanner.priorityQueue(taskRecords.map(\.item)).map(\.id)
+        return orderedIDs.compactMap { id in taskRecords.first(where: { $0.id == id }) }
+    }
+
     var body: some View {
         ScreenScaffold(title: "Today", subtitle: "One clean read on the day.") {
             SetupChecklistView()
@@ -96,24 +103,28 @@ struct TodayDashboardView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(snapshot.openTasks.prefix(3), id: \.title) { task in
-                        HStack {
-                            Image(systemName: "circle")
-                                .foregroundStyle(.secondary)
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(task.title)
-                                if let goalTitle = goalTitle(for: task.goalID) {
-                                    Text(goalTitle)
+                    ForEach(Array(priorityTaskRecords.prefix(3))) { task in
+                        Button {
+                            task.status = "done"
+                        } label: {
+                            HStack {
+                                Image(systemName: "circle")
+                                    .foregroundStyle(.secondary)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(task.title)
+                                    Text(taskContext(for: task))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
+                                Spacer()
+                                Text("P\(task.priority)")
+                                    .font(.caption.weight(.bold))
+                                    .foregroundStyle(.secondary)
                             }
-                            Spacer()
-                            Text("P\(task.priority)")
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(.secondary)
+                            .font(.subheadline)
+                            .contentShape(Rectangle())
                         }
-                        .font(.subheadline)
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -303,6 +314,26 @@ struct TodayDashboardView: View {
     private func goalTitle(for id: UUID?) -> String? {
         guard let id else { return nil }
         return goalRecords.first(where: { $0.id == id })?.title
+    }
+
+    private func listTitle(for id: UUID?) -> String? {
+        guard let id else { return nil }
+        return listRecords.first(where: { $0.id == id })?.title
+    }
+
+    private func projectTitle(for id: UUID?) -> String? {
+        guard let id else { return nil }
+        return projectRecords.first(where: { $0.id == id })?.title
+    }
+
+    private func taskContext(for task: TaskRecord) -> String {
+        let context = [
+            listTitle(for: task.listID),
+            projectTitle(for: task.projectID),
+            goalTitle(for: task.goalID)
+        ].compactMap { $0 }
+
+        return context.isEmpty ? "Tap to complete" : context.joined(separator: " - ")
     }
 }
 

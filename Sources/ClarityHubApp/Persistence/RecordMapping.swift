@@ -29,6 +29,7 @@ extension HabitRecord {
 extension TaskRecord {
     var item: TaskItem {
         TaskItem(
+            id: id,
             listID: listID,
             goalID: goalID,
             projectID: projectID,

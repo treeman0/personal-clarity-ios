@@ -15,6 +15,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 ## Consequences
 
 - Today now reflects stored goals, habits, tasks, nutrition, authorized HealthKit weight, and same-day Google Calendar blocks instead of only sample data.
+- Today next actions are backed by `TaskRecord` IDs so the operating screen can show list/project/goal context and complete tasks in place.
 - Goals, daily/custom weekday habits, task capture, dated nutrition import/history, daily review, and weekly review have first write paths.
 - Goal records store a starting value separately from current and target values so progress remains meaningful after the user updates the current value.
 - Task capture can attach a task to an existing list, project, and goal, and Today surfaces goal context in next actions.

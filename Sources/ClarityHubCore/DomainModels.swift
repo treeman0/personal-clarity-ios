@@ -50,6 +50,7 @@ public enum TaskStatus: String, Codable, Sendable {
 }
 
 public struct TaskItem: Equatable, Sendable {
+    public let id: UUID
     public let listID: UUID?
     public let goalID: UUID?
     public let projectID: UUID?
@@ -59,6 +60,7 @@ public struct TaskItem: Equatable, Sendable {
     public let priority: Int
 
     public init(
+        id: UUID = UUID(),
         listID: UUID? = nil,
         goalID: UUID? = nil,
         projectID: UUID? = nil,
@@ -67,6 +69,7 @@ public struct TaskItem: Equatable, Sendable {
         dueDate: Date? = nil,
         priority: Int = 0
     ) {
+        self.id = id
         self.listID = listID
         self.goalID = goalID
         self.projectID = projectID
