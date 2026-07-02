@@ -5,6 +5,7 @@ enum AppPreferenceKey: String {
     case goalWeightPounds
     case weighInReminderHour
     case weighInReminderMinute
+    case weighInReminderScheduled
     case googleCalendarClientID
     case googleCalendarRedirectURI
 }
@@ -39,6 +40,14 @@ enum AppPreferences {
         }
 
         return number
+    }
+
+    static func boolean(_ key: AppPreferenceKey, in preferences: [AppPreferenceRecord], default defaultValue: Bool = false) -> Bool {
+        guard let value = preferences.first(where: { $0.key == key.rawValue })?.value else {
+            return defaultValue
+        }
+
+        return value == "true"
     }
 
     static func normalizedGoogleRedirectURI(_ value: String) -> String {

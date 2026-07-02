@@ -39,6 +39,10 @@ enum UITestFixtureSeeder {
             value: "30"
         ))
         context.insert(AppPreferenceRecord(
+            key: AppPreferenceKey.weighInReminderScheduled.rawValue,
+            value: "true"
+        ))
+        context.insert(AppPreferenceRecord(
             key: AppPreferenceKey.googleCalendarClientID.rawValue,
             value: "ui-test-client-id.apps.googleusercontent.com"
         ))

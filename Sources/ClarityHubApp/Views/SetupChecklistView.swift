@@ -28,9 +28,9 @@ struct SetupChecklistView: View {
             ),
             SetupChecklistItem(
                 title: "Morning reminder",
-                detail: reminderTimeLabel,
+                detail: reminderScheduled ? "Scheduled for \(reminderTimeLabel)" : "Schedule \(reminderTimeLabel)",
                 systemImage: "bell.badge",
-                isComplete: hasPreference(.weighInReminderHour) && hasPreference(.weighInReminderMinute)
+                isComplete: reminderScheduled
             ),
             SetupChecklistItem(
                 title: "Google Calendar",
@@ -81,6 +81,10 @@ struct SetupChecklistView: View {
         Calendar.current
             .date(from: DateComponents(hour: reminderHour, minute: reminderMinute))?
             .formatted(date: .omitted, time: .shortened) ?? "Set in Settings"
+    }
+
+    private var reminderScheduled: Bool {
+        AppPreferences.boolean(.weighInReminderScheduled, in: preferences)
     }
 
     private var googleCalendarConfigured: Bool {
@@ -170,8 +174,20 @@ struct SetupChecklistView: View {
                 hour: reminderHour,
                 minute: reminderMinute
             )
+            AppPreferences.upsert(
+                .weighInReminderScheduled,
+                value: reminderScheduled ? "true" : "false",
+                in: modelContext,
+                preferences: preferences
+            )
             statusMessage = HealthKitStatusCopy.setupAuthorizationMessage(reminderScheduled: reminderScheduled)
         } catch {
+            AppPreferences.upsert(
+                .weighInReminderScheduled,
+                value: "false",
+                in: modelContext,
+                preferences: preferences
+            )
             statusMessage = "Some permissions could not be completed."
         }
     }

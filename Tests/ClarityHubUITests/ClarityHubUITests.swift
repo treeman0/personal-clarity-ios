@@ -147,6 +147,10 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilButton("Save and schedule reminder", in: app))
         app.buttons["Save and schedule reminder"].tap()
         XCTAssertTrue(scrollUntilStaticText("Saved and scheduled.", in: app))
+
+        openVisibleTab("Today", in: app)
+        assertScreenTitle("Today", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText(containing: "Scheduled for", in: app))
     }
 
     func testGoogleConnectedFixtureRendersEventsAndCreatesBlock() {

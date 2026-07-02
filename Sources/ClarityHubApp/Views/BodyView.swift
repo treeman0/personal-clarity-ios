@@ -4,6 +4,7 @@ import SwiftData
 import SwiftUI
 
 struct BodyView: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.healthKitWeightStore) private var healthKitWeightStore
     @Environment(\.weighInReminderScheduler) private var reminderScheduler
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
@@ -93,10 +94,17 @@ struct BodyView: View {
                                 hour: reminderHour,
                                 minute: reminderMinute
                             )
+                            AppPreferences.upsert(
+                                .weighInReminderScheduled,
+                                value: scheduled ? "true" : "false",
+                                in: modelContext,
+                                preferences: preferences
+                            )
                             reminderMessage = scheduled
                                 ? "Daily reminder scheduled for \(reminderLabel)."
                                 : "Notification permission was denied."
                         } catch {
+                            AppPreferences.upsert(.weighInReminderScheduled, value: "false", in: modelContext, preferences: preferences)
                             reminderMessage = "Reminder scheduling failed."
                         }
                     }

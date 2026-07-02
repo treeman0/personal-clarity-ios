@@ -186,6 +186,17 @@ final class PersistenceIntegrationTests: XCTestCase {
         )
     }
 
+    func testBooleanPreferenceRequiresExplicitTrueValue() {
+        let preferences = [
+            AppPreferenceRecord(key: AppPreferenceKey.weighInReminderScheduled.rawValue, value: "true"),
+            AppPreferenceRecord(key: AppPreferenceKey.googleCalendarClientID.rawValue, value: "client")
+        ]
+
+        XCTAssertTrue(AppPreferences.boolean(.weighInReminderScheduled, in: preferences))
+        XCTAssertFalse(AppPreferences.boolean(.googleCalendarClientID, in: preferences))
+        XCTAssertFalse(AppPreferences.boolean(.weighInReminderHour, in: preferences))
+    }
+
     func testHabitWeekdayMaskPreservesWeeklyCadence() {
         let mondayWednesdayFridayMask = [2, 4, 6].reduce(0) { $0 | (1 << ($1 - 1)) }
         let habit = HabitRecord(title: "Lift", weekdayMask: mondayWednesdayFridayMask)
