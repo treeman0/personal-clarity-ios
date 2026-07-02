@@ -30,6 +30,32 @@ public enum HabitSchedule {
         return streak
     }
 
+    public static func streakCount(
+        completionDates: Set<DateComponents>,
+        scheduledWeekdays: Set<Int>,
+        endingOn date: Date,
+        calendar: Calendar = .current
+    ) -> Int {
+        guard !scheduledWeekdays.isEmpty else { return 0 }
+
+        var streak = 0
+        var cursor = calendar.startOfDay(for: date)
+        let completedDays = Set(completionDates.map(DayKey.init))
+
+        while true {
+            let weekday = calendar.component(.weekday, from: cursor)
+            if scheduledWeekdays.contains(weekday) {
+                guard completedDays.contains(DayKey(date: cursor, calendar: calendar)) else { break }
+                streak += 1
+            }
+
+            guard let previous = calendar.date(byAdding: .day, value: -1, to: cursor) else { break }
+            cursor = previous
+        }
+
+        return streak
+    }
+
     private struct DayKey: Hashable {
         let year: Int
         let month: Int

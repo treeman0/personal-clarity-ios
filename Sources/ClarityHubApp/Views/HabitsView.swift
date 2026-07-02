@@ -193,12 +193,13 @@ struct HabitsView: View {
     }
 
     private func streakLabel(for habit: HabitRecord) -> String {
-        let streak = HabitSchedule.streakDays(
+        let streak = HabitSchedule.streakCount(
             completionDates: completionDateComponents(for: habit),
+            scheduledWeekdays: habit.weekdays,
             endingOn: Date(),
             calendar: .current
         )
-        return "\(streak)d streak"
+        return "\(streak) streak"
     }
 
     private func completionDateComponents(for habit: HabitRecord) -> Set<DateComponents> {

@@ -44,4 +44,42 @@ final class HabitScheduleTests: XCTestCase {
 
         XCTAssertEqual(HabitSchedule.streakDays(completionDates: completions, endingOn: today, calendar: calendar), 1)
     }
+
+    func testScheduledStreakSkipsUnscheduledWeekdays() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let wednesday = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 8)))
+        let completions: Set<DateComponents> = [
+            DateComponents(year: 2026, month: 7, day: 8),
+            DateComponents(year: 2026, month: 7, day: 6)
+        ]
+
+        let streak = HabitSchedule.streakCount(
+            completionDates: completions,
+            scheduledWeekdays: [2, 4, 6],
+            endingOn: wednesday,
+            calendar: calendar
+        )
+
+        XCTAssertEqual(streak, 2)
+    }
+
+    func testScheduledStreakStartsFromPreviousDueDayWhenTodayIsNotScheduled() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let thursday = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 9)))
+        let completions: Set<DateComponents> = [
+            DateComponents(year: 2026, month: 7, day: 8),
+            DateComponents(year: 2026, month: 7, day: 6)
+        ]
+
+        let streak = HabitSchedule.streakCount(
+            completionDates: completions,
+            scheduledWeekdays: [2, 4, 6],
+            endingOn: thursday,
+            calendar: calendar
+        )
+
+        XCTAssertEqual(streak, 2)
+    }
 }
