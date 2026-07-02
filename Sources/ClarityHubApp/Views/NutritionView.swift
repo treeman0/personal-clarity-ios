@@ -46,23 +46,13 @@ struct NutritionView: View {
                 }
                 .pickerStyle(.segmented)
 
-                ZStack(alignment: .topLeading) {
-                    TextEditor(text: $importText)
-                        .frame(minHeight: 92)
-                        .padding(8)
-                        .background(Color(.secondarySystemGroupedBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                        .accessibilityIdentifier("nutrition.importText")
-
-                    if importText.isEmpty {
-                        Text("Calories 2840 Protein 172 Carbs 286 Fat 92")
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 13)
-                            .padding(.vertical, 16)
-                            .allowsHitTesting(false)
-                    }
-                }
+                TextField("Calories 2840 Protein 172 Carbs 286 Fat 92", text: $importText, axis: .vertical)
+                    .lineLimit(3...6)
+                    .padding(12)
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .textInputAutocapitalization(.never)
+                    .accessibilityIdentifier("nutrition.importText")
 
                 Button {
                     parseImport()

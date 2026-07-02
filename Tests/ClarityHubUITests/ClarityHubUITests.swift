@@ -212,7 +212,7 @@ final class ClarityHubUITests: XCTestCase {
         assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
         XCTAssertTrue(scrollUntilElement(withIdentifier: "nutrition.importText", in: app))
 
-        let importText = app.textViews["nutrition.importText"]
+        let importText = app.textFields["nutrition.importText"]
         importText.tap()
         importText.typeText("Calories 3120 Protein 188 Carbs 355 Fat 91")
 
