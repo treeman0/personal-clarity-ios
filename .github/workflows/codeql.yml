@@ -33,7 +33,7 @@ jobs:
         run: xcodegen generate
 
       - name: Build for analysis
-        timeout-minutes: 20
+        timeout-minutes: 40
         run: xcodebuild build -project ClarityHub.xcodeproj -scheme ClarityHub -sdk iphonesimulator -destination "generic/platform=iOS Simulator" CODE_SIGNING_ALLOWED=NO
 
       - name: Perform CodeQL Analysis

@@ -153,7 +153,7 @@ struct ReviewView: View {
     }
 
     private func loadCurrentDailyReview() {
-        guard let review = RecordDateMatcher.records(reviews, on: Date()) { $0.date }.first else {
+        guard let review = RecordDateMatcher.records(reviews, on: Date(), dateKey: { $0.date }).first else {
             return
         }
 
