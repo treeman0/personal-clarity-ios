@@ -229,6 +229,76 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("P 188.0g C 355.0g F 91.0g over 1 days", in: app))
     }
 
+    func testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas() {
+        let app = launchBlankFixture(interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        openVisibleTab("Goals", in: app)
+        assertScreenTitle("Goals", in: app, interfaceStyle: "Light")
+        typeText("UI smoke gain goal", intoTextField: "Goal name", in: app)
+        XCTAssertTrue(scrollUntilButton("Add goal", in: app))
+        app.buttons["Add goal"].tap()
+        XCTAssertTrue(scrollUntilStaticText("UI smoke gain goal", in: app))
+        captureScreenshot(named: "Light-goal-entry")
+
+        openVisibleTab("Habits", in: app)
+        assertScreenTitle("Habits", in: app, interfaceStyle: "Light")
+        typeText("UI smoke morning weigh-in", intoTextField: "Habit name", in: app)
+        XCTAssertTrue(scrollUntilButton("Add habit", in: app))
+        app.buttons["Add habit"].tap()
+        XCTAssertTrue(scrollUntilStaticText("UI smoke morning weigh-in", in: app))
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "UI smoke morning weigh-in")).firstMatch.tap()
+        XCTAssertTrue(scrollUntilStaticText(containing: "1 streak", in: app))
+        captureScreenshot(named: "Light-habit-entry")
+
+        openMoreTab("Lists", in: app)
+        assertScreenTitle("Lists", in: app, interfaceStyle: "Light")
+        typeText("UI smoke list", intoTextField: "List name", in: app)
+        XCTAssertTrue(scrollUntilButton("Add list", in: app))
+        app.buttons["Add list"].tap()
+        XCTAssertTrue(scrollUntilStaticText("UI smoke list", in: app))
+
+        typeText("UI smoke project", intoTextField: "Project", in: app)
+        typeText("Keep the first release candidate focused and easy to inspect.", intoTextField: "Desired outcome", in: app)
+        XCTAssertTrue(scrollUntilButton("Add project", in: app))
+        app.buttons["Add project"].tap()
+        XCTAssertTrue(scrollUntilStaticText("UI smoke project", in: app))
+
+        typeText("UI smoke task", intoTextField: "Task", in: app)
+        XCTAssertTrue(scrollUntilButton("Add task", in: app))
+        app.buttons["Add task"].tap()
+        XCTAssertTrue(scrollUntilStaticText("UI smoke task", in: app))
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "UI smoke task")).firstMatch.tap()
+        XCTAssertTrue(scrollUntilButton("Restore UI smoke task", in: app))
+        app.buttons["Restore UI smoke task"].tap()
+        XCTAssertTrue(scrollUntilStaticText("UI smoke task", in: app))
+        captureScreenshot(named: "Light-list-entry")
+
+        openMoreTab("Review", in: app)
+        assertScreenTitle("Review", in: app, interfaceStyle: "Light")
+        typeText("Shipped a real UI data-entry smoke.", intoTextField: "What moved forward?", in: app)
+        typeText("Keep device-only checks explicit.", intoTextField: "What created drag?", in: app)
+        typeText("Review the V1 acceptance artifact", intoTextField: "What deserves the first block?", in: app)
+        XCTAssertTrue(scrollUntilButton("Save today's review", in: app))
+        app.buttons["Save today's review"].tap()
+
+        typeText("Keep acceptance evidence close to CI.", intoTextField: "What should stay in the system?", in: app)
+        typeText("Run the device pass as soon as hardware is available.", intoTextField: "What should change next week?", in: app)
+        typeText("Finish V1 acceptance", intoTextField: "Primary weekly focus", in: app)
+        typeText("Run HealthKit, notifications, Google OAuth, and CloudKit sync.", intoTextField: "Concrete commitments", in: app)
+        XCTAssertTrue(scrollUntilButton("Save weekly review", in: app))
+        app.buttons["Save weekly review"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Review the V1 acceptance artifact", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Finish V1 acceptance", in: app))
+        captureScreenshot(named: "Light-review-entry")
+
+        openVisibleTab("Today", in: app)
+        assertScreenTitle("Today", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Review the V1 acceptance artifact", in: app))
+        XCTAssertTrue(scrollUntilStaticText("UI smoke gain goal", in: app))
+        captureScreenshot(named: "Light-data-entry-today")
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -536,6 +606,36 @@ final class ClarityHubUITests: XCTestCase {
         }
 
         return false
+    }
+
+    private func typeText(_ text: String, intoTextField placeholder: String, in app: XCUIApplication) {
+        if !textInputExists(placeholder, in: app, timeout: 2) {
+            let scrollView = app.scrollViews.firstMatch
+            for _ in 0..<5 where scrollView.exists && !textInput(placeholder, in: app).exists {
+                scrollView.swipeUp()
+            }
+        }
+        let input = textInput(placeholder, in: app)
+        XCTAssertTrue(input.waitForExistence(timeout: 5), "\(placeholder) field should be available.")
+        input.tap()
+        input.typeText(text)
+    }
+
+    private func textInputExists(_ placeholder: String, in app: XCUIApplication, timeout: TimeInterval) -> Bool {
+        app.textFields[placeholder].waitForExistence(timeout: timeout)
+            || app.textViews[placeholder].waitForExistence(timeout: timeout)
+    }
+
+    private func textInput(_ placeholder: String, in app: XCUIApplication) -> XCUIElement {
+        let textField = app.textFields[placeholder]
+        if textField.exists {
+            return textField
+        }
+        let textView = app.textViews[placeholder]
+        if textView.exists {
+            return textView
+        }
+        return textField
     }
 
     private func captureScreenshot(named name: String) {

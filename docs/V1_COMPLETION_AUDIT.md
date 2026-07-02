@@ -80,6 +80,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | Nutrition import workflow smoke | `ClarityHubUITests.testNutritionImportFlowUpdatesTodaySignal` launches Nutrition with DEBUG-prefilled Cal AI-style totals, parses them through the visible UI, saves the day, verifies the recent average, and confirms Today's nutrition signal updates | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | Visual acceptance evidence | Light/dark tab smoke and dense Today smoke attach XCTest screenshots; iOS CI uploads `TestResults/ClarityHub.xcresult` as a retained artifact | Added; needs latest CI evidence |
+| Core data-entry workflow smoke | `ClarityHubUITests.testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas` creates a goal, habit/check-in, list, project, task completion/restore, daily review, and weekly review through the visible UI, then verifies Today integration and attaches screenshots | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -89,14 +90,14 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | --- | --- |
 | Light/dark tab pass | Partially automated by UI smoke; CI screenshots are uploaded for review; still needs human visual acceptance |
 | Empty states | Setup sections are partially automated by UI smoke; CI screenshots are uploaded for review; empty-state copy still needs human visual acceptance |
-| Long text | Partially automated by dense fixture UI smoke; dense screenshots are uploaded for review; still needs human visual acceptance |
-| Dense Today data | Partially automated by dense Today UI smoke, nutrition import update smoke, and CI screenshot artifact; still needs human visual acceptance |
+| Long text | Partially automated by dense fixture UI smoke and data-entry screenshot evidence; still needs human visual acceptance |
+| Dense Today data | Partially automated by dense Today UI smoke, nutrition import update smoke, core data-entry smoke, and CI screenshot artifact; still needs human visual acceptance |
 | No HealthKit data | Partially automated by HealthKit empty-state UI smoke; still needs device/manual HealthKit acceptance |
 | Denied HealthKit/notification permissions | Partially automated by HealthKit denied-state UI smoke and reminder scheduler tests; still needs device/manual permission acceptance |
 | Google disconnected | Partially automated by disconnected-state UI smoke with fail-if-called Google Calendar client; still needs manual acceptance |
 | Google connected with real OAuth credentials | Needs evidence; fixture smoke covers connected UI and API-client path, but not real Google consent |
 | Reminder schedule/snooze/skip | Partially automated by scheduler unit tests and reminder controls UI smoke; still needs device/manual notification acceptance |
-| Relaunch persistence | Automated by disk-backed SwiftData recreation test and app-shell relaunch UI smoke; still needs human acceptance for release-device behavior |
+| Relaunch persistence | Automated by disk-backed SwiftData recreation test, app-shell relaunch UI smoke, and visible data-entry smoke; still needs human acceptance for release-device behavior |
 | Cal AI/manual nutrition import | Automated by parser tests and app-shell import/save/Today-signal UI smoke; still needs human acceptance for real copied Cal AI text variants |
 | Private CloudKit two-device sync | Needs evidence |
 
