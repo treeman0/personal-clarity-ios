@@ -38,4 +38,19 @@ final class TaskPlannerTests: XCTestCase {
         XCTAssertEqual(queue.first?.goalID, goalID)
         XCTAssertEqual(queue.first?.projectID, projectID)
     }
+
+    func testPriorityQueueSortsSamePriorityByDueDateBeforeUndatedTasks() {
+        let calendar = Calendar(identifier: .gregorian)
+        let earlier = calendar.date(from: DateComponents(year: 2026, month: 7, day: 8))!
+        let later = calendar.date(from: DateComponents(year: 2026, month: 7, day: 10))!
+        let tasks = [
+            TaskItem(title: "Undated", status: .open, priority: 2),
+            TaskItem(title: "Later", status: .open, dueDate: later, priority: 2),
+            TaskItem(title: "Earlier", status: .open, dueDate: earlier, priority: 2)
+        ]
+
+        let queue = TaskPlanner.priorityQueue(tasks)
+
+        XCTAssertEqual(queue.map(\.title), ["Earlier", "Later", "Undated"])
+    }
 }

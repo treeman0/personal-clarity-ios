@@ -355,13 +355,35 @@ struct TodayDashboardView: View {
     }
 
     private func taskContext(for task: TaskRecord) -> String {
-        let context = [
+        var context = [
             listTitle(for: task.listID),
             projectTitle(for: task.projectID),
             goalTitle(for: task.goalID)
         ].compactMap { $0 }
 
+        if let dueDate = task.dueDate {
+            context.insert(dueDetail(for: dueDate), at: 0)
+        }
+
         return context.isEmpty ? "Tap to complete" : context.joined(separator: " - ")
+    }
+
+    private func dueDetail(for dueDate: Date) -> String {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let dueDay = calendar.startOfDay(for: dueDate)
+        let days = calendar.dateComponents([.day], from: today, to: dueDay).day ?? 0
+
+        switch days {
+        case 0:
+            return "Due today"
+        case 1:
+            return "Due tomorrow"
+        case let value where value > 1:
+            return "Due \(dueDate.formatted(date: .abbreviated, time: .omitted))"
+        default:
+            return "\(abs(days))d overdue"
+        }
     }
 }
 

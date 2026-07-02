@@ -17,13 +17,13 @@ struct ListsView: View {
     @State private var selectedListID: UUID?
     @State private var selectedGoalID: UUID?
     @State private var selectedProjectID: UUID?
+    @State private var hasDueDate = false
+    @State private var dueDate = Date()
 
     private var tasks: [TaskRecord] {
-        taskRecords.filter { $0.status == "open" }.sorted {
-            if $0.priority != $1.priority {
-                return $0.priority > $1.priority
-            }
-            return $0.createdAt < $1.createdAt
+        let orderedIDs = TaskPlanner.priorityQueue(taskRecords.map(\.item)).map(\.id)
+        return orderedIDs.compactMap { id in
+            taskRecords.first(where: { $0.id == id })
         }
     }
 
@@ -66,6 +66,10 @@ struct ListsView: View {
                 TextField("Task", text: $title)
                     .textFieldStyle(.roundedBorder)
                 Stepper("Priority \(priority)", value: $priority, in: 0...5)
+                Toggle("Due date", isOn: $hasDueDate)
+                if hasDueDate {
+                    DatePicker("Due", selection: $dueDate, displayedComponents: .date)
+                }
                 Picker("List", selection: $selectedListID) {
                     Text("No list").tag(UUID?.none)
                     ForEach(lists) { list in
@@ -182,6 +186,7 @@ struct ListsView: View {
             goalID: selectedGoalID,
             projectID: selectedProjectID,
             title: trimmedTitle,
+            dueDate: hasDueDate ? dueDate : nil,
             priority: priority
         ))
         title = ""
@@ -189,6 +194,8 @@ struct ListsView: View {
         selectedListID = nil
         selectedGoalID = nil
         selectedProjectID = nil
+        hasDueDate = false
+        dueDate = Date()
     }
 
     private func addList() {
@@ -217,11 +224,13 @@ struct ListsView: View {
             goalTitle(for: task.goalID)
         ].compactMap { $0 }
 
-        if context.isEmpty {
-            return "Priority \(task.priority)"
+        var details = ["Priority \(task.priority)"]
+        if let dueDate = task.dueDate {
+            details.append(dueDetail(for: dueDate))
         }
+        details.append(contentsOf: context)
 
-        return "Priority \(task.priority) - \(context.joined(separator: " - "))"
+        return details.joined(separator: " - ")
     }
 
     private func openTaskCount(listID: UUID) -> Int {
@@ -255,6 +264,24 @@ struct ListsView: View {
             return "tray.full"
         default:
             return "checklist"
+        }
+    }
+
+    private func dueDetail(for dueDate: Date) -> String {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let dueDay = calendar.startOfDay(for: dueDate)
+        let days = calendar.dateComponents([.day], from: today, to: dueDay).day ?? 0
+
+        switch days {
+        case 0:
+            return "due today"
+        case 1:
+            return "due tomorrow"
+        case let value where value > 1:
+            return "due \(dueDate.formatted(date: .abbreviated, time: .omitted))"
+        default:
+            return "\(abs(days))d overdue"
         }
     }
 }
