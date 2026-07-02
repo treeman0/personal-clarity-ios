@@ -65,8 +65,9 @@ Create dense but realistic data.
 5. Habits: complete and uncomplete a due habit, then complete it again.
 6. Lists: create a todo list, project-support list, reference list, and a project with a long desired outcome.
 7. Lists: create tasks with priority, due date, list, project, and goal context.
-8. Review: save a daily review with next focus, edit the same-day review, and save a weekly review.
-9. Nutrition: save manual or Cal AI-style daily totals for today and at least two prior days.
+8. Lists: complete a task, confirm it appears in Completed, restore it, complete it again, then delete it from Completed.
+9. Review: save a daily review with next focus, edit the same-day review, and save a weekly review.
+10. Nutrition: save manual or Cal AI-style daily totals for today and at least two prior days.
 
 Evidence:
 

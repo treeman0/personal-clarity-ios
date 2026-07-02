@@ -27,6 +27,12 @@ struct ListsView: View {
         }
     }
 
+    private var completedTasks: [TaskRecord] {
+        taskRecords
+            .filter { $0.status == "done" }
+            .sorted { $0.createdAt > $1.createdAt }
+    }
+
     var body: some View {
         ScreenScaffold(title: "Lists", subtitle: "Todos, projects, and reusable lists without clutter.") {
             SectionPanel(title: "Add list") {
@@ -121,6 +127,46 @@ struct ListsView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            SectionPanel(title: "Completed") {
+                if completedTasks.isEmpty {
+                    Text("Completed tasks will stay available here for review or cleanup.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(completedTasks.prefix(8)) { task in
+                        HStack(alignment: .top, spacing: 10) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(task.title)
+                                    .font(.subheadline.weight(.semibold))
+                                Text(taskDetail(for: task))
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Button {
+                                task.status = "open"
+                            } label: {
+                                Label("Restore", systemImage: "arrow.uturn.backward")
+                                    .labelStyle(.iconOnly)
+                            }
+                            .buttonStyle(.bordered)
+                            .accessibilityLabel("Restore \(task.title)")
+
+                            Button(role: .destructive) {
+                                modelContext.delete(task)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                                    .labelStyle(.iconOnly)
+                            }
+                            .buttonStyle(.bordered)
+                            .accessibilityLabel("Delete \(task.title)")
+                        }
                     }
                 }
             }

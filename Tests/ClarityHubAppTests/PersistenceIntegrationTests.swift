@@ -124,6 +124,32 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(linkedTasks.map(\.title), ["Buy training groceries"])
     }
 
+    func testTaskCompletionCanBeRestoredAndDeleted() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let task = TaskRecord(title: "Plan training meal", priority: 3)
+        context.insert(task)
+        try context.save()
+
+        task.status = "done"
+        try context.save()
+
+        var tasks = try context.fetch(FetchDescriptor<TaskRecord>())
+        XCTAssertEqual(tasks.map(\.status), ["done"])
+
+        task.status = "open"
+        try context.save()
+
+        tasks = try context.fetch(FetchDescriptor<TaskRecord>())
+        XCTAssertEqual(tasks.map(\.status), ["open"])
+
+        context.delete(task)
+        try context.save()
+
+        tasks = try context.fetch(FetchDescriptor<TaskRecord>())
+        XCTAssertTrue(tasks.isEmpty)
+    }
+
     func testDuplicateGoalTitlesKeepDistinctRecordIdentity() throws {
         let container = try ClarityHubModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
