@@ -82,6 +82,26 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(AppPreferences.double(.goalWeightPounds, in: preferences, default: 180), 190)
     }
 
+    func testPreferencesUpsertUpdatesDuplicateRecordsForSameKey() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        context.insert(AppPreferenceRecord(key: AppPreferenceKey.weighInReminderHour.rawValue, value: "6"))
+        context.insert(AppPreferenceRecord(key: AppPreferenceKey.weighInReminderHour.rawValue, value: "7"))
+        context.insert(AppPreferenceRecord(key: AppPreferenceKey.weighInReminderMinute.rawValue, value: "30"))
+        try context.save()
+
+        let preferences = try context.fetch(FetchDescriptor<AppPreferenceRecord>())
+        AppPreferences.upsert(.weighInReminderHour, value: "8", in: context, preferences: preferences)
+        try context.save()
+
+        let saved = try context.fetch(FetchDescriptor<AppPreferenceRecord>())
+        let matchingHours = saved.filter { $0.key == AppPreferenceKey.weighInReminderHour.rawValue }
+        let matchingMinutes = saved.filter { $0.key == AppPreferenceKey.weighInReminderMinute.rawValue }
+
+        XCTAssertEqual(matchingHours.map(\.value), ["8", "8"])
+        XCTAssertEqual(matchingMinutes.map(\.value), ["30"])
+    }
+
     func testGoogleRedirectNormalizationFallsBackToDefaultForBlankValues() {
         XCTAssertEqual(AppPreferences.normalizedGoogleRedirectURI(""), AppPreferences.defaultGoogleRedirectURI)
         XCTAssertEqual(AppPreferences.normalizedGoogleRedirectURI("   \n"), AppPreferences.defaultGoogleRedirectURI)

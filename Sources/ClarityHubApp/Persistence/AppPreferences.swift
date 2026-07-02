@@ -47,10 +47,11 @@ enum AppPreferences {
     }
 
     static func upsert(_ key: AppPreferenceKey, value: String, in context: ModelContext, preferences: [AppPreferenceRecord]) {
-        if let existing = preferences.first(where: { $0.key == key.rawValue }) {
-            existing.value = value
-        } else {
+        let existing = preferences.filter { $0.key == key.rawValue }
+        if existing.isEmpty {
             context.insert(AppPreferenceRecord(key: key.rawValue, value: value))
+        } else {
+            existing.forEach { $0.value = value }
         }
     }
 }
