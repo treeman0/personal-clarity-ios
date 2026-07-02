@@ -149,6 +149,24 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("Saved and scheduled.", in: app))
     }
 
+    func testGoogleConnectedFixtureRendersEventsAndCreatesBlock() {
+        let app = launchGoogleConnectedFixture(interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        assertScreenTitle("Today", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Calendar blocks", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Fixture planning block", in: app))
+
+        openMoreTab("Calendar", in: app)
+        assertScreenTitle("Calendar", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Google OAuth is configured.", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Fixture planning block", in: app))
+
+        XCTAssertTrue(scrollUntilButton("Add to Google Calendar", in: app))
+        app.buttons["Add to Google Calendar"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Added Focus block to Google Calendar.", in: app))
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -223,6 +241,17 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_REMINDER_FIXTURE"] = state
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
+    }
+
+    private func launchGoogleConnectedFixture(interfaceStyle: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "connected"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")

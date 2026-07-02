@@ -25,6 +25,7 @@ struct ClarityHubApp: App {
                 .environment(\.nutritionHealthStore, Self.nutritionHealthStore)
                 .environment(\.weighInReminderScheduler, Self.weighInReminderScheduler)
                 .environment(\.googleCalendarClient, Self.googleCalendarClient)
+                .environment(\.googleCalendarSession, Self.googleCalendarSession)
         }
     }
 
@@ -80,14 +81,44 @@ struct ClarityHubApp: App {
 
     private static var googleCalendarClient: GoogleCalendarClient {
         #if DEBUG
-        if ProcessInfo.processInfo.environment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] == "fail-if-called" {
+        switch ProcessInfo.processInfo.environment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] {
+        case "fail-if-called":
             return GoogleCalendarClient { _ in
                 preconditionFailure("Google Calendar API was called while the disconnected UI fixture was active.")
             }
+        case "connected":
+            return GoogleCalendarClient { request in
+                let response = HTTPURLResponse(
+                    url: request.url!,
+                    statusCode: 200,
+                    httpVersion: nil,
+                    headerFields: nil
+                )!
+
+                if request.httpMethod == "POST" {
+                    return (Self.fixtureCreatedCalendarEventData(), response)
+                }
+
+                return (Self.fixtureUpcomingCalendarEventsData(), response)
+            }
+        default:
+            break
         }
         #endif
 
         return GoogleCalendarClient()
+    }
+
+    private static var googleCalendarSession: GoogleCalendarSession {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] == "connected" {
+            return GoogleCalendarSession { configuration in
+                configuration.isConfigured ? "fixture-access-token" : nil
+            }
+        }
+        #endif
+
+        return GoogleCalendarSession()
     }
 
     private static var weighInReminderScheduler: WeighInReminderScheduler {
@@ -111,6 +142,40 @@ struct ClarityHubApp: App {
         #endif
 
         return WeighInReminderScheduler()
+    }
+
+    private static func fixtureUpcomingCalendarEventsData() -> Data {
+        let start = Date().addingTimeInterval(3_600)
+        let end = Date().addingTimeInterval(5_400)
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return """
+        {
+          "items": [
+            {
+              "id": "fixture-planning-block",
+              "summary": "Fixture planning block",
+              "start": { "dateTime": "\(formatter.string(from: start))" },
+              "end": { "dateTime": "\(formatter.string(from: end))" }
+            }
+          ]
+        }
+        """.data(using: .utf8)!
+    }
+
+    private static func fixtureCreatedCalendarEventData() -> Data {
+        let start = Date().addingTimeInterval(7_200)
+        let end = Date().addingTimeInterval(10_800)
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return """
+        {
+          "id": "fixture-created-focus-block",
+          "summary": "Focus block",
+          "start": { "dateTime": "\(formatter.string(from: start))" },
+          "end": { "dateTime": "\(formatter.string(from: end))" }
+        }
+        """.data(using: .utf8)!
     }
 }
 

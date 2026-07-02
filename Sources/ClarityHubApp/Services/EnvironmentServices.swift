@@ -16,6 +16,10 @@ private struct GoogleCalendarClientKey: EnvironmentKey {
     static let defaultValue = GoogleCalendarClient()
 }
 
+private struct GoogleCalendarSessionKey: EnvironmentKey {
+    static let defaultValue = GoogleCalendarSession()
+}
+
 extension EnvironmentValues {
     var healthKitWeightStore: HealthKitWeightStore {
         get { self[HealthKitWeightStoreKey.self] }
@@ -36,5 +40,9 @@ extension EnvironmentValues {
         get { self[GoogleCalendarClientKey.self] }
         set { self[GoogleCalendarClientKey.self] = newValue }
     }
-}
 
+    var googleCalendarSession: GoogleCalendarSession {
+        get { self[GoogleCalendarSessionKey.self] }
+        set { self[GoogleCalendarSessionKey.self] = newValue }
+    }
+}

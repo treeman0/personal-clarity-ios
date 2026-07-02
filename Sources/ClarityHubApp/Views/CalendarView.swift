@@ -4,6 +4,7 @@ import SwiftUI
 
 struct CalendarView: View {
     @Environment(\.googleCalendarClient) private var googleCalendarClient
+    @Environment(\.googleCalendarSession) private var calendarSession
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var events: [CalendarEvent] = []
     @State private var statusMessage = "Configure and connect Google Calendar to load upcoming events."
@@ -15,7 +16,6 @@ struct CalendarView: View {
 
     private let oauthClient = GoogleOAuthClient()
     private let tokenStore = KeychainTokenStore()
-    private let calendarSession = GoogleCalendarSession()
 
     private var configuration: GoogleOAuthConfiguration {
         GoogleOAuthConfiguration(
@@ -228,9 +228,9 @@ struct CalendarView: View {
 
         do {
             _ = try await googleCalendarClient.createEvent(accessToken: accessToken, draft: draft)
-            statusMessage = "Added \(trimmedTitle) to Google Calendar."
             newBlockTitle = "Focus block"
             await refreshEvents()
+            statusMessage = "Added \(trimmedTitle) to Google Calendar."
         } catch {
             statusMessage = "Google Calendar block could not be created."
         }

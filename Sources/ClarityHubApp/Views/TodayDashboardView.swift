@@ -5,6 +5,7 @@ import SwiftUI
 struct TodayDashboardView: View {
     @Environment(\.healthKitWeightStore) private var healthKitWeightStore
     @Environment(\.googleCalendarClient) private var googleCalendarClient
+    @Environment(\.googleCalendarSession) private var calendarSession
     @Query(sort: \GoalRecord.createdAt) private var goalRecords: [GoalRecord]
     @Query(sort: \HabitRecord.createdAt) private var habitRecords: [HabitRecord]
     @Query(sort: \HabitCheckInRecord.date) private var habitCheckIns: [HabitCheckInRecord]
@@ -20,8 +21,6 @@ struct TodayDashboardView: View {
     @State private var calendarEvents: [CalendarEvent] = []
     @State private var calendarStatus = "Connect Google Calendar to show today's blocks."
     @State private var isLoadingCalendar = false
-
-    private let calendarSession = GoogleCalendarSession()
 
     private var goalWeight: Double {
         AppPreferences.double(.goalWeightPounds, in: preferences, default: AppPreferences.defaultGoalWeightPounds)

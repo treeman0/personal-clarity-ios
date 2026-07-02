@@ -13,31 +13,35 @@ protocol GoogleOAuthTokenRefreshing {
 }
 
 struct GoogleCalendarSession {
-    private let oauthClient: any GoogleOAuthTokenRefreshing
-    private let tokenStore: any GoogleCalendarTokenStoring
+    private let accessTokenProvider: (GoogleOAuthConfiguration) async -> String?
 
     init(
         oauthClient: any GoogleOAuthTokenRefreshing = GoogleOAuthClient(),
         tokenStore: any GoogleCalendarTokenStoring = KeychainTokenStore()
     ) {
-        self.oauthClient = oauthClient
-        self.tokenStore = tokenStore
+        accessTokenProvider = { configuration in
+            guard let tokens = tokenStore.load() else { return nil }
+            if tokens.isAccessTokenFresh {
+                return tokens.accessToken
+            }
+
+            guard let refreshToken = tokens.refreshToken else { return nil }
+            do {
+                let refreshed = try await oauthClient.refreshTokens(refreshToken: refreshToken, configuration: configuration)
+                tokenStore.save(refreshed)
+                return refreshed.accessToken
+            } catch {
+                return nil
+            }
+        }
+    }
+
+    init(accessTokenProvider: @escaping (GoogleOAuthConfiguration) async -> String?) {
+        self.accessTokenProvider = accessTokenProvider
     }
 
     func validAccessToken(configuration: GoogleOAuthConfiguration) async -> String? {
-        guard let tokens = tokenStore.load() else { return nil }
-        if tokens.isAccessTokenFresh {
-            return tokens.accessToken
-        }
-
-        guard let refreshToken = tokens.refreshToken else { return nil }
-        do {
-            let refreshed = try await oauthClient.refreshTokens(refreshToken: refreshToken, configuration: configuration)
-            tokenStore.save(refreshed)
-            return refreshed.accessToken
-        } catch {
-            return nil
-        }
+        await accessTokenProvider(configuration)
     }
 }
 
