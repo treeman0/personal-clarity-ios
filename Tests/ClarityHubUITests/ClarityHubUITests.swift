@@ -170,6 +170,8 @@ final class ClarityHubUITests: XCTestCase {
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         defer { app.terminate() }
@@ -211,6 +213,8 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
@@ -230,6 +234,7 @@ final class ClarityHubUITests: XCTestCase {
     private func launchGoogleDisconnectedFixture(interfaceStyle: String) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
         app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "fail-if-called"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
@@ -240,6 +245,8 @@ final class ClarityHubUITests: XCTestCase {
     private func launchReminderFixture(state: String, interfaceStyle: String) -> XCUIApplication {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
         app.launchEnvironment["CLARITYHUB_REMINDER_FIXTURE"] = state
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
@@ -251,6 +258,7 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
         app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "connected"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()

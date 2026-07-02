@@ -82,9 +82,9 @@ struct ClarityHubApp: App {
     private static var googleCalendarClient: GoogleCalendarClient {
         #if DEBUG
         switch ProcessInfo.processInfo.environment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] {
-        case "fail-if-called":
+        case "fail-if-called", "no-token":
             return GoogleCalendarClient { _ in
-                preconditionFailure("Google Calendar API was called while the disconnected UI fixture was active.")
+                preconditionFailure("Google Calendar API was called while a disconnected UI fixture was active.")
             }
         case "connected":
             return GoogleCalendarClient { request in
@@ -111,10 +111,15 @@ struct ClarityHubApp: App {
 
     private static var googleCalendarSession: GoogleCalendarSession {
         #if DEBUG
-        if ProcessInfo.processInfo.environment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] == "connected" {
+        switch ProcessInfo.processInfo.environment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] {
+        case "connected":
             return GoogleCalendarSession { configuration in
                 configuration.isConfigured ? "fixture-access-token" : nil
             }
+        case "fail-if-called", "no-token":
+            return GoogleCalendarSession { _ in nil }
+        default:
+            break
         }
         #endif
 
