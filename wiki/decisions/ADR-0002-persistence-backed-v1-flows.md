@@ -35,3 +35,4 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Weigh-in reminder tests use injected notification operations and static request builders to verify authorization options, daily triggers, snooze triggers, and cancellation IDs without prompting CI for notification permission.
 - XCTest launches use an in-memory app container so unsigned CI builds do not attempt to initialize private CloudKit before tests execute.
 - Release metadata tests verify HealthKit usage descriptions, CloudKit remote-notification background mode, and the bundled privacy manifest; Apple/Google console setup remains documented in `docs/RELEASE_SETUP.md`.
+- macOS CI also runs `scripts/verify-release-config.sh` to keep the HealthKit entitlement, private CloudKit container, Xcode entitlements path, and SwiftData CloudKit identifier aligned.

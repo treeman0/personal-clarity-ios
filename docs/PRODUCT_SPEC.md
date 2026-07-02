@@ -46,4 +46,4 @@ The morning weigh-in reminder uses local notifications with a configurable daily
 
 CI runs core Swift package tests plus the generated Xcode app scheme. The app scheme includes SwiftData integration tests for the V1 records, preference upserts, record mappings used by goal/task integrations, Google Calendar OAuth/API request behavior, and local notification request construction for weigh-in reminders. XCTest launches use an in-memory SwiftData container because CI builds are unsigned and cannot exercise private CloudKit entitlements.
 
-App-hosted tests also verify release metadata for HealthKit usage strings, CloudKit remote-notification background mode, and the privacy manifest.
+CI also verifies the checked-in release configuration for the HealthKit entitlement, private CloudKit container, Xcode entitlements path, SwiftData CloudKit container ID, HealthKit usage strings, CloudKit remote-notification background mode, and the privacy manifest.

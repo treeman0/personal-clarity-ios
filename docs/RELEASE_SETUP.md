@@ -11,6 +11,8 @@ Before TestFlight or App Store submission, configure the app identifier for `com
 
 The repository declares the matching HealthKit and iCloud entitlements in `Sources/ClarityHubApp/ClarityHub.entitlements`, and declares `remote-notification` background mode in `Sources/ClarityHubApp/Info.plist`.
 
+CI runs `scripts/verify-release-config.sh` to check that the checked-in HealthKit entitlement, CloudKit service, iCloud container, Xcode entitlements path, and SwiftData private CloudKit container stay aligned.
+
 ## Privacy
 
 The app bundle includes `Sources/ClarityHubApp/PrivacyInfo.xcprivacy`. V1 declares no tracking and uses collected data only for app functionality:
