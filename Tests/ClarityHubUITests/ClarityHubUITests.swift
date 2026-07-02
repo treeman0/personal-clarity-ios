@@ -205,16 +205,11 @@ final class ClarityHubUITests: XCTestCase {
     }
 
     func testNutritionImportFlowUpdatesTodaySignal() {
-        let app = launchBlankFixture(interfaceStyle: "Light")
+        let app = launchNutritionImportFixture(interfaceStyle: "Light")
         defer { app.terminate() }
 
         openMoreTab("Nutrition", in: app)
         assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
-        XCTAssertTrue(scrollUntilElement(withIdentifier: "nutrition.importText", in: app))
-
-        let importText = app.textFields["nutrition.importText"]
-        importText.tap()
-        importText.typeText("Calories 3120 Protein 188 Carbs 355 Fat 91")
 
         XCTAssertTrue(scrollUntilButton(withIdentifier: "nutrition.parseImport", in: app))
         app.buttons["nutrition.parseImport"].tap()
@@ -282,6 +277,18 @@ final class ClarityHubUITests: XCTestCase {
         app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
         app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
         app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
+    }
+
+    private func launchNutritionImportFixture(interfaceStyle: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
+        app.launchEnvironment["CLARITYHUB_NUTRITION_IMPORT_TEXT"] = "Calories 3120 Protein 188 Carbs 355 Fat 91"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")

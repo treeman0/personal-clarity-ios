@@ -8,9 +8,13 @@ struct NutritionView: View {
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
     @State private var selectedDate = Date()
     @State private var importSource = NutritionImportSource.calAI
-    @State private var importText = ""
+    @State private var importText: String
     @State private var parsedDay: NutritionDay?
     @State private var statusMessage = ""
+
+    init() {
+        _importText = State(initialValue: Self.initialImportText)
+    }
 
     private var day: NutritionDay? {
         RecordDateMatcher.records(nutritionRecords, on: Date()) { $0.date }.first?.day
@@ -18,6 +22,14 @@ struct NutritionView: View {
 
     private var recentSummary: NutritionSummary {
         NutritionSummaryCalculator.recentAverage(nutritionRecords.map(\.day), limit: 7)
+    }
+
+    private static var initialImportText: String {
+        #if DEBUG
+        ProcessInfo.processInfo.environment["CLARITYHUB_NUTRITION_IMPORT_TEXT"] ?? ""
+        #else
+        ""
+        #endif
     }
 
     var body: some View {
