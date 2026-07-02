@@ -151,7 +151,7 @@ private extension JSONDecoder {
                 return date
             }
 
-            if let date = DateFormatter.googleCalendarDateOnly.date(from: rawValue) {
+            if let date = GoogleCalendarDateOnlyParser.date(from: rawValue) {
                 return date
             }
 
@@ -171,17 +171,6 @@ private extension ISO8601DateFormatter {
     static let internetDateTimeWithFractionalSeconds: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        return formatter
-    }()
-}
-
-private extension DateFormatter {
-    static let googleCalendarDateOnly: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.timeZone = TimeZone(secondsFromGMT: 0)
-        formatter.dateFormat = "yyyy-MM-dd"
         return formatter
     }()
 }

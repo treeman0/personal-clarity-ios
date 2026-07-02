@@ -73,6 +73,20 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
         XCTAssertEqual(query["timeMin"], "2026-07-01T12:00:00Z")
         XCTAssertEqual(query["maxResults"], "20")
         XCTAssertEqual(events.map(\.title), ["Training", "Untitled event"])
+        XCTAssertEqual(events[1].startDate, try XCTUnwrap(GoogleCalendarDateOnlyParser.date(from: "2026-07-02")))
+    }
+
+    func testGoogleCalendarDateOnlyParserUsesProvidedTimeZone() throws {
+        let newYork = try XCTUnwrap(TimeZone(identifier: "America/New_York"))
+        let date = try XCTUnwrap(GoogleCalendarDateOnlyParser.date(from: "2026-07-02", timeZone: newYork))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = newYork
+
+        XCTAssertEqual(calendar.component(.year, from: date), 2026)
+        XCTAssertEqual(calendar.component(.month, from: date), 7)
+        XCTAssertEqual(calendar.component(.day, from: date), 2)
+        XCTAssertEqual(calendar.component(.hour, from: date), 0)
+        XCTAssertEqual(calendar.component(.minute, from: date), 0)
     }
 
     func testCreateEventBuildsAuthorizedPostAndDecodesCreatedEvent() async throws {
