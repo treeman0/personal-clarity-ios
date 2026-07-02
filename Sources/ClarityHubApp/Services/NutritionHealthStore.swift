@@ -3,36 +3,75 @@ import Foundation
 import HealthKit
 
 struct NutritionHealthStore {
-    private let healthStore = HKHealthStore()
+    private let requestAuthorizationAction: () async throws -> Void
+    private let fetchTodayNutritionAction: (Calendar) async throws -> NutritionDay?
+
+    init() {
+        let healthStore = HKHealthStore()
+        requestAuthorizationAction = {
+            guard HKHealthStore.isHealthDataAvailable() else { return }
+            let readTypes = NutritionHealthStore.nutritionTypes()
+            try await healthStore.requestAuthorization(toShare: [], read: readTypes)
+        }
+        fetchTodayNutritionAction = { calendar in
+            guard HKHealthStore.isHealthDataAvailable() else { return nil }
+            let start = calendar.startOfDay(for: Date())
+            async let calories = NutritionHealthStore.sum(
+                .dietaryEnergyConsumed,
+                unit: .kilocalorie(),
+                start: start,
+                healthStore: healthStore
+            )
+            async let protein = NutritionHealthStore.sum(
+                .dietaryProtein,
+                unit: .gram(),
+                start: start,
+                healthStore: healthStore
+            )
+            async let carbs = NutritionHealthStore.sum(
+                .dietaryCarbohydrates,
+                unit: .gram(),
+                start: start,
+                healthStore: healthStore
+            )
+            async let fat = NutritionHealthStore.sum(
+                .dietaryFatTotal,
+                unit: .gram(),
+                start: start,
+                healthStore: healthStore
+            )
+
+            let totals = try await (calories, protein, carbs, fat)
+            guard totals.0 > 0 || totals.1 > 0 || totals.2 > 0 || totals.3 > 0 else { return nil }
+
+            return NutritionDay(
+                date: start,
+                calories: totals.0,
+                proteinGrams: totals.1,
+                carbohydrateGrams: totals.2,
+                fatGrams: totals.3,
+                source: "Apple Health"
+            )
+        }
+    }
+
+    init(
+        requestAuthorization: @escaping () async throws -> Void,
+        fetchTodayNutrition: @escaping (Calendar) async throws -> NutritionDay?
+    ) {
+        requestAuthorizationAction = requestAuthorization
+        fetchTodayNutritionAction = fetchTodayNutrition
+    }
 
     func requestAuthorization() async throws {
-        guard HKHealthStore.isHealthDataAvailable() else { return }
-        let readTypes = nutritionTypes()
-        try await healthStore.requestAuthorization(toShare: [], read: readTypes)
+        try await requestAuthorizationAction()
     }
 
     func fetchTodayNutrition(calendar: Calendar = .current) async throws -> NutritionDay? {
-        guard HKHealthStore.isHealthDataAvailable() else { return nil }
-        let start = calendar.startOfDay(for: Date())
-        async let calories = sum(.dietaryEnergyConsumed, unit: .kilocalorie(), start: start)
-        async let protein = sum(.dietaryProtein, unit: .gram(), start: start)
-        async let carbs = sum(.dietaryCarbohydrates, unit: .gram(), start: start)
-        async let fat = sum(.dietaryFatTotal, unit: .gram(), start: start)
-
-        let totals = try await (calories, protein, carbs, fat)
-        guard totals.0 > 0 || totals.1 > 0 || totals.2 > 0 || totals.3 > 0 else { return nil }
-
-        return NutritionDay(
-            date: start,
-            calories: totals.0,
-            proteinGrams: totals.1,
-            carbohydrateGrams: totals.2,
-            fatGrams: totals.3,
-            source: "Apple Health"
-        )
+        try await fetchTodayNutritionAction(calendar)
     }
 
-    private func nutritionTypes() -> Set<HKObjectType> {
+    private static func nutritionTypes() -> Set<HKObjectType> {
         [
             HKQuantityType.quantityType(forIdentifier: .dietaryEnergyConsumed),
             HKQuantityType.quantityType(forIdentifier: .dietaryProtein),
@@ -41,7 +80,12 @@ struct NutritionHealthStore {
         ].compactMap { $0 }.reduce(into: Set<HKObjectType>()) { $0.insert($1) }
     }
 
-    private func sum(_ identifier: HKQuantityTypeIdentifier, unit: HKUnit, start: Date) async throws -> Double {
+    private static func sum(
+        _ identifier: HKQuantityTypeIdentifier,
+        unit: HKUnit,
+        start: Date,
+        healthStore: HKHealthStore
+    ) async throws -> Double {
         guard let type = HKQuantityType.quantityType(forIdentifier: identifier) else { return 0 }
         let predicate = HKQuery.predicateForSamples(withStart: start, end: Date(), options: [.strictStartDate])
 
@@ -62,4 +106,3 @@ struct NutritionHealthStore {
         }
     }
 }
-

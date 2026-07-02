@@ -21,8 +21,8 @@ struct ClarityHubApp: App {
         WindowGroup {
             RootTabView()
                 .modelContainer(modelContainer)
-                .environment(\.healthKitWeightStore, HealthKitWeightStore())
-                .environment(\.nutritionHealthStore, NutritionHealthStore())
+                .environment(\.healthKitWeightStore, Self.healthKitWeightStore)
+                .environment(\.nutritionHealthStore, Self.nutritionHealthStore)
                 .environment(\.weighInReminderScheduler, WeighInReminderScheduler())
                 .environment(\.googleCalendarClient, GoogleCalendarClient())
         }
@@ -33,4 +33,54 @@ struct ClarityHubApp: App {
         return environment["XCTestConfigurationFilePath"] != nil
             || environment["CLARITYHUB_IN_MEMORY_STORE"] == "1"
     }
+
+    private static var healthKitWeightStore: HealthKitWeightStore {
+        #if DEBUG
+        switch ProcessInfo.processInfo.environment["CLARITYHUB_HEALTHKIT_FIXTURE"] {
+        case "empty":
+            return HealthKitWeightStore(
+                isAvailable: { true },
+                requestAuthorization: {},
+                fetchWeights: { _ in [] }
+            )
+        case "denied":
+            return HealthKitWeightStore(
+                isAvailable: { true },
+                requestAuthorization: { throw UITestHealthKitFixtureError.denied },
+                fetchWeights: { _ in throw UITestHealthKitFixtureError.denied }
+            )
+        default:
+            break
+        }
+        #endif
+
+        return HealthKitWeightStore()
+    }
+
+    private static var nutritionHealthStore: NutritionHealthStore {
+        #if DEBUG
+        switch ProcessInfo.processInfo.environment["CLARITYHUB_HEALTHKIT_FIXTURE"] {
+        case "empty":
+            return NutritionHealthStore(
+                requestAuthorization: {},
+                fetchTodayNutrition: { _ in nil }
+            )
+        case "denied":
+            return NutritionHealthStore(
+                requestAuthorization: { throw UITestHealthKitFixtureError.denied },
+                fetchTodayNutrition: { _ in throw UITestHealthKitFixtureError.denied }
+            )
+        default:
+            break
+        }
+        #endif
+
+        return NutritionHealthStore()
+    }
 }
+
+#if DEBUG
+private enum UITestHealthKitFixtureError: Error {
+    case denied
+}
+#endif

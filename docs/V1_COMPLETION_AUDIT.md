@@ -71,6 +71,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Light/dark app-shell and setup-section smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Added; needs latest CI evidence |
 | Dense fixture smoke | `ClarityHubUITests.testDenseTodayDataRendersInLightAndDarkMode` and `testDenseFixtureRecordsRenderAcrossPrimaryAreas` launch an in-memory fixture with goals, habits, long tasks, lists/projects, nutrition, preferences, and review focus | Added; needs latest CI evidence |
 | Disk-backed persistence smoke | `PersistenceIntegrationTests.testDiskBackedStoreSurvivesContainerRecreationWithoutCloudKit` saves every V1 app-owned record type into a local non-CloudKit store, recreates the container, and fetches the records again | Added; needs latest CI evidence |
+| HealthKit empty/denied smoke | `HealthKitStoreInjectionTests` verifies injectable HealthKit stores; `ClarityHubUITests.testHealthKitEmptyStateCopyRendersInBodyAndNutrition` and `testHealthKitDeniedStateCopyRendersInSetupBodyAndNutrition` render empty and denied HealthKit states in the app shell | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -82,8 +83,8 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | Empty states | Setup sections are partially automated by UI smoke; empty-state copy still needs human visual acceptance |
 | Long text | Partially automated by dense fixture UI smoke; still needs human visual acceptance |
 | Dense Today data | Partially automated by dense Today UI smoke; still needs human visual acceptance |
-| No HealthKit data | Needs evidence |
-| Denied HealthKit/notification permissions | Needs evidence |
+| No HealthKit data | Partially automated by HealthKit empty-state UI smoke; still needs device/manual HealthKit acceptance |
+| Denied HealthKit/notification permissions | Partially automated by HealthKit denied-state UI smoke and reminder scheduler tests; still needs device/manual permission acceptance |
 | Google disconnected | Needs evidence |
 | Google connected with real OAuth credentials | Needs evidence |
 | Reminder schedule/snooze/skip | Needs evidence |

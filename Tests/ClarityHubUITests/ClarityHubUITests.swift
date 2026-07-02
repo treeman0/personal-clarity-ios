@@ -67,6 +67,40 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Google Calendar", in: app))
     }
 
+    func testHealthKitEmptyStateCopyRendersInBodyAndNutrition() {
+        let app = launchHealthKitFixture(state: "empty", interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        openVisibleTab("Body", in: app)
+        assertScreenTitle("Body", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("No body-weight samples were available. If you denied Health permission, enable Body Measurements access in the Health app settings.", in: app))
+
+        openMoreTab("Nutrition", in: app)
+        assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Connect nutrition totals", in: app))
+        app.buttons["Connect nutrition totals"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Apple Health has no calorie or macro totals for today, or nutrition permission was not granted.", in: app))
+    }
+
+    func testHealthKitDeniedStateCopyRendersInSetupBodyAndNutrition() {
+        let app = launchHealthKitFixture(state: "denied", interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        XCTAssertTrue(scrollUntilButton("Authorize", in: app))
+        app.buttons["Authorize"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Some permissions could not be completed.", in: app))
+
+        openVisibleTab("Body", in: app)
+        assertScreenTitle("Body", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Apple Health weight could not be loaded. Check Health permission and try again.", in: app))
+
+        openMoreTab("Nutrition", in: app)
+        assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Connect nutrition totals", in: app))
+        app.buttons["Connect nutrition totals"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Apple Health nutrition could not be loaded. Check Health permission and try again.", in: app))
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -111,6 +145,16 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
+    }
+
+    private func launchHealthKitFixture(state: String, interfaceStyle: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = state
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
@@ -191,6 +235,27 @@ final class ClarityHubUITests: XCTestCase {
         for _ in 0..<5 {
             scrollView.swipeUp()
             if element.waitForExistence(timeout: 1) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private func scrollUntilButton(_ label: String, in app: XCUIApplication) -> Bool {
+        let button = app.buttons[label]
+        if button.waitForExistence(timeout: 2) {
+            return true
+        }
+
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.exists else {
+            return false
+        }
+
+        for _ in 0..<5 {
+            scrollView.swipeUp()
+            if button.waitForExistence(timeout: 1) {
                 return true
             }
         }
