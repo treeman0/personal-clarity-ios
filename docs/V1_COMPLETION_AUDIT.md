@@ -17,9 +17,9 @@ Goal status: active, not complete
 ```
 
 Known state as of 2026-07-02: the repository is public and GitHub Actions can start hosted macOS jobs without the previous private-repository billing block.
-Code scanning, secret scanning, and Dependabot alerts were empty after CodeQL completed for `9924b7f`; secret scanning, push protection, and Dependabot security updates were enabled.
+The latest pre-status-helper audit found green iOS CI and CodeQL for `907bcc6`, an uploaded `clarityhub-xcresult-907bcc6b51745f9dd4ca88021f3775cf54f4336e` artifact, empty code-scanning/secret-scanning/Dependabot alerts, and enabled secret scanning, push protection, and Dependabot security updates.
 
-On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loop gate, release verifier, Swift availability, and latest GitHub Actions summary in one pass.
+On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loop gate, release verifier, Swift availability, latest GitHub Actions summary, repository visibility/security settings, open security-alert counts, and latest retained iOS result bundle artifact in one pass.
 
 ## Workflow Requirements
 
@@ -65,7 +65,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | `git diff --check` | Passes on the current Windows worktree | Passed locally for `8f5bc82` |
 | `bash scripts/verify-release-config.sh` | Passes on the current Windows worktree | Passed locally; now also guards against deprecated checkout/CodeQL Action refs |
 | `.claude/scripts/status-report.ps1` | Passes with all loop defaults enabled | Passed locally for `8f5bc82` |
-| `.\scripts\v1-local-status.ps1` | Reports local/remote state, loop status, release verifier, Swift availability, and latest Actions runs | Passed locally for `8f5bc82` |
+| `.\scripts\v1-local-status.ps1` | Reports local/remote state, loop status, release verifier, Swift availability, latest Actions runs, repository visibility/security settings, open security-alert counts, and latest retained iOS result bundle artifact | Run before final handoff and after every release-candidate commit |
 | `swift test` | Not available on Windows host | Needs macOS |
 | `xcodegen generate` | Not available on Windows host | Needs macOS |
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
@@ -79,8 +79,8 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Google connected fixture smoke | `ClarityHubUITests.testGoogleConnectedFixtureRendersEventsAndCreatesBlock` launches configured OAuth settings with a fixture access token and fixture Google Calendar client, then verifies Today/Calendar event rendering and Calendar block creation | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | Nutrition import workflow smoke | `ClarityHubUITests.testNutritionImportFlowUpdatesTodaySignal` launches Nutrition with DEBUG-prefilled Cal AI-style totals, parses them through the visible UI, saves the day, verifies the recent average, and confirms Today's nutrition signal updates | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
-| Visual acceptance evidence | Light/dark tab smoke and dense Today smoke attach XCTest screenshots; iOS CI uploads `TestResults/ClarityHub.xcresult` as a retained artifact | Added; needs latest CI evidence |
-| Core data-entry workflow smoke | `ClarityHubUITests.testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas` creates a goal, habit/check-in, list, project, task completion/restore, daily review, and weekly review through the visible UI and attaches screenshots | Added; needs latest CI evidence |
+| Visual acceptance evidence | Light/dark tab smoke and dense Today smoke attach XCTest screenshots; iOS CI uploads `TestResults/ClarityHub.xcresult` as a retained artifact; `.\scripts\v1-local-status.ps1` prints the latest retained artifact | Needs latest CI evidence after any new release-candidate commit |
+| Core data-entry workflow smoke | `ClarityHubUITests.testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas` creates a goal, habit/check-in, list, project, task completion/restore, daily review, and weekly review through the visible UI and attaches screenshots | Passed for `907bcc6` in iOS CI 28616129805; rerun after any new release-candidate commit |
 
 ## Manual Acceptance
 
