@@ -5,7 +5,7 @@ final class ClarityHubUITests: XCTestCase {
     private let moreTabs = ["Lists", "Calendar", "Nutrition", "Review", "Settings"]
     private let emptyStateExpectations: [String: String] = [
         "Today": "Client ID needed",
-        "Body": "No body-weight samples were available",
+        "Body": "Connect and refresh Apple Health",
         "Goals": "Add a measurable target",
         "Habits": "Add the routines",
         "Lists": "No open tasks",
