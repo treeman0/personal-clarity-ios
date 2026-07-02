@@ -90,6 +90,28 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertFalse(habit.isDaily)
     }
 
+    func testGoalLinkedTaskCanBeFetchedByGoalID() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let goalID = UUID()
+        context.insert(GoalRecord(
+            id: goalID,
+            title: "Gain weight",
+            startingValue: 165,
+            currentValue: 170,
+            targetValue: 180,
+            directionRawValue: "increase"
+        ))
+        context.insert(TaskRecord(goalID: goalID, title: "Buy training groceries", priority: 2))
+
+        try context.save()
+
+        let tasks = try context.fetch(FetchDescriptor<TaskRecord>())
+        let linkedTasks = tasks.filter { $0.goalID == goalID && $0.status == "open" }
+
+        XCTAssertEqual(linkedTasks.map(\.title), ["Buy training groceries"])
+    }
+
     func testRecordMappingsPreserveGoalAndTaskIntegrationFields() {
         let goalID = UUID()
         let listID = UUID()

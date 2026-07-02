@@ -5,10 +5,12 @@ import SwiftUI
 struct GoalsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \GoalRecord.createdAt) private var goals: [GoalRecord]
+    @Query(sort: \TaskRecord.createdAt) private var tasks: [TaskRecord]
     @State private var title = ""
     @State private var currentValue = 0.0
     @State private var targetValue = 100.0
     @State private var direction = GoalDirection.increase
+    @State private var nextActionTitles: [UUID: String] = [:]
 
     var body: some View {
         ScreenScaffold(title: "Goals", subtitle: "Progress that turns into next action.") {
@@ -62,6 +64,48 @@ struct GoalsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Next actions")
+                            .font(.subheadline.weight(.semibold))
+                        let linkedTasks = openTasks(for: record)
+                        if linkedTasks.isEmpty {
+                            Text("Add the next concrete action that would move this goal forward.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(linkedTasks.prefix(3)) { task in
+                                Button {
+                                    task.status = "done"
+                                } label: {
+                                    HStack {
+                                        Image(systemName: "circle")
+                                            .foregroundStyle(.secondary)
+                                        Text(task.title)
+                                            .font(.subheadline)
+                                        Spacer()
+                                        Text("P\(task.priority)")
+                                            .font(.caption.weight(.bold))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+
+                        HStack {
+                            TextField("Next action", text: nextActionBinding(for: record.id))
+                                .textFieldStyle(.roundedBorder)
+                            Button {
+                                addNextAction(for: record)
+                            } label: {
+                                Image(systemName: "plus")
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(nextActionTitle(for: record.id).isEmpty)
+                        }
+                    }
+
                     HStack {
                         Button {
                             nudge(record)
@@ -71,7 +115,7 @@ struct GoalsView: View {
                         .buttonStyle(.bordered)
 
                         Button(role: .destructive) {
-                            modelContext.delete(record)
+                            deleteGoal(record)
                         } label: {
                             Label("Delete", systemImage: "trash")
                         }
@@ -132,5 +176,41 @@ struct GoalsView: View {
         case .maintain:
             return "scope"
         }
+    }
+
+    private func openTasks(for goal: GoalRecord) -> [TaskRecord] {
+        tasks
+            .filter { $0.goalID == goal.id && $0.status == "open" }
+            .sorted {
+                if $0.priority != $1.priority {
+                    return $0.priority > $1.priority
+                }
+                return $0.createdAt < $1.createdAt
+            }
+    }
+
+    private func nextActionBinding(for goalID: UUID) -> Binding<String> {
+        Binding(
+            get: { nextActionTitles[goalID, default: ""] },
+            set: { nextActionTitles[goalID] = $0 }
+        )
+    }
+
+    private func nextActionTitle(for goalID: UUID) -> String {
+        nextActionTitles[goalID, default: ""].trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func addNextAction(for goal: GoalRecord) {
+        let trimmedTitle = nextActionTitle(for: goal.id)
+        guard !trimmedTitle.isEmpty else { return }
+        modelContext.insert(TaskRecord(goalID: goal.id, title: trimmedTitle, priority: 2))
+        nextActionTitles[goal.id] = ""
+    }
+
+    private func deleteGoal(_ goal: GoalRecord) {
+        tasks
+            .filter { $0.goalID == goal.id }
+            .forEach(modelContext.delete)
+        modelContext.delete(goal)
     }
 }
