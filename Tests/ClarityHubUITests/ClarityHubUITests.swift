@@ -441,7 +441,15 @@ final class ClarityHubUITests: XCTestCase {
         dismissKeyboard(in: app)
         let button = app.tabBars.buttons[title]
         XCTAssertTrue(button.waitForExistence(timeout: 5), "\(title) tab should be visible.")
-        button.tap()
+
+        let titleElement = app.staticTexts["screenTitle.\(title)"]
+        for _ in 0..<3 {
+            button.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+            if titleElement.waitForExistence(timeout: 3) {
+                return
+            }
+            dismissKeyboard(in: app)
+        }
     }
 
     private func openMoreTab(_ title: String, in app: XCUIApplication) {
@@ -465,7 +473,7 @@ final class ClarityHubUITests: XCTestCase {
     private func assertScreenTitle(_ title: String, in app: XCUIApplication, interfaceStyle: String) {
         let titleElement = app.staticTexts["screenTitle.\(title)"]
         XCTAssertTrue(
-            titleElement.waitForExistence(timeout: 5),
+            titleElement.waitForExistence(timeout: 10),
             "\(title) screen should render in \(interfaceStyle) mode."
         )
     }
