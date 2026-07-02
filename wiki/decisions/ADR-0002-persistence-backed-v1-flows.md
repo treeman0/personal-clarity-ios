@@ -29,6 +29,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.
 - Weight goal and morning reminder preferences are stored through `AppPreferenceRecord` and surfaced in Settings instead of being hard-coded in feature views.
 - Google Calendar OAuth configuration lives in Settings while OAuth tokens live in Keychain; calendar events are fetched and user-created blocks are inserted through Google's Events API instead of preview data when connected.
+- Settings normalizes a blank Google redirect URI to the app default and clears stored Google tokens when OAuth settings change so Calendar reconnects through the current configuration.
 - Google Calendar token refresh is shared by Calendar and Today so both surfaces use the same public, user-authorized API boundary.
 - Today includes a setup checklist so first-run readiness is visible in the primary operating surface rather than hidden across tabs.
 - The Xcode scheme includes app-level SwiftData integration tests for V1 records, preferences, and mapping fields in addition to core package tests.

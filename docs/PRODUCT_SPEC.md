@@ -32,7 +32,7 @@ com.treeman0.ClarityHub:/oauth2redirect/google
 
 Tokens are stored in the device Keychain rather than CloudKit-backed preferences.
 
-Today reuses the same token refresh path as Calendar and shows remaining same-day events as compact blocks. Calendar can create titled blocks on the primary Google calendar after user authorization. If Google Calendar is not configured or connected, Today shows the setup state without attempting private calendar access.
+Today reuses the same token refresh path as Calendar and shows remaining same-day events as compact blocks. Calendar can create titled blocks on the primary Google calendar after user authorization. If Google Calendar is not configured or connected, Today shows the setup state without attempting private calendar access. Settings normalizes a blank redirect URI back to the app default and clears stored Google tokens when OAuth settings change so stale credentials are not reused silently.
 
 ## Today Weight Behavior
 

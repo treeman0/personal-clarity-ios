@@ -41,6 +41,11 @@ enum AppPreferences {
         return number
     }
 
+    static func normalizedGoogleRedirectURI(_ value: String) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? defaultGoogleRedirectURI : trimmed
+    }
+
     static func upsert(_ key: AppPreferenceKey, value: String, in context: ModelContext, preferences: [AppPreferenceRecord]) {
         if let existing = preferences.first(where: { $0.key == key.rawValue }) {
             existing.value = value

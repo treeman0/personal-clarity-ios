@@ -82,6 +82,18 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(AppPreferences.double(.goalWeightPounds, in: preferences, default: 180), 190)
     }
 
+    func testGoogleRedirectNormalizationFallsBackToDefaultForBlankValues() {
+        XCTAssertEqual(AppPreferences.normalizedGoogleRedirectURI(""), AppPreferences.defaultGoogleRedirectURI)
+        XCTAssertEqual(AppPreferences.normalizedGoogleRedirectURI("   \n"), AppPreferences.defaultGoogleRedirectURI)
+    }
+
+    func testGoogleRedirectNormalizationPreservesExplicitValues() {
+        XCTAssertEqual(
+            AppPreferences.normalizedGoogleRedirectURI("  com.example.ClarityHub:/oauth2redirect/google  "),
+            "com.example.ClarityHub:/oauth2redirect/google"
+        )
+    }
+
     func testHabitWeekdayMaskPreservesWeeklyCadence() {
         let mondayWednesdayFridayMask = [2, 4, 6].reduce(0) { $0 | (1 << ($1 - 1)) }
         let habit = HabitRecord(title: "Lift", weekdayMask: mondayWednesdayFridayMask)

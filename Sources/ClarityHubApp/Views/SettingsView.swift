@@ -9,7 +9,9 @@ struct SettingsView: View {
     @State private var reminderDate = Date()
     @State private var googleClientID = ""
     @State private var googleRedirectURI = AppPreferences.defaultGoogleRedirectURI
-    @State private var saveMessage = ""
+    @State private var reminderMessage = ""
+    @State private var googleMessage = ""
+    private let tokenStore = KeychainTokenStore()
 
     var body: some View {
         ScreenScaffold(title: "Settings", subtitle: "Personal targets and automation timing.") {
@@ -35,8 +37,8 @@ struct SettingsView: View {
                 }
                 .buttonStyle(.borderedProminent)
 
-                if !saveMessage.isEmpty {
-                    Text(saveMessage)
+                if !reminderMessage.isEmpty {
+                    Text(reminderMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -59,6 +61,12 @@ struct SettingsView: View {
                     Label("Save Google settings", systemImage: "calendar.badge.checkmark")
                 }
                 .buttonStyle(.bordered)
+
+                if !googleMessage.isEmpty {
+                    Text(googleMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .onAppear(perform: loadPreferences)
@@ -102,26 +110,42 @@ struct SettingsView: View {
         do {
             _ = try await reminderScheduler.requestAuthorization()
             try await reminderScheduler.scheduleDailyReminder(hour: hour, minute: minute)
-            saveMessage = "Saved and scheduled."
+            reminderMessage = "Saved and scheduled."
         } catch {
-            saveMessage = "Saved, but notification permission or scheduling failed."
+            reminderMessage = "Saved, but notification permission or scheduling failed."
         }
     }
 
     private func saveGoogleCalendarSettings() {
+        let trimmedClientID = googleClientID.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedRedirectURI = AppPreferences.normalizedGoogleRedirectURI(googleRedirectURI)
+        let existingClientID = AppPreferences.string(.googleCalendarClientID, in: preferences)
+        let existingRedirectURI = AppPreferences.string(
+            .googleCalendarRedirectURI,
+            in: preferences,
+            default: AppPreferences.defaultGoogleRedirectURI
+        )
+
         AppPreferences.upsert(
             .googleCalendarClientID,
-            value: googleClientID.trimmingCharacters(in: .whitespacesAndNewlines),
+            value: trimmedClientID,
             in: modelContext,
             preferences: preferences
         )
         AppPreferences.upsert(
             .googleCalendarRedirectURI,
-            value: googleRedirectURI.trimmingCharacters(in: .whitespacesAndNewlines),
+            value: normalizedRedirectURI,
             in: modelContext,
             preferences: preferences
         )
-        saveMessage = "Google settings saved."
+
+        if existingClientID != trimmedClientID || existingRedirectURI != normalizedRedirectURI {
+            tokenStore.delete()
+            googleMessage = "Google settings saved. Reconnect Calendar if these values changed."
+        } else {
+            googleMessage = "Google settings saved."
+        }
+        googleRedirectURI = normalizedRedirectURI
     }
 
     private static func defaultReminderDate() -> Date {
