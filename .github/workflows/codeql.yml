@@ -20,14 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: swift
           build-mode: manual
-
-      - name: Install XcodeGen
-        run: brew install xcodegen
 
       - name: Generate project
         run: xcodegen generate
