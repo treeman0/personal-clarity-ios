@@ -1,3 +1,4 @@
+import ClarityHubCore
 import SwiftData
 import SwiftUI
 
@@ -77,7 +78,7 @@ struct HabitsView: View {
                                     .foregroundStyle(complete ? .green : .secondary)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(habit.title)
-                                    Text(scheduleLabel(for: habit))
+                                    Text("\(scheduleLabel(for: habit)) - \(streakLabel(for: habit))")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
@@ -108,6 +109,9 @@ struct HabitsView: View {
                                     .foregroundStyle(.secondary)
                             }
                             Spacer()
+                            Text(streakLabel(for: habit))
+                                .font(.caption.weight(.bold))
+                                .foregroundStyle(.secondary)
                             Button(role: .destructive) {
                                 deleteHabit(habit)
                             } label: {
@@ -186,6 +190,21 @@ struct HabitsView: View {
             .filter { $0.habitID == habit.id }
             .forEach(modelContext.delete)
         modelContext.delete(habit)
+    }
+
+    private func streakLabel(for habit: HabitRecord) -> String {
+        let streak = HabitSchedule.streakDays(
+            completionDates: completionDateComponents(for: habit),
+            endingOn: Date(),
+            calendar: .current
+        )
+        return "\(streak)d streak"
+    }
+
+    private func completionDateComponents(for habit: HabitRecord) -> Set<DateComponents> {
+        Set(checkIns
+            .filter { $0.habitID == habit.id && $0.state == "done" }
+            .map { Calendar.current.dateComponents([.year, .month, .day], from: $0.date) })
     }
 }
 

@@ -32,4 +32,16 @@ final class HabitScheduleTests: XCTestCase {
 
         XCTAssertEqual(HabitSchedule.streakDays(completionDates: completions, endingOn: today, calendar: calendar), 3)
     }
+
+    func testCompletionStreakStopsAtFirstMissingDay() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        let today = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 8)))
+        let completions: Set<DateComponents> = [
+            DateComponents(year: 2026, month: 7, day: 8),
+            DateComponents(year: 2026, month: 7, day: 6)
+        ]
+
+        XCTAssertEqual(HabitSchedule.streakDays(completionDates: completions, endingOn: today, calendar: calendar), 1)
+    }
 }
