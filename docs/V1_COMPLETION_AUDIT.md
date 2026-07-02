@@ -38,7 +38,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier | Needs latest CI rerun and signed-device sync smoke |
 | Body | HealthKit body weight, goal comparison, trend chart, moving average, unique-day weigh-in streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests | Needs device/manual HealthKit pass |
 | Reminders | Morning weigh-in reminders with configurable time, permission-denied handling, snooze, skip | `WeighInReminderScheduler.swift`, tests, Body/Settings UI | Needs device/manual notification pass |
-| Goals | Measurable goals, optional due dates, current-value update, linked next actions, linked-task cleanup on delete | `GoalsView.swift`, persistence tests | Needs manual UI pass |
+| Goals | Measurable goals, increase/decrease/maintain progress, optional due dates, current-value update, linked next actions, linked-task cleanup on delete | `GoalsView.swift`, goal progress and persistence tests | Needs manual UI pass |
 | Habits | Daily/custom weekday habits, completion, cadence-aware streaks, delete with check-ins | `HabitsView.swift`, `HabitScheduleTests.swift`, persistence tests | Needs manual UI pass |
 | Lists/projects | Todo/project/reference lists, project outcomes, priority/due/list/project/goal task capture, completed-task review, restore, and cleanup | `ListsView.swift`, task planner and persistence tests | Needs manual UI pass |
 | Calendar | Google OAuth PKCE, official Calendar API read/write, direct disconnect, clear states | `CalendarView.swift`, `GoogleOAuthClient.swift`, `GoogleCalendarClient.swift`, tests | Needs real Google OAuth manual pass |

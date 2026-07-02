@@ -18,8 +18,19 @@ public enum GoalProgressCalculator {
     }
 
     public static func progress(for goal: GoalSnapshot, startingValue: Double) -> GoalProgress {
+        if goal.direction == .maintain {
+            let deviation = abs(goal.currentValue - goal.targetValue)
+            let baseline = max(abs(startingValue - goal.targetValue), 1)
+            let rawFraction = 1 - (deviation / baseline)
+            let clamped = min(max(rawFraction, 0), 1)
+            return GoalProgress(
+                fractionComplete: clamped,
+                remaining: goal.targetValue - goal.currentValue,
+                isComplete: deviation <= 0.01
+            )
+        }
+
         let totalDistance = abs(goal.targetValue - startingValue)
-        let currentDistance = abs(goal.currentValue - startingValue)
         let remaining = goal.targetValue - goal.currentValue
 
         guard totalDistance > 0 else {
@@ -33,7 +44,7 @@ public enum GoalProgressCalculator {
         case .decrease:
             rawFraction = (startingValue - goal.currentValue) / totalDistance
         case .maintain:
-            rawFraction = max(0, 1 - (currentDistance / max(totalDistance, 1)))
+            rawFraction = 1
         }
 
         let clamped = min(max(rawFraction, 0), 1)
@@ -44,7 +55,7 @@ public enum GoalProgressCalculator {
         case .decrease:
             isComplete = goal.currentValue <= goal.targetValue
         case .maintain:
-            isComplete = abs(goal.currentValue - goal.targetValue) <= 0.01
+            isComplete = true
         }
 
         return GoalProgress(fractionComplete: clamped, remaining: remaining, isComplete: isComplete)

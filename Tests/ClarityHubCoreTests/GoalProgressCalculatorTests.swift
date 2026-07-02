@@ -52,4 +52,36 @@ final class GoalProgressCalculatorTests: XCTestCase {
         XCTAssertEqual(progress.remaining, -20, accuracy: 0.001)
         XCTAssertFalse(progress.isComplete)
     }
+
+    func testMaintainGoalIsCompleteWhenCurrentValueMatchesTarget() {
+        let goal = GoalSnapshot(
+            title: "Sleep",
+            startingValue: 8,
+            currentValue: 8,
+            targetValue: 8,
+            direction: .maintain
+        )
+
+        let progress = GoalProgressCalculator.progress(for: goal)
+
+        XCTAssertEqual(progress.fractionComplete, 1, accuracy: 0.001)
+        XCTAssertEqual(progress.remaining, 0, accuracy: 0.001)
+        XCTAssertTrue(progress.isComplete)
+    }
+
+    func testMaintainGoalDetectsDriftWhenStartingAtTarget() {
+        let goal = GoalSnapshot(
+            title: "Sleep",
+            startingValue: 8,
+            currentValue: 6.5,
+            targetValue: 8,
+            direction: .maintain
+        )
+
+        let progress = GoalProgressCalculator.progress(for: goal)
+
+        XCTAssertEqual(progress.fractionComplete, 0, accuracy: 0.001)
+        XCTAssertEqual(progress.remaining, 1.5, accuracy: 0.001)
+        XCTAssertFalse(progress.isComplete)
+    }
 }
