@@ -67,7 +67,8 @@ Create dense but realistic data.
 7. Lists: create tasks with priority, due date, list, project, and goal context.
 8. Lists: complete a task, confirm it appears in Completed, restore it, complete it again, then delete it from Completed.
 9. Review: save a daily review with next focus, edit the same-day review, and save a weekly review.
-10. Nutrition: save manual or Cal AI-style daily totals for today and at least two prior days.
+10. Nutrition: parse a manual or Cal AI-style import, change the date or source, and confirm the parsed result clears until it is parsed again.
+11. Nutrition: save manual or Cal AI-style daily totals for today and at least two prior days.
 
 Evidence:
 

@@ -78,7 +78,7 @@ struct NutritionView: View {
                         Button {
                             save(parsedDay)
                         } label: {
-                            Label("Save \(selectedDate.formatted(date: .abbreviated, time: .omitted))", systemImage: "checkmark")
+                            Label("Save \(parsedDay.date.formatted(date: .abbreviated, time: .omitted))", systemImage: "checkmark")
                         }
                         .buttonStyle(.bordered)
                     }
@@ -147,6 +147,15 @@ struct NutritionView: View {
                 }
             }
         }
+        .onChange(of: selectedDate) { _, _ in
+            clearParsedImport()
+        }
+        .onChange(of: importSource) { _, _ in
+            clearParsedImport()
+        }
+        .onChange(of: importText) { _, _ in
+            clearParsedImport()
+        }
     }
 
     private func parseImport() {
@@ -172,6 +181,13 @@ struct NutritionView: View {
         parsedDay = nil
         importText = ""
         statusMessage = "Saved \(day.date.formatted(date: .abbreviated, time: .omitted))."
+    }
+
+    private func clearParsedImport() {
+        if parsedDay != nil {
+            parsedDay = nil
+            statusMessage = ""
+        }
     }
 
     private func connectAndSaveHealthNutrition() async {

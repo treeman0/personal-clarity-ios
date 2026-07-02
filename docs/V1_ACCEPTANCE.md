@@ -23,7 +23,7 @@ Current GitHub Actions CI runs these checks on macOS except that `xcodegen gener
 - Habits: can create daily and custom weekday habits, prevent empty weekday schedules, complete/uncomplete due-today habits, show cadence-aware streaks, show all scheduled habits, and delete habits with check-ins.
 - Lists: can create todo/project/reference lists, create projects with desired outcomes, capture tasks with priority, due date, list, project, and goal, sort by shared planner priority/due-date behavior, complete tasks from Lists, review completed tasks, restore or delete completed tasks, and surface projects/lists with open counts.
 - Calendar: can save Google OAuth settings, start native OAuth with PKCE, refresh upcoming Google Calendar events, create a focus block on the primary calendar, and show clear not-configured/not-connected/error states.
-- Nutrition: can request HealthKit nutrition access, save Apple Health totals if present, parse Cal AI/manual text imports, replace an existing same-day record, delete records, show recent history, and show recent calorie/macro averages in Nutrition and Today.
+- Nutrition: can request HealthKit nutrition access, save Apple Health totals if present, parse Cal AI/manual text imports, clear stale parsed imports when date/source/text changes, replace an existing same-day record, delete records, show recent history, and show recent calorie/macro averages in Nutrition and Today.
 - Review: can save one daily review per day, create a deduplicated next-focus task due tomorrow, save/update the current weekly review, and show recent daily/weekly review history.
 - Settings: can persist goal weight, weigh-in reminder time, Google OAuth client ID, and redirect URI, and can schedule the daily reminder from saved settings.
 
