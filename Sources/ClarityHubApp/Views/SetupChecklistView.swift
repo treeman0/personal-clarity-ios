@@ -170,9 +170,7 @@ struct SetupChecklistView: View {
                 hour: reminderHour,
                 minute: reminderMinute
             )
-            statusMessage = reminderScheduled
-                ? "Health permissions requested and reminder scheduled."
-                : "Health permissions requested. Notification permission was denied."
+            statusMessage = HealthKitStatusCopy.setupAuthorizationMessage(reminderScheduled: reminderScheduled)
         } catch {
             statusMessage = "Some permissions could not be completed."
         }

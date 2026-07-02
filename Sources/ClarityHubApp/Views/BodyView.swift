@@ -8,7 +8,7 @@ struct BodyView: View {
     @Environment(\.weighInReminderScheduler) private var reminderScheduler
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var entries: [WeightEntry] = []
-    @State private var statusMessage = "Connect Apple Health to load smart-scale weight."
+    @State private var statusMessage = HealthKitStatusCopy.weightConnectPrompt
     @State private var reminderMessage = ""
     @State private var isLoading = false
 
@@ -159,9 +159,11 @@ struct BodyView: View {
             }
             let start = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
             entries = try await healthKitWeightStore.fetchWeights(since: start)
-            statusMessage = entries.isEmpty ? "No body-weight samples were found in Apple Health." : "Loaded \(entries.count) Apple Health weight samples."
+            statusMessage = entries.isEmpty
+                ? HealthKitStatusCopy.weightNoDataOrPermission
+                : "Loaded \(entries.count) Apple Health weight samples."
         } catch {
-            statusMessage = "Apple Health weight could not be loaded."
+            statusMessage = HealthKitStatusCopy.weightLoadFailed
         }
     }
 }

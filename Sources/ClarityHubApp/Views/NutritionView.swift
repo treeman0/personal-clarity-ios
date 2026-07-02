@@ -196,11 +196,11 @@ struct NutritionView: View {
             if let healthDay = try await nutritionHealthStore.fetchTodayNutrition() {
                 save(healthDay)
             } else {
-                statusMessage = "Apple Health has no calorie or macro totals for today."
+                statusMessage = HealthKitStatusCopy.nutritionNoDataOrPermission
             }
         } catch {
             parsedDay = nil
-            statusMessage = "Apple Health nutrition could not be loaded."
+            statusMessage = HealthKitStatusCopy.nutritionLoadFailed
         }
     }
 
