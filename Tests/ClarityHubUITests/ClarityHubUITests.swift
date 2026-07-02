@@ -461,18 +461,45 @@ final class ClarityHubUITests: XCTestCase {
         dismissKeyboard(in: app)
         let moreButton = app.tabBars.buttons["More"]
         XCTAssertTrue(moreButton.waitForExistence(timeout: 5), "More tab should expose \(title).")
-        moreButton.tap()
-
-        let cell = app.cells.containing(.staticText, identifier: title).firstMatch
-        if !cell.waitForExistence(timeout: 2) {
-            let moreBackButton = app.navigationBars.buttons["More"]
-            if moreBackButton.exists {
-                moreBackButton.tap()
-            }
+        let titleElement = app.staticTexts["screenTitle.\(title)"]
+        if titleElement.exists {
+            return
         }
 
-        XCTAssertTrue(cell.waitForExistence(timeout: 5), "\(title) should be listed under More.")
-        cell.tap()
+        for _ in 0..<3 {
+            moreButton.tap()
+            if titleElement.waitForExistence(timeout: 2) {
+                return
+            }
+
+            var item = moreMenuItem(title, in: app)
+            if !item.waitForExistence(timeout: 2) {
+                let moreBackButton = app.navigationBars.buttons["More"]
+                if moreBackButton.waitForExistence(timeout: 2) {
+                    moreBackButton.tap()
+                }
+                item = moreMenuItem(title, in: app)
+            }
+
+            if item.waitForExistence(timeout: 5) {
+                item.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+                if titleElement.waitForExistence(timeout: 10) {
+                    return
+                }
+            }
+
+            dismissKeyboard(in: app)
+        }
+
+        XCTFail("\(title) should be listed under More and open its screen.")
+    }
+
+    private func moreMenuItem(_ title: String, in app: XCUIApplication) -> XCUIElement {
+        let button = app.buttons[title]
+        if button.exists {
+            return button
+        }
+        return app.cells.containing(.staticText, identifier: title).firstMatch
     }
 
     private func assertScreenTitle(_ title: String, in app: XCUIApplication, interfaceStyle: String) {
