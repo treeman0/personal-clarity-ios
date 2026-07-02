@@ -33,6 +33,79 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
         XCTAssertNil(GoogleOAuthClient().makeAuthorizationRequest(configuration: configuration))
     }
 
+    func testOAuthExchangeBuildsFormRequestAndDecodesTokens() async throws {
+        var capturedRequest: URLRequest?
+        let client = GoogleOAuthClient { request in
+            capturedRequest = request
+            let data = """
+            {
+              "access_token": "access",
+              "refresh_token": "refresh",
+              "expires_in": 3600
+            }
+            """.data(using: .utf8)!
+            return (data, Self.httpResponse(for: request, statusCode: 200))
+        }
+
+        let tokens = try await client.exchangeCode(
+            "auth-code",
+            codeVerifier: "verifier/value",
+            configuration: Self.oauthConfiguration
+        )
+
+        let request = try XCTUnwrap(capturedRequest)
+        XCTAssertEqual(request.httpMethod, "POST")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/x-www-form-urlencoded")
+        XCTAssertEqual(request.url?.absoluteString, "https://oauth2.googleapis.com/token")
+        let formFields = Self.formFields(from: request)
+        XCTAssertEqual(formFields["client_id"], "client-id")
+        XCTAssertEqual(formFields["code"], "auth-code")
+        XCTAssertEqual(formFields["code_verifier"], "verifier/value")
+        XCTAssertEqual(formFields["grant_type"], "authorization_code")
+        XCTAssertEqual(formFields["redirect_uri"], Self.oauthConfiguration.redirectURI)
+        XCTAssertEqual(tokens.accessToken, "access")
+        XCTAssertEqual(tokens.refreshToken, "refresh")
+        XCTAssertNotNil(tokens.expirationDate)
+    }
+
+    func testOAuthRefreshPreservesExistingRefreshTokenWhenResponseOmitsOne() async throws {
+        var capturedRequest: URLRequest?
+        let client = GoogleOAuthClient { request in
+            capturedRequest = request
+            let data = """
+            {
+              "access_token": "fresh-access",
+              "expires_in": 3600
+            }
+            """.data(using: .utf8)!
+            return (data, Self.httpResponse(for: request, statusCode: 200))
+        }
+
+        let tokens = try await client.refreshTokens(refreshToken: "existing-refresh", configuration: Self.oauthConfiguration)
+
+        let request = try XCTUnwrap(capturedRequest)
+        let formFields = Self.formFields(from: request)
+        XCTAssertEqual(formFields["grant_type"], "refresh_token")
+        XCTAssertEqual(formFields["refresh_token"], "existing-refresh")
+        XCTAssertEqual(tokens.accessToken, "fresh-access")
+        XCTAssertEqual(tokens.refreshToken, "existing-refresh")
+    }
+
+    func testOAuthTokenRequestThrowsOnNonSuccessResponse() async throws {
+        let client = GoogleOAuthClient { request in
+            ("{}".data(using: .utf8)!, Self.httpResponse(for: request, statusCode: 400))
+        }
+
+        do {
+            _ = try await client.refreshTokens(refreshToken: "expired-refresh", configuration: Self.oauthConfiguration)
+            XCTFail("Expected token refresh to throw for non-success responses.")
+        } catch GoogleCalendarError.invalidResponse {
+            XCTAssertTrue(true)
+        } catch {
+            XCTFail("Expected invalidResponse, got \(error).")
+        }
+    }
+
     func testUpcomingEventsBuildsAuthorizedRequestAndDecodesEvents() async throws {
         var capturedRequest: URLRequest?
         let client = GoogleCalendarClient { request in
@@ -249,6 +322,23 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
 
     private static func httpResponse(for request: URLRequest, statusCode: Int) -> HTTPURLResponse {
         HTTPURLResponse(url: request.url!, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    }
+
+    private static func formFields(from request: URLRequest) -> [String: String] {
+        guard
+            let body = request.httpBody,
+            let rawBody = String(data: body, encoding: .utf8)
+        else {
+            return [:]
+        }
+
+        var fields: [String: String] = [:]
+        for pair in rawBody.split(separator: "&") {
+            let parts = pair.split(separator: "=", maxSplits: 1).map(String.init)
+            guard parts.count == 2 else { continue }
+            fields[parts[0].removingPercentEncoding ?? parts[0]] = parts[1].removingPercentEncoding ?? parts[1]
+        }
+        return fields
     }
 }
 

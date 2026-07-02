@@ -23,11 +23,20 @@ struct GoogleOAuthRequest: Equatable {
 }
 
 struct GoogleOAuthClient {
+    typealias DataLoader = (URLRequest) async throws -> (Data, URLResponse)
+
     private let tokenEndpoint = URL(string: "https://oauth2.googleapis.com/token")!
     private let authorizationEndpoint = URL(string: "https://accounts.google.com/o/oauth2/v2/auth")!
     private let scopes = [
         "https://www.googleapis.com/auth/calendar.events"
     ]
+    private let dataLoader: DataLoader
+
+    init(dataLoader: @escaping DataLoader = { request in
+        try await URLSession.shared.data(for: request)
+    }) {
+        self.dataLoader = dataLoader
+    }
 
     func makeAuthorizationRequest(configuration: GoogleOAuthConfiguration) -> GoogleOAuthRequest? {
         guard configuration.isConfigured else { return nil }
@@ -93,7 +102,7 @@ struct GoogleOAuthClient {
             .joined(separator: "&")
             .data(using: .utf8)
 
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await dataLoader(request)
         guard let httpResponse = response as? HTTPURLResponse, (200..<300).contains(httpResponse.statusCode) else {
             throw GoogleCalendarError.invalidResponse
         }
