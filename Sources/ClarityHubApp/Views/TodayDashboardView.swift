@@ -12,6 +12,7 @@ struct TodayDashboardView: View {
     @Query(sort: \ClarityListRecord.createdAt) private var listRecords: [ClarityListRecord]
     @Query(sort: \ProjectRecord.createdAt) private var projectRecords: [ProjectRecord]
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
+    @Query(sort: \DailyReviewRecord.date, order: .reverse) private var reviewRecords: [DailyReviewRecord]
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var weightEntries: [WeightEntry] = []
     @State private var weightStatus = "Connect Apple Health to show today's weight."
@@ -95,6 +96,29 @@ struct TodayDashboardView: View {
                     systemImage: "fork.knife.circle",
                     tint: .purple
                 )
+            }
+
+            SectionPanel(title: "Focus") {
+                if let review = latestFocusReview {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "scope")
+                            .font(.title3)
+                            .foregroundStyle(.teal)
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(review.nextFocus)
+                                .font(.subheadline.weight(.semibold))
+                            Text("From \(review.date.formatted(date: .abbreviated, time: .omitted)) review")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    }
+                } else {
+                    Text("Save a review focus to carry a clear next action into tomorrow.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             SectionPanel(title: "Next actions") {
@@ -257,6 +281,10 @@ struct TodayDashboardView: View {
         }
 
         return weightEntries.isEmpty ? "Connect Health" : "Goal unavailable"
+    }
+
+    private var latestFocusReview: DailyReviewRecord? {
+        reviewRecords.first { !$0.nextFocus.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
     private func refreshWeight() async {

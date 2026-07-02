@@ -18,6 +18,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Today next actions are backed by `TaskRecord` IDs so the operating screen can show list/project/goal context and complete tasks in place.
 - Goals, daily/custom weekday habits, task capture, dated nutrition import/history, daily review, and weekly review have first write paths.
 - Habit rows surface completion streaks from stored check-ins so the tracker shows momentum, not only today's binary state.
+- Daily review next focus creates a deduplicated high-priority task due the next day, and Today surfaces the latest saved focus alongside the priority queue.
 - Goal records store a starting value separately from current and target values so progress remains meaningful after the user updates the current value.
 - Goals can create linked next actions directly, and those actions flow into Lists and Today through the shared task model.
 - Task capture can attach a task to an existing list, project, and goal, and Today surfaces goal context in next actions.

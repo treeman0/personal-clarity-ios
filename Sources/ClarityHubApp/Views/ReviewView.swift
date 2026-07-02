@@ -1,3 +1,4 @@
+import ClarityHubCore
 import SwiftData
 import SwiftUI
 
@@ -5,6 +6,7 @@ struct ReviewView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \DailyReviewRecord.date, order: .reverse) private var reviews: [DailyReviewRecord]
     @Query(sort: \WeeklyReviewRecord.weekStart, order: .reverse) private var weeklyReviews: [WeeklyReviewRecord]
+    @Query(sort: \TaskRecord.createdAt) private var tasks: [TaskRecord]
     @State private var wins = ""
     @State private var friction = ""
     @State private var nextFocus = ""
@@ -109,9 +111,11 @@ struct ReviewView: View {
     }
 
     private func saveReview() {
-        let todayReviews = RecordDateMatcher.records(reviews, on: Date()) { $0.date }
+        let reviewDate = Date()
+        let todayReviews = RecordDateMatcher.records(reviews, on: reviewDate) { $0.date }
         todayReviews.forEach(modelContext.delete)
-        modelContext.insert(DailyReviewRecord(date: Date(), wins: wins, friction: friction, nextFocus: nextFocus))
+        modelContext.insert(DailyReviewRecord(date: reviewDate, wins: wins, friction: friction, nextFocus: nextFocus))
+        insertFocusTaskIfNeeded(reviewDate: reviewDate)
     }
 
     private func saveWeeklyReview() {
@@ -142,5 +146,33 @@ struct ReviewView: View {
 
     private func currentWeekStart() -> Date {
         Calendar.current.dateInterval(of: .weekOfYear, for: Date())?.start ?? Calendar.current.startOfDay(for: Date())
+    }
+
+    private func insertFocusTaskIfNeeded(reviewDate: Date) {
+        guard let action = ReviewFocusPlanner.nextAction(from: nextFocus, reviewDate: reviewDate) else { return }
+        let alreadyExists = tasks.contains { task in
+            task.status == TaskStatus.open.rawValue
+                && task.title == action.title
+                && sameDueDay(task.dueDate, action.dueDate)
+        }
+
+        guard !alreadyExists else { return }
+        modelContext.insert(TaskRecord(
+            title: action.title,
+            status: action.status.rawValue,
+            dueDate: action.dueDate,
+            priority: action.priority
+        ))
+    }
+
+    private func sameDueDay(_ lhs: Date?, _ rhs: Date?) -> Bool {
+        switch (lhs, rhs) {
+        case let (.some(left), .some(right)):
+            return Calendar.current.isDate(left, inSameDayAs: right)
+        case (.none, .none):
+            return true
+        default:
+            return false
+        }
     }
 }
