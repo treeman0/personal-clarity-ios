@@ -103,6 +103,12 @@ struct CalendarView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(!configuration.isConfigured || isLoading || newBlockTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+
+                if !statusMessage.isEmpty {
+                    Text(statusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .task {
