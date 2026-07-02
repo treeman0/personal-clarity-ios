@@ -23,6 +23,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Goals can create linked next actions directly, and those actions flow into Lists and Today through the shared task model.
 - Goals capture optional due dates and allow direct current-value updates so progress tracking is not limited to one-unit nudges.
 - Task capture can attach a task to an optional due date, existing list, project, and goal; Lists and Today use the shared planner so due-date ordering and context stay consistent.
+- Nutrition imports feed a core recent-average summary so Nutrition and Today show calorie/macro direction instead of only individual saved days.
 - Weigh-in reminders use local notifications with a daily repeating request plus a one-shot snooze request that can be skipped from Body.
 - HealthKit body weight remains an external authorized source and is automatically refreshed into Body/Today views rather than copied into app-owned storage.
 - SwiftData model properties declare defaults so the schema is friendlier to private CloudKit sync and future lightweight migration.

@@ -63,6 +63,10 @@ struct TodayDashboardView: View {
         return orderedIDs.compactMap { id in taskRecords.first(where: { $0.id == id }) }
     }
 
+    private var nutritionSummary: NutritionSummary {
+        NutritionSummaryCalculator.recentAverage(nutritionRecords.map(\.day), limit: 7)
+    }
+
     var body: some View {
         ScreenScaffold(title: "Today", subtitle: "One clean read on the day.") {
             SetupChecklistView()
@@ -149,6 +153,29 @@ struct TodayDashboardView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            SectionPanel(title: "Nutrition signal") {
+                if nutritionSummary.dayCount == 0 {
+                    Text("Import or connect nutrition to see recent intake here.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "chart.line.uptrend.xyaxis")
+                            .font(.title3)
+                            .foregroundStyle(.orange)
+                            .frame(width: 28)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("\(nutritionSummary.averageCalories.formatted(.number.precision(.fractionLength(0)))) cal average")
+                                .font(.subheadline.weight(.semibold))
+                            Text("P \(nutritionSummary.averageProteinGrams.oneDecimal)g C \(nutritionSummary.averageCarbohydrateGrams.oneDecimal)g F \(nutritionSummary.averageFatGrams.oneDecimal)g over \(nutritionSummary.dayCount) days")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
                     }
                 }
             }

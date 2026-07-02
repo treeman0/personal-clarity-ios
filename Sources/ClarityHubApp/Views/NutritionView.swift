@@ -16,6 +16,10 @@ struct NutritionView: View {
         RecordDateMatcher.records(nutritionRecords, on: Date()) { $0.date }.first?.day
     }
 
+    private var recentSummary: NutritionSummary {
+        NutritionSummaryCalculator.recentAverage(nutritionRecords.map(\.day), limit: 7)
+    }
+
     var body: some View {
         ScreenScaffold(title: "Nutrition", subtitle: "Apple Health first, Cal AI import fallback.") {
             if let day {
@@ -96,6 +100,22 @@ struct NutritionView: View {
                 .buttonStyle(.bordered)
             }
 
+            SectionPanel(title: "Recent average") {
+                if recentSummary.dayCount == 0 {
+                    Text("Save a few nutrition days to see your average intake.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("\(recentSummary.dayCount)-day average", systemImage: "chart.line.uptrend.xyaxis")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.orange)
+                        Text(summaryLine(for: recentSummary))
+                            .font(.subheadline)
+                    }
+                }
+            }
+
             SectionPanel(title: "Recent nutrition") {
                 let recent = nutritionRecords.prefix(7)
                 if recent.isEmpty {
@@ -174,6 +194,10 @@ struct NutritionView: View {
 
     private func importSummary(for day: NutritionDay) -> String {
         "\(day.calories.formatted(.number.precision(.fractionLength(0)))) calories, \(day.proteinGrams.oneDecimal)g protein, \(day.carbohydrateGrams.oneDecimal)g carbs, \(day.fatGrams.oneDecimal)g fat"
+    }
+
+    private func summaryLine(for summary: NutritionSummary) -> String {
+        "\(summary.averageCalories.formatted(.number.precision(.fractionLength(0)))) cal - P \(summary.averageProteinGrams.oneDecimal)g C \(summary.averageCarbohydrateGrams.oneDecimal)g F \(summary.averageFatGrams.oneDecimal)g"
     }
 }
 
