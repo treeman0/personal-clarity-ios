@@ -41,6 +41,6 @@ public enum NutritionImportParser {
         else {
             return nil
         }
-        return Double(text[valueRange].replacingOccurrences(of: ",", with: ""))
+        return Double(String(text[valueRange]).replacingOccurrences(of: ",", with: ""))
     }
 }
