@@ -116,18 +116,21 @@ final class PersistenceIntegrationTests: XCTestCase {
         let goalID = UUID()
         let listID = UUID()
         let projectID = UUID()
+        let dueDate = Date()
         let goal = GoalRecord(
             id: goalID,
             title: "Gain weight",
             startingValue: 165,
             currentValue: 170,
             targetValue: 180,
-            directionRawValue: "increase"
+            directionRawValue: "increase",
+            dueDate: dueDate
         )
         let task = TaskRecord(listID: listID, goalID: goalID, projectID: projectID, title: "Buy groceries", priority: 2)
 
         XCTAssertEqual(goal.snapshot.startingValue, 165)
         XCTAssertEqual(goal.snapshot.currentValue, 170)
+        XCTAssertEqual(goal.snapshot.dueDate, dueDate)
         XCTAssertEqual(task.item.id, task.id)
         XCTAssertEqual(task.item.listID, listID)
         XCTAssertEqual(task.item.goalID, goalID)

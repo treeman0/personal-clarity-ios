@@ -10,6 +10,8 @@ struct GoalsView: View {
     @State private var currentValue = 0.0
     @State private var targetValue = 100.0
     @State private var direction = GoalDirection.increase
+    @State private var hasDueDate = false
+    @State private var dueDate = Date()
     @State private var nextActionTitles: [UUID: String] = [:]
 
     var body: some View {
@@ -31,6 +33,10 @@ struct GoalsView: View {
                     Text("Maintain").tag(GoalDirection.maintain)
                 }
                 .pickerStyle(.segmented)
+                Toggle("Due date", isOn: $hasDueDate)
+                if hasDueDate {
+                    DatePicker("Target date", selection: $dueDate, displayedComponents: .date)
+                }
                 Button {
                     addGoal()
                 } label: {
@@ -63,6 +69,20 @@ struct GoalsView: View {
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                    if let dueDate = goal.dueDate {
+                        Label(dueDetail(for: dueDate), systemImage: "calendar")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    HStack {
+                        Text("Current")
+                            .font(.subheadline.weight(.semibold))
+                        TextField("Current", value: currentValueBinding(for: record), format: .number)
+                            .keyboardType(.decimalPad)
+                            .textFieldStyle(.roundedBorder)
+                    }
 
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Next actions")
@@ -135,13 +155,16 @@ struct GoalsView: View {
             startingValue: currentValue,
             currentValue: currentValue,
             targetValue: targetValue,
-            directionRawValue: direction.rawValue
+            directionRawValue: direction.rawValue,
+            dueDate: hasDueDate ? dueDate : nil
         ))
 
         title = ""
         currentValue = 0
         targetValue = 100
         direction = .increase
+        hasDueDate = false
+        dueDate = Date()
     }
 
     private func nudge(_ record: GoalRecord) {
@@ -189,6 +212,13 @@ struct GoalsView: View {
             }
     }
 
+    private func currentValueBinding(for goal: GoalRecord) -> Binding<Double> {
+        Binding(
+            get: { goal.currentValue },
+            set: { goal.currentValue = $0 }
+        )
+    }
+
     private func nextActionBinding(for goalID: UUID) -> Binding<String> {
         Binding(
             get: { nextActionTitles[goalID, default: ""] },
@@ -212,5 +242,25 @@ struct GoalsView: View {
             .filter { $0.goalID == goal.id }
             .forEach(modelContext.delete)
         modelContext.delete(goal)
+    }
+
+    private func dueDetail(for dueDate: Date) -> String {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let dueDay = calendar.startOfDay(for: dueDate)
+        let days = calendar.dateComponents([.day], from: today, to: dueDay).day ?? 0
+
+        switch days {
+        case 0:
+            return "Due today"
+        case 1:
+            return "Due tomorrow"
+        case let value where value > 1:
+            return "Due \(dueDate.formatted(date: .abbreviated, time: .omitted)) in \(value) days"
+        case -1:
+            return "Due yesterday"
+        default:
+            return "Due \(dueDate.formatted(date: .abbreviated, time: .omitted)), \(abs(days)) days overdue"
+        }
     }
 }
