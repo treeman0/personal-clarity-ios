@@ -4,13 +4,20 @@ This audit maps the original V1 requirements to the evidence needed before the g
 
 ## Current Release Candidate
 
+Update this block when performing a final V1 audit. Do not treat stale commit IDs as evidence.
+
 ```text
-Local HEAD: 898175e Add V1 acceptance runbook
-Remote HEAD: 7b81f86 Stabilize Today goal identity
-Latest CI status: blocked before job start by GitHub Actions billing/spending-limit state
+Local HEAD: run `git log -1 --oneline`
+Remote HEAD: run `git log -1 --oneline origin/main`
+Local/remote status: run `git status -sb`
+Latest CI status: run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3`
 Manual acceptance: not executed
 Goal status: active, not complete
 ```
+
+Known state at the time this audit was added: local `main` was ahead of `origin/main`, and the latest remote CI run failed before job start because GitHub Actions reported an account billing/spending-limit issue.
+
+On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loop gate, release verifier, Swift availability, and latest GitHub Actions summary in one pass.
 
 ## Workflow Requirements
 
@@ -52,9 +59,10 @@ Goal status: active, not complete
 
 | Gate | Current state | Status |
 | --- | --- | --- |
-| `git diff --check` | Passed locally before local runbook commit | Achieved locally |
-| `bash scripts/verify-release-config.sh` | Passed locally after local runbook commit | Achieved locally |
-| `.claude/scripts/status-report.ps1` | Clean locally | Achieved locally |
+| `git diff --check` | Run on current worktree | Needs final run |
+| `bash scripts/verify-release-config.sh` | Run on current worktree | Needs final run |
+| `.claude/scripts/status-report.ps1` | Run on current worktree | Needs final run |
+| `.\scripts\v1-local-status.ps1` | Run on Windows handoff state | Needs final run |
 | `swift test` | Not available on Windows host | Needs macOS |
 | `xcodegen generate` | Not available on Windows host | Needs macOS |
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
@@ -82,7 +90,7 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 
 V1 can be marked complete only when:
 
-1. The local runbook commit is pushed.
+1. All local release-candidate commits are pushed.
 2. GitHub Actions billing/spending-limit is fixed.
 3. Latest `main` CI for the pushed HEAD is green.
 4. `docs/V1_ACCEPTANCE_RUNBOOK.md` is executed on iPhone or simulator.

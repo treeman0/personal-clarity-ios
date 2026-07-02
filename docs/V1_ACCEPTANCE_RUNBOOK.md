@@ -29,6 +29,12 @@ xcodebuild test -project ClarityHub.xcodeproj -scheme ClarityHub -destination "p
 
 If GitHub Actions cannot start because of billing, runner, or account limits, do not mark V1 complete. Record the failed run URL and rerun after the external issue is fixed.
 
+On Windows, run this helper before handoff:
+
+```powershell
+.\scripts\v1-local-status.ps1
+```
+
 ## Clean Install Pass
 
 Start from a clean app install or erased simulator content.
