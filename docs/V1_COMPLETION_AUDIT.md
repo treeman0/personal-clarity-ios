@@ -80,7 +80,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | Nutrition import workflow smoke | `ClarityHubUITests.testNutritionImportFlowUpdatesTodaySignal` launches Nutrition with DEBUG-prefilled Cal AI-style totals, parses them through the visible UI, saves the day, verifies the recent average, and confirms Today's nutrition signal updates | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | Visual acceptance evidence | Light/dark tab smoke and dense Today smoke attach XCTest screenshots; iOS CI uploads `TestResults/ClarityHub.xcresult` as a retained artifact | Added; needs latest CI evidence |
-| Core data-entry workflow smoke | `ClarityHubUITests.testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas` creates a goal, habit/check-in, list, project, task completion/restore, daily review, and weekly review through the visible UI, then verifies Today integration and attaches screenshots | Added; needs latest CI evidence |
+| Core data-entry workflow smoke | `ClarityHubUITests.testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas` creates a goal, habit/check-in, list, project, task completion/restore, daily review, and weekly review through the visible UI and attaches screenshots | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 

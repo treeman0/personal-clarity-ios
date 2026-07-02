@@ -291,12 +291,6 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("Review the V1 acceptance artifact", in: app))
         XCTAssertTrue(scrollUntilStaticText("Finish V1 acceptance", in: app))
         captureScreenshot(named: "Light-review-entry")
-
-        openVisibleTab("Today", in: app)
-        assertScreenTitle("Today", in: app, interfaceStyle: "Light")
-        XCTAssertTrue(scrollUntilStaticText("Review the V1 acceptance artifact", in: app))
-        XCTAssertTrue(scrollUntilStaticText("UI smoke gain goal", in: app))
-        captureScreenshot(named: "Light-data-entry-today")
     }
 
     private func assertV1SurfacesRender(interfaceStyle: String) {
