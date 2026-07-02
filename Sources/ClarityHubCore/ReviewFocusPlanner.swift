@@ -15,6 +15,6 @@ public enum ReviewFocusPlanner {
             to: calendar.startOfDay(for: reviewDate)
         )
 
-        return TaskItem(title: title, dueDate: tomorrow, priority: 3)
+        return TaskItem(title: title, status: .open, dueDate: tomorrow, priority: 3)
     }
 }
