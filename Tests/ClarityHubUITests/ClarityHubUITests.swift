@@ -124,6 +124,31 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertFalse(app.buttons["Connect"].isEnabled)
     }
 
+    func testReminderScheduleSnoozeSkipControlsRenderSuccessStates() {
+        let app = launchReminderFixture(state: "authorized", interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        openVisibleTab("Body", in: app)
+        assertScreenTitle("Body", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton(containing: "weigh-in reminder", in: app))
+        app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "weigh-in reminder")).firstMatch.tap()
+        XCTAssertTrue(scrollUntilStaticText(containing: "Daily reminder scheduled for", in: app))
+
+        XCTAssertTrue(scrollUntilButton("Snooze", in: app))
+        app.buttons["Snooze"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Snoozed for 15 minutes.", in: app))
+
+        XCTAssertTrue(scrollUntilButton("Skip snooze", in: app))
+        app.buttons["Skip snooze"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Pending snooze skipped.", in: app))
+
+        openMoreTab("Settings", in: app)
+        assertScreenTitle("Settings", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Save and schedule reminder", in: app))
+        app.buttons["Save and schedule reminder"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Saved and scheduled.", in: app))
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -188,6 +213,16 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "fail-if-called"
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
+    }
+
+    private func launchReminderFixture(state: String, interfaceStyle: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_REMINDER_FIXTURE"] = state
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
@@ -275,8 +310,50 @@ final class ClarityHubUITests: XCTestCase {
         return false
     }
 
+    private func scrollUntilStaticText(containing text: String, in app: XCUIApplication) -> Bool {
+        let element = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", text)).firstMatch
+        if element.waitForExistence(timeout: 2) {
+            return true
+        }
+
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.exists else {
+            return false
+        }
+
+        for _ in 0..<5 {
+            scrollView.swipeUp()
+            if element.waitForExistence(timeout: 1) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     private func scrollUntilButton(_ label: String, in app: XCUIApplication) -> Bool {
         let button = app.buttons[label]
+        if button.waitForExistence(timeout: 2) {
+            return true
+        }
+
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.exists else {
+            return false
+        }
+
+        for _ in 0..<5 {
+            scrollView.swipeUp()
+            if button.waitForExistence(timeout: 1) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private func scrollUntilButton(containing label: String, in app: XCUIApplication) -> Bool {
+        let button = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", label)).firstMatch
         if button.waitForExistence(timeout: 2) {
             return true
         }

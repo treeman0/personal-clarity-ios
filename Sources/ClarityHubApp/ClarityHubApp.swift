@@ -23,7 +23,7 @@ struct ClarityHubApp: App {
                 .modelContainer(modelContainer)
                 .environment(\.healthKitWeightStore, Self.healthKitWeightStore)
                 .environment(\.nutritionHealthStore, Self.nutritionHealthStore)
-                .environment(\.weighInReminderScheduler, WeighInReminderScheduler())
+                .environment(\.weighInReminderScheduler, Self.weighInReminderScheduler)
                 .environment(\.googleCalendarClient, Self.googleCalendarClient)
         }
     }
@@ -88,6 +88,29 @@ struct ClarityHubApp: App {
         #endif
 
         return GoogleCalendarClient()
+    }
+
+    private static var weighInReminderScheduler: WeighInReminderScheduler {
+        #if DEBUG
+        switch ProcessInfo.processInfo.environment["CLARITYHUB_REMINDER_FIXTURE"] {
+        case "authorized":
+            return WeighInReminderScheduler(
+                authorizationRequester: { _ in true },
+                requestScheduler: { _ in },
+                requestCanceller: { _ in }
+            )
+        case "denied":
+            return WeighInReminderScheduler(
+                authorizationRequester: { _ in false },
+                requestScheduler: { _ in },
+                requestCanceller: { _ in }
+            )
+        default:
+            break
+        }
+        #endif
+
+        return WeighInReminderScheduler()
     }
 }
 
