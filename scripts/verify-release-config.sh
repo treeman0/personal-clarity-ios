@@ -4,6 +4,7 @@ set -euo pipefail
 expected_container="iCloud.com.treeman0.ClarityHub"
 entitlements="Sources/ClarityHubApp/ClarityHub.entitlements"
 info_plist="Sources/ClarityHubApp/Info.plist"
+privacy_manifest="Sources/ClarityHubApp/PrivacyInfo.xcprivacy"
 model_factory="Sources/ClarityHubApp/Persistence/ClarityHubModelContainerFactory.swift"
 project_config="project.yml"
 expected_google_callback_scheme="com.treeman0.ClarityHub"
@@ -65,6 +66,43 @@ if grep -F "NSHealthUpdateUsageDescription" "$info_plist" >/dev/null; then
   echo "V1 should not declare HealthKit write usage because it only reads authorized Health data" >&2
   exit 1
 fi
+
+remote_notification_mode=$(read_plist_value "$info_plist" "UIBackgroundModes" "0")
+if [[ "$remote_notification_mode" != "remote-notification" ]]; then
+  echo "Expected remote-notification background mode, found $remote_notification_mode" >&2
+  exit 1
+fi
+
+"$python_bin" - "$privacy_manifest" <<'PY'
+import plistlib
+import sys
+
+path = sys.argv[1]
+with open(path, "rb") as file:
+    manifest = plistlib.load(file)
+
+if manifest.get("NSPrivacyTracking") is not False:
+    raise SystemExit("Expected privacy manifest to declare no tracking")
+
+expected_types = {
+    "NSPrivacyCollectedDataTypeHealth",
+    "NSPrivacyCollectedDataTypeFitness",
+    "NSPrivacyCollectedDataTypeOtherUserContent",
+    "NSPrivacyCollectedDataTypeProductInteraction",
+}
+collected_types = manifest.get("NSPrivacyCollectedDataTypes", [])
+actual_types = {entry.get("NSPrivacyCollectedDataType") for entry in collected_types}
+missing = expected_types - actual_types
+if missing:
+    raise SystemExit(f"Privacy manifest missing collected data types: {sorted(missing)}")
+
+for entry in collected_types:
+    if entry.get("NSPrivacyCollectedDataTypeTracking") is not False:
+        raise SystemExit("Expected collected data types to declare no tracking")
+    purposes = entry.get("NSPrivacyCollectedDataTypePurposes")
+    if purposes != ["NSPrivacyCollectedDataTypePurposeAppFunctionality"]:
+        raise SystemExit("Expected collected data types to be used only for app functionality")
+PY
 
 grep -F "CODE_SIGN_ENTITLEMENTS: Sources/ClarityHubApp/ClarityHub.entitlements" "$project_config" >/dev/null
 grep -F ".private(\"$expected_container\")" "$model_factory" >/dev/null
