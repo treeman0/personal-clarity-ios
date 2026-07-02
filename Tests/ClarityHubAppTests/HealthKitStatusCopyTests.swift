@@ -20,7 +20,22 @@ final class HealthKitStatusCopyTests: XCTestCase {
         XCTAssertTrue(
             HealthKitStatusCopy
                 .setupAuthorizationMessage(reminderScheduled: false)
-                .contains("Notification permission was denied")
+                .contains("notification permission")
+        )
+    }
+
+    func testSetupAuthorizationMessageNamesDeniedIntegrationAreas() {
+        let message = HealthKitStatusCopy.setupAuthorizationMessage(
+            bodyAuthorized: false,
+            nutritionAuthorized: false,
+            reminderScheduled: false
+        )
+
+        XCTAssertTrue(message.contains("body-weight Health permission"))
+        XCTAssertTrue(message.contains("nutrition Health permission"))
+        XCTAssertTrue(message.contains("notification permission"))
+        XCTAssertTrue(
+            message.contains("Needs attention: body-weight Health permission, nutrition Health permission, notification permission.")
         )
     }
 }

@@ -6,9 +6,27 @@ enum HealthKitStatusCopy {
     static let nutritionLoadFailed = "Apple Health nutrition could not be loaded. Check Health permission and try again."
 
     static func setupAuthorizationMessage(reminderScheduled: Bool) -> String {
-        if reminderScheduled {
+        setupAuthorizationMessage(
+            bodyAuthorized: true,
+            nutritionAuthorized: true,
+            reminderScheduled: reminderScheduled
+        )
+    }
+
+    static func setupAuthorizationMessage(
+        bodyAuthorized: Bool,
+        nutritionAuthorized: Bool,
+        reminderScheduled: Bool
+    ) -> String {
+        let attentionItems = [
+            bodyAuthorized ? nil : "body-weight Health permission",
+            nutritionAuthorized ? nil : "nutrition Health permission",
+            reminderScheduled ? nil : "notification permission"
+        ].compactMap { $0 }
+
+        if attentionItems.isEmpty {
             return "Health permissions requested and reminder scheduled. If Health data stays empty, confirm access in Health settings."
         }
-        return "Health permissions requested. Notification permission was denied; Health access may still need confirmation in Settings."
+        return "Setup access requested. Needs attention: \(attentionItems.joined(separator: ", "))."
     }
 }

@@ -167,28 +167,49 @@ struct SetupChecklistView: View {
     }
 
     private func authorizeCoreIntegrations() async {
+        let bodyAuthorized = await requestBodyAuthorization()
+        let nutritionAuthorized = await requestNutritionAuthorization()
+        let reminderScheduled = await scheduleSetupReminder()
+
+        AppPreferences.upsert(
+            .weighInReminderScheduled,
+            value: reminderScheduled ? "true" : "false",
+            in: modelContext,
+            preferences: preferences
+        )
+        statusMessage = HealthKitStatusCopy.setupAuthorizationMessage(
+            bodyAuthorized: bodyAuthorized,
+            nutritionAuthorized: nutritionAuthorized,
+            reminderScheduled: reminderScheduled
+        )
+    }
+
+    private func requestBodyAuthorization() async -> Bool {
         do {
             try await healthKitWeightStore.requestAuthorization()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private func requestNutritionAuthorization() async -> Bool {
+        do {
             try await nutritionHealthStore.requestAuthorization()
-            let reminderScheduled = try await reminderScheduler.authorizeAndScheduleDailyReminder(
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private func scheduleSetupReminder() async -> Bool {
+        do {
+            return try await reminderScheduler.authorizeAndScheduleDailyReminder(
                 hour: reminderHour,
                 minute: reminderMinute
             )
-            AppPreferences.upsert(
-                .weighInReminderScheduled,
-                value: reminderScheduled ? "true" : "false",
-                in: modelContext,
-                preferences: preferences
-            )
-            statusMessage = HealthKitStatusCopy.setupAuthorizationMessage(reminderScheduled: reminderScheduled)
         } catch {
-            AppPreferences.upsert(
-                .weighInReminderScheduled,
-                value: "false",
-                in: modelContext,
-                preferences: preferences
-            )
-            statusMessage = "Some permissions could not be completed."
+            return false
         }
     }
 }

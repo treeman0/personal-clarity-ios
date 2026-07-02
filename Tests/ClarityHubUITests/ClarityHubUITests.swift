@@ -88,7 +88,7 @@ final class ClarityHubUITests: XCTestCase {
 
         XCTAssertTrue(scrollUntilButton("Authorize", in: app))
         app.buttons["Authorize"].tap()
-        XCTAssertTrue(scrollUntilStaticText("Some permissions could not be completed.", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Setup access requested. Needs attention: body-weight Health permission, nutrition Health permission, notification permission.", in: app))
 
         openVisibleTab("Body", in: app)
         assertScreenTitle("Body", in: app, interfaceStyle: "Light")
@@ -381,6 +381,7 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = state
+        app.launchEnvironment["CLARITYHUB_REMINDER_FIXTURE"] = state == "denied" ? "denied" : "authorized"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
