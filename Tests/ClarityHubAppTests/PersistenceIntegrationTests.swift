@@ -124,6 +124,49 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(linkedTasks.map(\.title), ["Buy training groceries"])
     }
 
+    func testDeletingGoalRemovesLinkedTasksOnly() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let goalID = UUID()
+        let otherGoalID = UUID()
+
+        let goal = GoalRecord(
+            id: goalID,
+            title: "Gain weight",
+            startingValue: 165,
+            currentValue: 170,
+            targetValue: 180,
+            directionRawValue: "increase"
+        )
+        context.insert(goal)
+        context.insert(GoalRecord(
+            id: otherGoalID,
+            title: "Improve sleep",
+            startingValue: 6,
+            currentValue: 7,
+            targetValue: 8,
+            directionRawValue: "increase"
+        ))
+        context.insert(TaskRecord(goalID: goalID, title: "Buy training groceries", priority: 2))
+        context.insert(TaskRecord(goalID: goalID, title: "Plan breakfast", priority: 2))
+        context.insert(TaskRecord(goalID: otherGoalID, title: "Set wind-down alarm", priority: 1))
+        context.insert(TaskRecord(title: "Unlinked admin task", priority: 0))
+        try context.save()
+
+        let tasks = try context.fetch(FetchDescriptor<TaskRecord>())
+        tasks
+            .filter { $0.goalID == goal.id }
+            .forEach(context.delete)
+        context.delete(goal)
+        try context.save()
+
+        let remainingGoals = try context.fetch(FetchDescriptor<GoalRecord>())
+        let remainingTasks = try context.fetch(FetchDescriptor<TaskRecord>())
+
+        XCTAssertEqual(remainingGoals.map(\.id), [otherGoalID])
+        XCTAssertEqual(Set(remainingTasks.map(\.title)), Set(["Set wind-down alarm", "Unlinked admin task"]))
+    }
+
     func testTaskCompletionCanBeRestoredAndDeleted() throws {
         let container = try ClarityHubModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
