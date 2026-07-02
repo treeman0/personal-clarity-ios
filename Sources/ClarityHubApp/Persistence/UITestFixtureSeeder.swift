@@ -3,6 +3,7 @@ import SwiftData
 
 #if DEBUG
 enum UITestFixtureSeeder {
+    @MainActor
     static func seedIfRequested(in container: ModelContainer) throws {
         guard ProcessInfo.processInfo.environment["CLARITYHUB_UI_TEST_FIXTURE"] == "dense" else {
             return
