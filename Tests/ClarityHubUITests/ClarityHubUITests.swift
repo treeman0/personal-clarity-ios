@@ -3,16 +3,16 @@ import XCTest
 final class ClarityHubUITests: XCTestCase {
     private let visibleTabs = ["Today", "Body", "Goals", "Habits"]
     private let moreTabs = ["Lists", "Calendar", "Nutrition", "Review", "Settings"]
-    private let emptyStateExpectations: [String: String] = [
-        "Today": "Client ID needed",
-        "Body": "Connect and refresh Apple Health",
-        "Goals": "Add a measurable target",
-        "Habits": "Add the routines",
-        "Lists": "No open tasks",
-        "Calendar": "Configure and connect Google Calendar",
-        "Nutrition": "No nutrition total saved",
-        "Review": "Saved reviews will build",
-        "Settings": "Goal weight"
+    private let setupSectionExpectations: [String: String] = [
+        "Today": "sectionTitle.Setup",
+        "Body": "sectionTitle.Trend",
+        "Goals": "sectionTitle.Add goal",
+        "Habits": "sectionTitle.Add habit",
+        "Lists": "sectionTitle.Add list",
+        "Calendar": "sectionTitle.Upcoming",
+        "Nutrition": "sectionTitle.Today",
+        "Review": "sectionTitle.Daily review",
+        "Settings": "sectionTitle.Body target"
     ]
 
     override func setUp() {
@@ -37,13 +37,13 @@ final class ClarityHubUITests: XCTestCase {
         for title in visibleTabs {
             openVisibleTab(title, in: app)
             assertScreenTitle(title, in: app, interfaceStyle: interfaceStyle)
-            assertEmptyState(for: title, in: app, interfaceStyle: interfaceStyle)
+            assertSetupSection(for: title, in: app, interfaceStyle: interfaceStyle)
         }
 
         for title in moreTabs {
             openMoreTab(title, in: app)
             assertScreenTitle(title, in: app, interfaceStyle: interfaceStyle)
-            assertEmptyState(for: title, in: app, interfaceStyle: interfaceStyle)
+            assertSetupSection(for: title, in: app, interfaceStyle: interfaceStyle)
         }
     }
 
@@ -78,17 +78,16 @@ final class ClarityHubUITests: XCTestCase {
         )
     }
 
-    private func assertEmptyState(for title: String, in app: XCUIApplication, interfaceStyle: String) {
-        guard let expectedText = emptyStateExpectations[title] else { return }
+    private func assertSetupSection(for title: String, in app: XCUIApplication, interfaceStyle: String) {
+        guard let expectedIdentifier = setupSectionExpectations[title] else { return }
         XCTAssertTrue(
-            scrollUntilElementContaining(expectedText, in: app),
-            "\(title) should show expected empty/setup text in \(interfaceStyle) mode."
+            scrollUntilElement(withIdentifier: expectedIdentifier, in: app),
+            "\(title) should show expected setup section in \(interfaceStyle) mode."
         )
     }
 
-    private func scrollUntilElementContaining(_ text: String, in app: XCUIApplication) -> Bool {
-        let predicate = NSPredicate(format: "label CONTAINS %@", text)
-        let element = app.descendants(matching: .any).matching(predicate).firstMatch
+    private func scrollUntilElement(withIdentifier identifier: String, in app: XCUIApplication) -> Bool {
+        let element = app.descendants(matching: .any)[identifier]
         if element.waitForExistence(timeout: 2) {
             return true
         }

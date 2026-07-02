@@ -68,7 +68,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | `xcodegen generate` | Not available on Windows host | Needs macOS |
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
 | Latest `main` CI green | Run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3` and confirm the latest run for `origin/main` succeeded | Passed for latest checked state; rerun before final acceptance |
-| Light/dark app-shell and empty-state smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Added; needs latest CI evidence |
+| Light/dark app-shell and setup-section smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -77,7 +77,7 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | Manual area | Status |
 | --- | --- |
 | Light/dark tab pass | Partially automated by UI smoke; still needs human visual acceptance |
-| Empty states | Partially automated by UI smoke; still needs human visual acceptance |
+| Empty states | Setup sections are partially automated by UI smoke; empty-state copy still needs human visual acceptance |
 | Long text | Needs evidence |
 | Dense Today data | Needs evidence |
 | No HealthKit data | Needs evidence |

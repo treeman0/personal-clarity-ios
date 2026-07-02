@@ -66,6 +66,7 @@ struct SectionPanel<Content: View>: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.headline)
+                .accessibilityIdentifier("sectionTitle.\(title)")
             content
         }
         .frame(maxWidth: .infinity, alignment: .leading)
