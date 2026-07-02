@@ -124,6 +124,37 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(linkedTasks.map(\.title), ["Buy training groceries"])
     }
 
+    func testDuplicateGoalTitlesKeepDistinctRecordIdentity() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let firstID = UUID()
+        let secondID = UUID()
+
+        context.insert(GoalRecord(
+            id: firstID,
+            title: "Gain weight",
+            startingValue: 165,
+            currentValue: 170,
+            targetValue: 180,
+            directionRawValue: "increase"
+        ))
+        context.insert(GoalRecord(
+            id: secondID,
+            title: "Gain weight",
+            startingValue: 0,
+            currentValue: 1,
+            targetValue: 3,
+            directionRawValue: "increase"
+        ))
+
+        try context.save()
+
+        let goals = try context.fetch(FetchDescriptor<GoalRecord>())
+
+        XCTAssertEqual(Set(goals.map(\.id)), Set([firstID, secondID]))
+        XCTAssertEqual(goals.map(\.title).filter { $0 == "Gain weight" }.count, 2)
+    }
+
     func testRecordMappingsPreserveGoalAndTaskIntegrationFields() {
         let goalID = UUID()
         let listID = UUID()

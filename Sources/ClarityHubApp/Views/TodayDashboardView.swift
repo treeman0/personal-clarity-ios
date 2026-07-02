@@ -274,7 +274,8 @@ struct TodayDashboardView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(snapshot.goals, id: \.title) { goal in
+                    ForEach(goalRecords) { record in
+                        let goal = record.snapshot
                         let progress = GoalProgressCalculator.progress(for: goal)
                         VStack(alignment: .leading, spacing: 6) {
                             HStack {

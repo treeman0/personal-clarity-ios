@@ -15,6 +15,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 ## Consequences
 
 - Today now reflects stored goals, habits, tasks, nutrition, authorized HealthKit weight, and same-day Google Calendar blocks instead of only sample data.
+- Today renders goal progress from `GoalRecord` identity rather than goal titles so duplicate-titled goals remain stable in dense data.
 - Today next actions are backed by `TaskRecord` IDs so the operating screen can show list/project/goal context and complete tasks in place.
 - Goals, daily/custom weekday habits, task capture, dated nutrition import/history, daily review, and weekly review have first write paths.
 - Habit rows surface cadence-aware completion streaks from stored check-ins so daily and custom weekday habits show momentum, not only today's binary state.
