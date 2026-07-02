@@ -35,7 +35,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | --- | --- | --- | --- |
 | App shell | Native SwiftUI iPhone app with Today, Body, Goals, Habits, Lists, Calendar, Nutrition, Review, Settings | `RootTabView.swift`, generated Xcode CI build, `ClarityHubUITests` light/dark tab smoke | Achieved, needs full manual UI pass |
 | Setup | Today setup checklist for defaults, core permissions, reminder scheduling, and denied notification feedback | `SetupChecklistView.swift`, reminder tests | Needs manual UI pass |
-| Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier, latest green CI | Needs signed-device sync smoke |
+| Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier, disk-backed persistence recreation test, latest green CI | Needs signed-device sync smoke |
 | Body | HealthKit body weight, goal comparison, trend chart, moving average, unique-day weigh-in streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests | Needs device/manual HealthKit pass |
 | Reminders | Morning weigh-in reminders with configurable time, permission-denied handling, snooze, skip | `WeighInReminderScheduler.swift`, tests, Body/Settings UI | Needs device/manual notification pass |
 | Goals | Measurable goals, increase/decrease/maintain progress, optional due dates, current-value update, linked next actions, linked-task cleanup on delete | `GoalsView.swift`, goal progress and persistence tests | Needs manual UI pass |
@@ -70,6 +70,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Latest `main` CI green | Run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3` and confirm the latest run for `origin/main` succeeded | Passed for latest checked state; rerun before final acceptance |
 | Light/dark app-shell and setup-section smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Added; needs latest CI evidence |
 | Dense fixture smoke | `ClarityHubUITests.testDenseTodayDataRendersInLightAndDarkMode` and `testDenseFixtureRecordsRenderAcrossPrimaryAreas` launch an in-memory fixture with goals, habits, long tasks, lists/projects, nutrition, preferences, and review focus | Added; needs latest CI evidence |
+| Disk-backed persistence smoke | `PersistenceIntegrationTests.testDiskBackedStoreSurvivesContainerRecreationWithoutCloudKit` saves every V1 app-owned record type into a local non-CloudKit store, recreates the container, and fetches the records again | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -86,7 +87,7 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | Google disconnected | Needs evidence |
 | Google connected with real OAuth credentials | Needs evidence |
 | Reminder schedule/snooze/skip | Needs evidence |
-| Relaunch persistence | Needs evidence |
+| Relaunch persistence | Partially automated by disk-backed SwiftData recreation test; still needs app relaunch manual acceptance |
 | Private CloudKit two-device sync | Needs evidence |
 
 ## Completion Rule

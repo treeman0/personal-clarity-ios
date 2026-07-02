@@ -63,6 +63,78 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(try context.fetch(FetchDescriptor<AppPreferenceRecord>()).count, 1)
     }
 
+    func testDiskBackedStoreSurvivesContainerRecreationWithoutCloudKit() throws {
+        let storageName = "ClarityHubDiskBackedPersistence-\(UUID().uuidString)"
+        let goalID = UUID()
+        let habitID = UUID()
+        let listID = UUID()
+        let projectID = UUID()
+
+        do {
+            let container = try ClarityHubModelContainerFactory.make(
+                configurationName: storageName,
+                cloudKitSync: .disabled
+            )
+            let context = ModelContext(container)
+            context.insert(GoalRecord(
+                id: goalID,
+                title: "Persisted goal",
+                startingValue: 160,
+                currentValue: 170,
+                targetValue: 180,
+                directionRawValue: "increase"
+            ))
+            context.insert(HabitRecord(id: habitID, title: "Persisted habit", weekdayMask: HabitRecord.dailyWeekdayMask))
+            context.insert(HabitCheckInRecord(habitID: habitID, date: Date(), state: "done"))
+            context.insert(ClarityListRecord(id: listID, title: "Persisted list", kind: "todo"))
+            context.insert(ProjectRecord(id: projectID, title: "Persisted project", desiredOutcome: "Records survive relaunch."))
+            context.insert(TaskRecord(
+                listID: listID,
+                goalID: goalID,
+                projectID: projectID,
+                title: "Persisted task",
+                priority: 4
+            ))
+            context.insert(NutritionDayRecord(
+                date: Date(),
+                calories: 2_900,
+                proteinGrams: 175,
+                carbohydrateGrams: 320,
+                fatGrams: 85,
+                source: "Manual import"
+            ))
+            context.insert(DailyReviewRecord(date: Date(), wins: "Saved", friction: "None", nextFocus: "Reload"))
+            context.insert(WeeklyReviewRecord(
+                weekStart: Date(),
+                keepDoing: "Persist data",
+                changeNextWeek: "Verify sync",
+                focus: "Relaunch evidence",
+                commitments: "Open the app again"
+            ))
+            context.insert(AppPreferenceRecord(key: AppPreferenceKey.goalWeightPounds.rawValue, value: "180"))
+            try context.save()
+        }
+
+        do {
+            let container = try ClarityHubModelContainerFactory.make(
+                configurationName: storageName,
+                cloudKitSync: .disabled
+            )
+            let context = ModelContext(container)
+
+            XCTAssertEqual(try context.fetch(FetchDescriptor<GoalRecord>()).map(\.title), ["Persisted goal"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<HabitRecord>()).map(\.title), ["Persisted habit"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<HabitCheckInRecord>()).map(\.habitID), [habitID])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<ClarityListRecord>()).map(\.title), ["Persisted list"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<ProjectRecord>()).map(\.title), ["Persisted project"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<TaskRecord>()).map(\.title), ["Persisted task"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<NutritionDayRecord>()).map(\.source), ["Manual import"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<DailyReviewRecord>()).map(\.nextFocus), ["Reload"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<WeeklyReviewRecord>()).map(\.focus), ["Relaunch evidence"])
+            XCTAssertEqual(try context.fetch(FetchDescriptor<AppPreferenceRecord>()).map(\.value), ["180"])
+        }
+    }
+
     func testPreferencesUpsertInsertsAndUpdatesSingleRecord() throws {
         let container = try ClarityHubModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)

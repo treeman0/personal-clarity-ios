@@ -1,7 +1,16 @@
 import SwiftData
 
 enum ClarityHubModelContainerFactory {
-    static func make(inMemory: Bool = false) throws -> ModelContainer {
+    enum CloudKitSync {
+        case productionPrivate
+        case disabled
+    }
+
+    static func make(
+        inMemory: Bool = false,
+        configurationName: String = "ClarityHub",
+        cloudKitSync: CloudKitSync = .productionPrivate
+    ) throws -> ModelContainer {
         let schema = Schema([
             GoalRecord.self,
             HabitRecord.self,
@@ -15,12 +24,23 @@ enum ClarityHubModelContainerFactory {
             AppPreferenceRecord.self
         ])
 
-        let configuration = ModelConfiguration(
-            "ClarityHub",
-            schema: schema,
-            isStoredInMemoryOnly: inMemory,
-            cloudKitDatabase: inMemory ? .none : .private("iCloud.com.treeman0.ClarityHub")
-        )
+        let configuration: ModelConfiguration
+        switch cloudKitSync {
+        case .productionPrivate:
+            configuration = ModelConfiguration(
+                configurationName,
+                schema: schema,
+                isStoredInMemoryOnly: inMemory,
+                cloudKitDatabase: inMemory ? .none : .private("iCloud.com.treeman0.ClarityHub")
+            )
+        case .disabled:
+            configuration = ModelConfiguration(
+                configurationName,
+                schema: schema,
+                isStoredInMemoryOnly: inMemory,
+                cloudKitDatabase: .none
+            )
+        }
 
         return try ModelContainer(for: schema, configurations: [configuration])
     }
