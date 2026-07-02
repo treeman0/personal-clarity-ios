@@ -38,7 +38,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Body | HealthKit body weight, goal comparison, trend chart, moving average, streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests | Needs device/manual HealthKit pass |
 | Reminders | Morning weigh-in reminders with configurable time, permission-denied handling, snooze, skip | `WeighInReminderScheduler.swift`, tests, Body/Settings UI | Needs device/manual notification pass |
 | Goals | Measurable goals, optional due dates, current-value update, linked next actions, linked-task cleanup on delete | `GoalsView.swift`, persistence tests | Needs manual UI pass |
-| Habits | Daily/custom weekday habits, completion, cadence-aware streaks, delete with check-ins | `HabitsView.swift`, `HabitScheduleTests.swift` | Needs manual UI pass |
+| Habits | Daily/custom weekday habits, completion, cadence-aware streaks, delete with check-ins | `HabitsView.swift`, `HabitScheduleTests.swift`, persistence tests | Needs manual UI pass |
 | Lists/projects | Todo/project/reference lists, project outcomes, priority/due/list/project/goal task capture, completed-task review, restore, and cleanup | `ListsView.swift`, task planner and persistence tests | Needs manual UI pass |
 | Calendar | Google OAuth PKCE, official Calendar API read/write, direct disconnect, clear states | `CalendarView.swift`, `GoogleOAuthClient.swift`, `GoogleCalendarClient.swift`, tests | Needs real Google OAuth manual pass |
 | Nutrition | Apple Health nutrition totals or Cal AI/manual import, stale import clearing, history, averages, same-day replace/delete | `NutritionHealthStore.swift`, `NutritionView.swift`, parser/summary tests | Needs device/manual nutrition pass |

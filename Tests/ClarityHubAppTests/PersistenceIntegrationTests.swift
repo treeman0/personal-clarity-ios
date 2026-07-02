@@ -102,6 +102,34 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertFalse(habit.isDaily)
     }
 
+    func testDeletingHabitRemovesItsCheckInsOnly() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let habitID = UUID()
+        let otherHabitID = UUID()
+        let habit = HabitRecord(id: habitID, title: "Morning weigh-in", weekdayMask: HabitRecord.dailyWeekdayMask)
+
+        context.insert(habit)
+        context.insert(HabitRecord(id: otherHabitID, title: "Lift", weekdayMask: HabitRecord.dailyWeekdayMask))
+        context.insert(HabitCheckInRecord(habitID: habitID, date: Date(), state: "done"))
+        context.insert(HabitCheckInRecord(habitID: habitID, date: Date().addingTimeInterval(-86_400), state: "done"))
+        context.insert(HabitCheckInRecord(habitID: otherHabitID, date: Date(), state: "done"))
+        try context.save()
+
+        let checkIns = try context.fetch(FetchDescriptor<HabitCheckInRecord>())
+        checkIns
+            .filter { $0.habitID == habit.id }
+            .forEach(context.delete)
+        context.delete(habit)
+        try context.save()
+
+        let remainingHabits = try context.fetch(FetchDescriptor<HabitRecord>())
+        let remainingCheckIns = try context.fetch(FetchDescriptor<HabitCheckInRecord>())
+
+        XCTAssertEqual(remainingHabits.map(\.id), [otherHabitID])
+        XCTAssertEqual(remainingCheckIns.map(\.habitID), [otherHabitID])
+    }
+
     func testGoalLinkedTaskCanBeFetchedByGoalID() throws {
         let container = try ClarityHubModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
