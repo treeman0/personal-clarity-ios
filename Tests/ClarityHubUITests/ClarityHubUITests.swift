@@ -63,7 +63,7 @@ final class ClarityHubUITests: XCTestCase {
 
         openMoreTab("Settings", in: app)
         assertScreenTitle("Settings", in: app, interfaceStyle: "Light")
-        XCTAssertTrue(scrollUntilStaticText("180.0 lb", in: app))
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Body target", in: app))
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Google Calendar", in: app))
     }
 
