@@ -166,9 +166,13 @@ struct SetupChecklistView: View {
         do {
             try await healthKitWeightStore.requestAuthorization()
             try await nutritionHealthStore.requestAuthorization()
-            _ = try await reminderScheduler.requestAuthorization()
-            try await reminderScheduler.scheduleDailyReminder(hour: reminderHour, minute: reminderMinute)
-            statusMessage = "Health and reminder permissions requested."
+            let reminderScheduled = try await reminderScheduler.authorizeAndScheduleDailyReminder(
+                hour: reminderHour,
+                minute: reminderMinute
+            )
+            statusMessage = reminderScheduled
+                ? "Health permissions requested and reminder scheduled."
+                : "Health permissions requested. Notification permission was denied."
         } catch {
             statusMessage = "Some permissions could not be completed."
         }
@@ -187,4 +191,3 @@ private struct SetupChecklistItem: Identifiable {
     SetupChecklistView()
         .modelContainer(try! ClarityHubModelContainerFactory.make(inMemory: true))
 }
-

@@ -18,6 +18,7 @@ Current GitHub Actions CI runs these checks on macOS except that `xcodegen gener
 ## Product Acceptance
 
 - Today: shows setup readiness, current HealthKit weight state or empty state, latest review focus, goal progress, due habit count, priority next actions with due-date/list/project/goal context, recent nutrition average, same-day Google Calendar blocks, and nutrition status.
+- Setup: can save default body settings, request core permissions, schedule the reminder only after notification permission, and show clear denied-permission feedback.
 - Body: can request HealthKit access, refresh Apple Health body weight, show empty state when no samples exist, show current/goal/average/streak metrics, render raw and moving-average chart with goal rule, schedule daily reminder only after notification permission, show a clear denied-permission message, snooze reminder, and skip snooze.
 - Goals: can create measurable increase/decrease/maintain goals with optional due date, update current value directly, show progress, capture linked next actions, complete linked actions, and delete a goal with linked tasks.
 - Habits: can create daily and custom weekday habits, prevent empty weekday schedules, complete/uncomplete due-today habits, show cadence-aware streaks, show all scheduled habits, and delete habits with check-ins.
