@@ -76,6 +76,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Reminder controls smoke | `WeighInReminderSchedulerTests` verify daily/snooze request construction and cancellation identifiers; `ClarityHubUITests.testReminderScheduleSnoozeSkipControlsRenderSuccessStates` taps Body and Settings schedule, snooze, and skip controls with an authorized reminder fixture | Added; needs latest CI evidence |
 | Google connected fixture smoke | `ClarityHubUITests.testGoogleConnectedFixtureRendersEventsAndCreatesBlock` launches configured OAuth settings with a fixture access token and fixture Google Calendar client, then verifies Today/Calendar event rendering and Calendar block creation | Added; needs latest CI evidence |
 | App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Added; needs latest CI evidence |
+| Nutrition import workflow smoke | `ClarityHubUITests.testNutritionImportFlowUpdatesTodaySignal` enters Cal AI-style totals in Nutrition, parses them, saves the day, verifies the recent average, and confirms Today's nutrition signal updates | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -86,13 +87,14 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | Light/dark tab pass | Partially automated by UI smoke; still needs human visual acceptance |
 | Empty states | Setup sections are partially automated by UI smoke; empty-state copy still needs human visual acceptance |
 | Long text | Partially automated by dense fixture UI smoke; still needs human visual acceptance |
-| Dense Today data | Partially automated by dense Today UI smoke; still needs human visual acceptance |
+| Dense Today data | Partially automated by dense Today UI smoke and nutrition import update smoke; still needs human visual acceptance |
 | No HealthKit data | Partially automated by HealthKit empty-state UI smoke; still needs device/manual HealthKit acceptance |
 | Denied HealthKit/notification permissions | Partially automated by HealthKit denied-state UI smoke and reminder scheduler tests; still needs device/manual permission acceptance |
 | Google disconnected | Partially automated by disconnected-state UI smoke with fail-if-called Google Calendar client; still needs manual acceptance |
 | Google connected with real OAuth credentials | Needs evidence; fixture smoke covers connected UI and API-client path, but not real Google consent |
 | Reminder schedule/snooze/skip | Partially automated by scheduler unit tests and reminder controls UI smoke; still needs device/manual notification acceptance |
 | Relaunch persistence | Automated by disk-backed SwiftData recreation test and app-shell relaunch UI smoke; still needs human acceptance for release-device behavior |
+| Cal AI/manual nutrition import | Automated by parser tests and app-shell import/save/Today-signal UI smoke; still needs human acceptance for real copied Cal AI text variants |
 | Private CloudKit two-device sync | Needs evidence |
 
 ## Completion Rule

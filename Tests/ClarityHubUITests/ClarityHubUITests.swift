@@ -204,6 +204,36 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("Protect the first training-support block and complete the highest priority clarity task.", in: relaunch))
     }
 
+    func testNutritionImportFlowUpdatesTodaySignal() {
+        let app = launchBlankFixture(interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        openMoreTab("Nutrition", in: app)
+        assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "nutrition.importText", in: app))
+
+        let importText = app.textViews["nutrition.importText"]
+        importText.tap()
+        importText.typeText("Calories 3120 Protein 188 Carbs 355 Fat 91")
+
+        XCTAssertTrue(scrollUntilButton(withIdentifier: "nutrition.parseImport", in: app))
+        app.buttons["nutrition.parseImport"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Import parsed. Review before saving.", in: app))
+        XCTAssertTrue(scrollUntilStaticText("3,120 calories, 188.0g protein, 355.0g carbs, 91.0g fat", in: app))
+
+        XCTAssertTrue(scrollUntilButton(withIdentifier: "nutrition.saveParsedImport", in: app))
+        app.buttons["nutrition.saveParsedImport"].tap()
+        XCTAssertTrue(scrollUntilStaticText(containing: "Saved", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Cal AI import", in: app))
+        XCTAssertTrue(scrollUntilStaticText("1-day average", in: app))
+        XCTAssertTrue(scrollUntilStaticText("3,120 cal - P 188.0g C 355.0g F 91.0g", in: app))
+
+        openVisibleTab("Today", in: app)
+        assertScreenTitle("Today", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("3,120 cal average", in: app))
+        XCTAssertTrue(scrollUntilStaticText("P 188.0g C 355.0g F 91.0g over 1 days", in: app))
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -250,6 +280,17 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
+    }
+
+    private func launchBlankFixture(interfaceStyle: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
         app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
@@ -426,6 +467,27 @@ final class ClarityHubUITests: XCTestCase {
 
     private func scrollUntilButton(_ label: String, in app: XCUIApplication) -> Bool {
         let button = app.buttons[label]
+        if button.waitForExistence(timeout: 2) {
+            return true
+        }
+
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.exists else {
+            return false
+        }
+
+        for _ in 0..<5 {
+            scrollView.swipeUp()
+            if button.waitForExistence(timeout: 1) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private func scrollUntilButton(withIdentifier identifier: String, in app: XCUIApplication) -> Bool {
+        let button = app.buttons[identifier]
         if button.waitForExistence(timeout: 2) {
             return true
         }

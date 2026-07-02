@@ -52,6 +52,7 @@ struct NutritionView: View {
                         .padding(8)
                         .background(Color(.secondarySystemGroupedBackground))
                         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                        .accessibilityIdentifier("nutrition.importText")
 
                     if importText.isEmpty {
                         Text("Calories 2840 Protein 172 Carbs 286 Fat 92")
@@ -70,17 +71,20 @@ struct NutritionView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(importText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .accessibilityIdentifier("nutrition.parseImport")
 
                 if let parsedDay {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(importSummary(for: parsedDay))
                             .font(.subheadline.weight(.semibold))
+                            .accessibilityIdentifier("nutrition.parsedSummary")
                         Button {
                             save(parsedDay)
                         } label: {
                             Label("Save \(parsedDay.date.formatted(date: .abbreviated, time: .omitted))", systemImage: "checkmark")
                         }
                         .buttonStyle(.bordered)
+                        .accessibilityIdentifier("nutrition.saveParsedImport")
                     }
                 }
 
@@ -88,6 +92,7 @@ struct NutritionView: View {
                     Text(statusMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("nutrition.statusMessage")
                 }
             }
 
