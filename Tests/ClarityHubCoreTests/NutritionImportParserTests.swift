@@ -29,4 +29,15 @@ final class NutritionImportParserTests: XCTestCase {
         XCTAssertEqual(result.date, date)
         XCTAssertEqual(result.source, "Cal AI import")
     }
+
+    func testParsesCommaFormattedTotals() throws {
+        let result = try XCTUnwrap(NutritionImportParser.parseDailyTotals(
+            "Calories: 2,840 kcal\nProtein: 172g\nCarbs: 1,286g\nFat: 92g"
+        ))
+
+        XCTAssertEqual(result.calories, 2840, accuracy: 0.001)
+        XCTAssertEqual(result.proteinGrams, 172, accuracy: 0.001)
+        XCTAssertEqual(result.carbohydrateGrams, 1286, accuracy: 0.001)
+        XCTAssertEqual(result.fatGrams, 92, accuracy: 0.001)
+    }
 }

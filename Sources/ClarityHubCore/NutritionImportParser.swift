@@ -31,7 +31,7 @@ public enum NutritionImportParser {
     }
 
     private static func value(after label: String, in text: String) -> Double? {
-        let pattern = "\(NSRegularExpression.escapedPattern(for: label))\\s*[:=-]?\\s*(\\d+(?:\\.\\d+)?)"
+        let pattern = "\(NSRegularExpression.escapedPattern(for: label))\\s*[:=-]?\\s*(\\d[\\d,]*(?:\\.\\d+)?)"
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
         let range = NSRange(text.startIndex..<text.endIndex, in: text)
         guard
@@ -41,6 +41,6 @@ public enum NutritionImportParser {
         else {
             return nil
         }
-        return Double(text[valueRange])
+        return Double(text[valueRange].replacingOccurrences(of: ",", with: ""))
     }
 }
