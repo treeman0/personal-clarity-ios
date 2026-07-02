@@ -181,8 +181,16 @@ struct ClarityHubApp: App {
     }
 
     private static func fixtureUpcomingCalendarEventsData() -> Data {
-        let start = Date().addingTimeInterval(3_600)
-        let end = Date().addingTimeInterval(5_400)
+        let now = Date()
+        let calendar = Calendar.current
+        var start = now.addingTimeInterval(3_600)
+        if !calendar.isDate(start, inSameDayAs: now) {
+            start = now.addingTimeInterval(60)
+        }
+        if !calendar.isDate(start, inSameDayAs: now) {
+            start = now
+        }
+        let end = start.addingTimeInterval(1_800)
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
         return """
