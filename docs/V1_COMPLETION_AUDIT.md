@@ -11,13 +11,13 @@ Current local HEAD: run `git log -1 --oneline`
 Current remote HEAD: run `git log -1 --oneline origin/main`
 Current local/remote status: run `git status -sb`
 Latest CI status: run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3`
-Last fully verified pushed HEAD: 8f5bc82 Use visible labels in nutrition UI smoke; iOS CI 28609212180 passed; CodeQL 28609212161 passed
+Last fully verified pushed HEAD before screenshot-artifact work: 9924b7f Refresh CI security actions; iOS CI 28610473301 passed; CodeQL 28610473612 passed
 Manual acceptance: not executed
 Goal status: active, not complete
 ```
 
 Known state as of 2026-07-02: the repository is public and GitHub Actions can start hosted macOS jobs without the previous private-repository billing block.
-Code scanning, secret scanning, and Dependabot alerts were empty after CodeQL completed for `8f5bc82`; secret scanning, push protection, and Dependabot security updates were enabled.
+Code scanning, secret scanning, and Dependabot alerts were empty after CodeQL completed for `9924b7f`; secret scanning, push protection, and Dependabot security updates were enabled.
 
 On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loop gate, release verifier, Swift availability, and latest GitHub Actions summary in one pass.
 
@@ -79,6 +79,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Google connected fixture smoke | `ClarityHubUITests.testGoogleConnectedFixtureRendersEventsAndCreatesBlock` launches configured OAuth settings with a fixture access token and fixture Google Calendar client, then verifies Today/Calendar event rendering and Calendar block creation | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
 | Nutrition import workflow smoke | `ClarityHubUITests.testNutritionImportFlowUpdatesTodaySignal` launches Nutrition with DEBUG-prefilled Cal AI-style totals, parses them through the visible UI, saves the day, verifies the recent average, and confirms Today's nutrition signal updates | Passed for `8f5bc82` in iOS CI 28609212180; rerun after workflow-maintenance commit |
+| Visual acceptance evidence | Light/dark tab smoke and dense Today smoke attach XCTest screenshots; iOS CI uploads `TestResults/ClarityHub.xcresult` as a retained artifact | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -86,10 +87,10 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 
 | Manual area | Status |
 | --- | --- |
-| Light/dark tab pass | Partially automated by UI smoke; still needs human visual acceptance |
-| Empty states | Setup sections are partially automated by UI smoke; empty-state copy still needs human visual acceptance |
-| Long text | Partially automated by dense fixture UI smoke; still needs human visual acceptance |
-| Dense Today data | Partially automated by dense Today UI smoke and nutrition import update smoke; still needs human visual acceptance |
+| Light/dark tab pass | Partially automated by UI smoke; CI screenshots are uploaded for review; still needs human visual acceptance |
+| Empty states | Setup sections are partially automated by UI smoke; CI screenshots are uploaded for review; empty-state copy still needs human visual acceptance |
+| Long text | Partially automated by dense fixture UI smoke; dense screenshots are uploaded for review; still needs human visual acceptance |
+| Dense Today data | Partially automated by dense Today UI smoke, nutrition import update smoke, and CI screenshot artifact; still needs human visual acceptance |
 | No HealthKit data | Partially automated by HealthKit empty-state UI smoke; still needs device/manual HealthKit acceptance |
 | Denied HealthKit/notification permissions | Partially automated by HealthKit denied-state UI smoke and reminder scheduler tests; still needs device/manual permission acceptance |
 | Google disconnected | Partially automated by disconnected-state UI smoke with fail-if-called Google Calendar client; still needs manual acceptance |

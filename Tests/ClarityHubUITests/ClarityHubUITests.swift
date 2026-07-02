@@ -244,12 +244,14 @@ final class ClarityHubUITests: XCTestCase {
             openVisibleTab(title, in: app)
             assertScreenTitle(title, in: app, interfaceStyle: interfaceStyle)
             assertSetupSection(for: title, in: app, interfaceStyle: interfaceStyle)
+            captureScreenshot(named: "\(interfaceStyle)-\(title)-surface")
         }
 
         for title in moreTabs {
             openMoreTab(title, in: app)
             assertScreenTitle(title, in: app, interfaceStyle: interfaceStyle)
             assertSetupSection(for: title, in: app, interfaceStyle: interfaceStyle)
+            captureScreenshot(named: "\(interfaceStyle)-\(title)-surface")
         }
     }
 
@@ -269,6 +271,7 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Nutrition signal", in: app), "Dense Today should show nutrition signal in \(interfaceStyle) mode.")
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Goal signal", in: app), "Dense Today should show goal signal in \(interfaceStyle) mode.")
         XCTAssertTrue(app.staticTexts["Reach 180 lb with steady weekly gain"].waitForExistence(timeout: 2))
+        captureScreenshot(named: "\(interfaceStyle)-dense-today")
     }
 
     private func launchDenseFixture(interfaceStyle: String) -> XCUIApplication {
@@ -533,5 +536,12 @@ final class ClarityHubUITests: XCTestCase {
         }
 
         return false
+    }
+
+    private func captureScreenshot(named name: String) {
+        let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
+        attachment.name = "V1 acceptance \(name)"
+        attachment.lifetime = .keepAlways
+        add(attachment)
     }
 }
