@@ -444,12 +444,14 @@ final class ClarityHubUITests: XCTestCase {
     }
 
     private func openVisibleTab(_ title: String, in app: XCUIApplication) {
+        dismissKeyboard(in: app)
         let button = app.tabBars.buttons[title]
         XCTAssertTrue(button.waitForExistence(timeout: 5), "\(title) tab should be visible.")
         button.tap()
     }
 
     private func openMoreTab(_ title: String, in app: XCUIApplication) {
+        dismissKeyboard(in: app)
         let moreButton = app.tabBars.buttons["More"]
         XCTAssertTrue(moreButton.waitForExistence(timeout: 5), "More tab should expose \(title).")
         moreButton.tap()
@@ -619,6 +621,7 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(input.waitForExistence(timeout: 5), "\(placeholder) field should be available.")
         input.tap()
         input.typeText(text)
+        dismissKeyboard(in: app)
     }
 
     private func textInputExists(_ placeholder: String, in app: XCUIApplication, timeout: TimeInterval) -> Bool {
@@ -636,6 +639,21 @@ final class ClarityHubUITests: XCTestCase {
             return textView
         }
         return textField
+    }
+
+    private func dismissKeyboard(in app: XCUIApplication) {
+        guard app.keyboards.firstMatch.exists else { return }
+        let doneButton = app.keyboards.buttons["Done"]
+        if doneButton.exists {
+            doneButton.tap()
+            return
+        }
+        let returnButton = app.keyboards.buttons["Return"]
+        if returnButton.exists {
+            returnButton.tap()
+            return
+        }
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.05)).tap()
     }
 
     private func captureScreenshot(named name: String) {
