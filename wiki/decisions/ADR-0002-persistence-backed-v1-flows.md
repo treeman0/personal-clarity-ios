@@ -32,7 +32,7 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - Google Calendar token refresh is shared by Calendar and Today so both surfaces use the same public, user-authorized API boundary.
 - Today includes a setup checklist so first-run readiness is visible in the primary operating surface rather than hidden across tabs.
 - The Xcode scheme includes app-level SwiftData integration tests for V1 records, preferences, and mapping fields in addition to core package tests.
-- Google Calendar app tests use injected transport to verify OAuth scopes, event-list requests, event-create requests, and non-success API errors without live network calls.
+- Google Calendar app tests use injected transport and token-session dependencies to verify OAuth scopes, event-list requests, event-create requests, non-success API errors, fresh-token reuse, expired-token refresh, and refresh failure handling without live network calls.
 - Weigh-in reminder tests use injected notification operations and static request builders to verify authorization options, daily triggers, snooze triggers, and cancellation IDs without prompting CI for notification permission.
 - XCTest launches use an in-memory app container so unsigned CI builds do not attempt to initialize private CloudKit before tests execute.
 - Release metadata tests verify HealthKit usage descriptions, CloudKit remote-notification background mode, and the bundled privacy manifest; Apple/Google console setup remains documented in `docs/RELEASE_SETUP.md`.

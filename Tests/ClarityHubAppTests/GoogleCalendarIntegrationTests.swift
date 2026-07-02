@@ -126,6 +126,105 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
         }
     }
 
+    func testCalendarSessionReturnsFreshAccessTokenWithoutRefreshing() async {
+        let tokenStore = InMemoryTokenStore(tokens: GoogleCalendarTokens(
+            accessToken: "fresh-access",
+            refreshToken: "refresh",
+            expirationDate: Date().addingTimeInterval(600)
+        ))
+        let refresher = StubOAuthRefresher(result: .success(GoogleCalendarTokens(
+            accessToken: "new-access",
+            refreshToken: "new-refresh",
+            expirationDate: Date().addingTimeInterval(600)
+        )))
+        let session = GoogleCalendarSession(oauthClient: refresher, tokenStore: tokenStore)
+
+        let accessToken = await session.validAccessToken(configuration: Self.oauthConfiguration)
+
+        XCTAssertEqual(accessToken, "fresh-access")
+        XCTAssertNil(refresher.requestedRefreshToken)
+        XCTAssertNil(tokenStore.savedTokens)
+    }
+
+    func testCalendarSessionRefreshesExpiredAccessTokenAndSavesResult() async {
+        let tokenStore = InMemoryTokenStore(tokens: GoogleCalendarTokens(
+            accessToken: "expired-access",
+            refreshToken: "refresh",
+            expirationDate: Date().addingTimeInterval(-60)
+        ))
+        let refreshedTokens = GoogleCalendarTokens(
+            accessToken: "new-access",
+            refreshToken: "refresh",
+            expirationDate: Date().addingTimeInterval(600)
+        )
+        let refresher = StubOAuthRefresher(result: .success(refreshedTokens))
+        let session = GoogleCalendarSession(oauthClient: refresher, tokenStore: tokenStore)
+
+        let accessToken = await session.validAccessToken(configuration: Self.oauthConfiguration)
+
+        XCTAssertEqual(accessToken, "new-access")
+        XCTAssertEqual(refresher.requestedRefreshToken, "refresh")
+        XCTAssertEqual(refresher.requestedConfiguration, Self.oauthConfiguration)
+        XCTAssertEqual(tokenStore.savedTokens, refreshedTokens)
+    }
+
+    func testCalendarSessionReturnsNilWhenExpiredTokenCannotRefresh() async {
+        let tokenStore = InMemoryTokenStore(tokens: GoogleCalendarTokens(
+            accessToken: "expired-access",
+            refreshToken: "refresh",
+            expirationDate: Date().addingTimeInterval(-60)
+        ))
+        let refresher = StubOAuthRefresher(result: .failure(GoogleCalendarError.invalidResponse))
+        let session = GoogleCalendarSession(oauthClient: refresher, tokenStore: tokenStore)
+
+        let accessToken = await session.validAccessToken(configuration: Self.oauthConfiguration)
+
+        XCTAssertNil(accessToken)
+        XCTAssertEqual(refresher.requestedRefreshToken, "refresh")
+        XCTAssertNil(tokenStore.savedTokens)
+    }
+
+    func testCalendarSessionReturnsNilForExpiredAccessTokenWithoutRefreshToken() async {
+        let tokenStore = InMemoryTokenStore(tokens: GoogleCalendarTokens(
+            accessToken: "expired-access",
+            refreshToken: nil,
+            expirationDate: Date().addingTimeInterval(-60)
+        ))
+        let refresher = StubOAuthRefresher(result: .success(GoogleCalendarTokens(
+            accessToken: "unused",
+            refreshToken: nil,
+            expirationDate: Date().addingTimeInterval(600)
+        )))
+        let session = GoogleCalendarSession(oauthClient: refresher, tokenStore: tokenStore)
+
+        let accessToken = await session.validAccessToken(configuration: Self.oauthConfiguration)
+
+        XCTAssertNil(accessToken)
+        XCTAssertNil(refresher.requestedRefreshToken)
+        XCTAssertNil(tokenStore.savedTokens)
+    }
+
+    func testCalendarSessionReturnsNilWithoutStoredTokens() async {
+        let tokenStore = InMemoryTokenStore(tokens: nil)
+        let refresher = StubOAuthRefresher(result: .success(GoogleCalendarTokens(
+            accessToken: "unused",
+            refreshToken: nil,
+            expirationDate: Date().addingTimeInterval(600)
+        )))
+        let session = GoogleCalendarSession(oauthClient: refresher, tokenStore: tokenStore)
+
+        let accessToken = await session.validAccessToken(configuration: Self.oauthConfiguration)
+
+        XCTAssertNil(accessToken)
+        XCTAssertNil(refresher.requestedRefreshToken)
+        XCTAssertNil(tokenStore.savedTokens)
+    }
+
+    private static let oauthConfiguration = GoogleOAuthConfiguration(
+        clientID: "client-id",
+        redirectURI: "com.treeman0.ClarityHub:/oauth2redirect/google"
+    )
+
     private static func isoDate(_ value: String) -> Date? {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
@@ -134,5 +233,41 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
 
     private static func httpResponse(for request: URLRequest, statusCode: Int) -> HTTPURLResponse {
         HTTPURLResponse(url: request.url!, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    }
+}
+
+private final class InMemoryTokenStore: GoogleCalendarTokenStoring {
+    private let tokens: GoogleCalendarTokens?
+    private(set) var savedTokens: GoogleCalendarTokens?
+
+    init(tokens: GoogleCalendarTokens?) {
+        self.tokens = tokens
+    }
+
+    func load() -> GoogleCalendarTokens? {
+        tokens
+    }
+
+    func save(_ tokens: GoogleCalendarTokens) {
+        savedTokens = tokens
+    }
+}
+
+private final class StubOAuthRefresher: GoogleOAuthTokenRefreshing {
+    private let result: Result<GoogleCalendarTokens, Error>
+    private(set) var requestedRefreshToken: String?
+    private(set) var requestedConfiguration: GoogleOAuthConfiguration?
+
+    init(result: Result<GoogleCalendarTokens, Error>) {
+        self.result = result
+    }
+
+    func refreshTokens(
+        refreshToken: String,
+        configuration: GoogleOAuthConfiguration
+    ) async throws -> GoogleCalendarTokens {
+        requestedRefreshToken = refreshToken
+        requestedConfiguration = configuration
+        return try result.get()
     }
 }
