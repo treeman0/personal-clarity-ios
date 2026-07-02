@@ -48,4 +48,4 @@ CI runs core Swift package tests plus the generated Xcode app scheme. The app sc
 
 CI also verifies the checked-in release configuration for the HealthKit entitlement, read-only HealthKit usage metadata, private CloudKit container, Google OAuth callback scheme, Xcode entitlements path, SwiftData CloudKit container ID, CloudKit remote-notification background mode, and the privacy manifest.
 
-Manual V1 acceptance criteria live in `docs/V1_ACCEPTANCE.md`, with execution steps and evidence capture in `docs/V1_ACCEPTANCE_RUNBOOK.md`; both must be completed on an iPhone or iOS Simulator before V1 is declared complete.
+Manual V1 acceptance criteria live in `docs/V1_ACCEPTANCE.md`, requirement status is tracked in `docs/V1_COMPLETION_AUDIT.md`, and execution steps/evidence capture live in `docs/V1_ACCEPTANCE_RUNBOOK.md`; all required evidence must be complete before V1 is declared complete.

@@ -1,6 +1,6 @@
 # ClarityHub V1 Acceptance
 
-This checklist defines the evidence needed before declaring V1 complete. Automated CI proves build, unit, integration, release-configuration, and app-scheme checks. Device acceptance still needs a real iPhone or macOS simulator because this Windows workspace cannot run Xcode or iOS Simulator. Execute `docs/V1_ACCEPTANCE_RUNBOOK.md` to record the manual evidence for a release candidate.
+This checklist defines the evidence needed before declaring V1 complete. Automated CI proves build, unit, integration, release-configuration, and app-scheme checks. Device acceptance still needs a real iPhone or macOS simulator because this Windows workspace cannot run Xcode or iOS Simulator. Use `docs/V1_COMPLETION_AUDIT.md` to track requirement-level status, and execute `docs/V1_ACCEPTANCE_RUNBOOK.md` to record the manual evidence for a release candidate.
 
 ## Automated Gates
 
