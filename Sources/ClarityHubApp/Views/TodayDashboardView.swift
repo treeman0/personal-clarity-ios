@@ -334,16 +334,14 @@ struct TodayDashboardView: View {
 
     private func refreshCalendar(showMissingTokenMessage: Bool = true) async {
         guard calendarConfiguration.isConfigured else {
-            calendarEvents = []
-            calendarStatus = "Add a Google OAuth client ID in Settings."
+            apply(CalendarEventCacheUpdate.clear(statusMessage: "Add a Google OAuth client ID in Settings."))
             return
         }
 
         guard let accessToken = await calendarSession.validAccessToken(configuration: calendarConfiguration) else {
-            calendarEvents = []
-            if showMissingTokenMessage {
-                calendarStatus = "Connect Google Calendar from the Calendar tab."
-            }
+            apply(CalendarEventCacheUpdate.clear(
+                statusMessage: showMissingTokenMessage ? "Connect Google Calendar from the Calendar tab." : nil
+            ))
             return
         }
 
@@ -352,11 +350,14 @@ struct TodayDashboardView: View {
 
         do {
             let events = try await googleCalendarClient.upcomingEvents(accessToken: accessToken)
-            calendarEvents = todayEvents(from: events)
-            calendarStatus = calendarEvents.isEmpty ? "No remaining Google Calendar blocks today." : "Loaded \(calendarEvents.count) calendar blocks."
+            let sameDayEvents = todayEvents(from: events)
+            apply(CalendarEventCacheUpdate.loaded(
+                sameDayEvents,
+                emptyStatusMessage: "No remaining Google Calendar blocks today.",
+                loadedStatusMessage: "Loaded \(sameDayEvents.count) calendar blocks."
+            ))
         } catch {
-            calendarEvents = []
-            calendarStatus = "Google Calendar blocks could not be loaded."
+            apply(CalendarEventCacheUpdate.clear(statusMessage: "Google Calendar blocks could not be loaded."))
         }
     }
 
@@ -368,6 +369,13 @@ struct TodayDashboardView: View {
                 calendar.isDate(event.startDate, inSameDayAs: now) && event.endDate >= now
             }
             .sorted { $0.startDate < $1.startDate }
+    }
+
+    private func apply(_ update: CalendarEventCacheUpdate) {
+        calendarEvents = update.events
+        if let status = update.statusMessage {
+            calendarStatus = status
+        }
     }
 
     private func goalTitle(for id: UUID?) -> String? {

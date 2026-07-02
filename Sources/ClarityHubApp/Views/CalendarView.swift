@@ -180,16 +180,14 @@ struct CalendarView: View {
 
     private func refreshEvents(showMissingTokenMessage: Bool = true) async {
         guard configuration.isConfigured else {
-            events = []
-            statusMessage = "Add a Google OAuth client ID in Settings."
+            apply(CalendarEventCacheUpdate.clear(statusMessage: "Add a Google OAuth client ID in Settings."))
             return
         }
 
         guard let accessToken = await calendarSession.validAccessToken(configuration: configuration) else {
-            events = []
-            if showMissingTokenMessage {
-                statusMessage = "Connect Google Calendar before refreshing."
-            }
+            apply(CalendarEventCacheUpdate.clear(
+                statusMessage: showMissingTokenMessage ? "Connect Google Calendar before refreshing." : nil
+            ))
             return
         }
 
@@ -197,11 +195,14 @@ struct CalendarView: View {
         defer { isLoading = false }
 
         do {
-            events = try await googleCalendarClient.upcomingEvents(accessToken: accessToken)
-            statusMessage = events.isEmpty ? "No upcoming Google Calendar events found." : "Loaded \(events.count) events."
+            let loadedEvents = try await googleCalendarClient.upcomingEvents(accessToken: accessToken)
+            apply(CalendarEventCacheUpdate.loaded(
+                loadedEvents,
+                emptyStatusMessage: "No upcoming Google Calendar events found.",
+                loadedStatusMessage: "Loaded \(loadedEvents.count) events."
+            ))
         } catch {
-            events = []
-            statusMessage = "Google Calendar events could not be loaded."
+            apply(CalendarEventCacheUpdate.clear(statusMessage: "Google Calendar events could not be loaded."))
         }
     }
 
@@ -232,6 +233,13 @@ struct CalendarView: View {
             await refreshEvents()
         } catch {
             statusMessage = "Google Calendar block could not be created."
+        }
+    }
+
+    private func apply(_ update: CalendarEventCacheUpdate) {
+        events = update.events
+        if let status = update.statusMessage {
+            statusMessage = status
         }
     }
 }
