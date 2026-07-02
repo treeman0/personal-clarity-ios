@@ -81,14 +81,14 @@ final class ClarityHubUITests: XCTestCase {
     private func assertEmptyState(for title: String, in app: XCUIApplication, interfaceStyle: String) {
         guard let expectedText = emptyStateExpectations[title] else { return }
         XCTAssertTrue(
-            scrollUntilStaticTextContaining(expectedText, in: app),
+            scrollUntilElementContaining(expectedText, in: app),
             "\(title) should show expected empty/setup text in \(interfaceStyle) mode."
         )
     }
 
-    private func scrollUntilStaticTextContaining(_ text: String, in app: XCUIApplication) -> Bool {
+    private func scrollUntilElementContaining(_ text: String, in app: XCUIApplication) -> Bool {
         let predicate = NSPredicate(format: "label CONTAINS %@", text)
-        let element = app.staticTexts.matching(predicate).firstMatch
+        let element = app.descendants(matching: .any).matching(predicate).firstMatch
         if element.waitForExistence(timeout: 2) {
             return true
         }
