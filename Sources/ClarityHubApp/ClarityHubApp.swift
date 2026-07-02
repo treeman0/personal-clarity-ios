@@ -9,6 +9,9 @@ struct ClarityHubApp: App {
     init() {
         do {
             modelContainer = try ClarityHubModelContainerFactory.make(inMemory: Self.shouldUseInMemoryStore)
+            #if DEBUG
+            try UITestFixtureSeeder.seedIfRequested(in: modelContainer)
+            #endif
         } catch {
             fatalError("Unable to create ClarityHub model container: \(error)")
         }

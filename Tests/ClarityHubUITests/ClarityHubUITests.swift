@@ -25,6 +25,11 @@ final class ClarityHubUITests: XCTestCase {
         assertV1SurfacesRender(interfaceStyle: "Dark")
     }
 
+    func testDenseTodayDataRendersInLightAndDarkMode() {
+        assertDenseTodayDataRenders(interfaceStyle: "Light")
+        assertDenseTodayDataRenders(interfaceStyle: "Dark")
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -45,6 +50,28 @@ final class ClarityHubUITests: XCTestCase {
             assertScreenTitle(title, in: app, interfaceStyle: interfaceStyle)
             assertSetupSection(for: title, in: app, interfaceStyle: interfaceStyle)
         }
+    }
+
+    private func assertDenseTodayDataRenders(interfaceStyle: String) {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        defer { app.terminate() }
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        assertScreenTitle("Today", in: app, interfaceStyle: interfaceStyle)
+
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Focus", in: app), "Dense Today should show focus in \(interfaceStyle) mode.")
+        XCTAssertTrue(app.staticTexts["Protect the first training-support block and complete the highest priority clarity task."].waitForExistence(timeout: 2))
+
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Next actions", in: app), "Dense Today should show next actions in \(interfaceStyle) mode.")
+        XCTAssertTrue(app.staticTexts["Write the focused next action with enough detail to test long text wrapping in the Today priority queue"].waitForExistence(timeout: 2))
+
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Nutrition signal", in: app), "Dense Today should show nutrition signal in \(interfaceStyle) mode.")
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Goal signal", in: app), "Dense Today should show goal signal in \(interfaceStyle) mode.")
+        XCTAssertTrue(app.staticTexts["Reach 180 lb with steady weekly gain"].waitForExistence(timeout: 2))
     }
 
     private func openVisibleTab(_ title: String, in app: XCUIApplication) {

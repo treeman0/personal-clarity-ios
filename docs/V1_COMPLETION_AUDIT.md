@@ -43,7 +43,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Lists/projects | Todo/project/reference lists, project outcomes, priority/due/list/project/goal task capture, completed-task review, restore, and cleanup | `ListsView.swift`, task planner and persistence tests | Needs manual UI pass |
 | Calendar | Google OAuth PKCE/consent, official Calendar API read/write, upcoming-window reads, direct disconnect, clear states | `CalendarView.swift`, `GoogleOAuthClient.swift`, `GoogleCalendarClient.swift`, tests | Needs real Google OAuth manual pass |
 | Nutrition | Apple Health nutrition totals or Cal AI/manual import, comma-formatted import parsing, stale import clearing, history, averages, same-day replace/delete | `NutritionHealthStore.swift`, `NutritionView.swift`, parser/summary and persistence tests | Needs device/manual nutrition pass |
-| Today | Operating screen integrates setup, weight, focus, goals, habits, tasks, calendar, nutrition | `TodayDashboardView.swift`, latest green CI | Needs manual dense-data pass |
+| Today | Operating screen integrates setup, weight, focus, goals, habits, tasks, calendar, nutrition | `TodayDashboardView.swift`, latest green CI, dense-data `ClarityHubUITests` fixture | Needs manual dense-data pass |
 | Review | Daily/weekly reviews, same-day and same-week edit, deduplicated next-focus task creation | `ReviewView.swift`, review planner and persistence tests | Needs manual UI pass |
 | Settings | Goal weight, reminder time, Google OAuth settings, reminder scheduling with denied-permission feedback | `SettingsView.swift`, preference and reminder tests | Needs manual UI pass |
 
@@ -69,6 +69,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
 | Latest `main` CI green | Run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3` and confirm the latest run for `origin/main` succeeded | Passed for latest checked state; rerun before final acceptance |
 | Light/dark app-shell and setup-section smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Added; needs latest CI evidence |
+| Dense Today smoke | `ClarityHubUITests.testDenseTodayDataRendersInLightAndDarkMode` launches an in-memory fixture with goals, habits, tasks, nutrition, preferences, and review focus in light/dark mode | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -79,7 +80,7 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | Light/dark tab pass | Partially automated by UI smoke; still needs human visual acceptance |
 | Empty states | Setup sections are partially automated by UI smoke; empty-state copy still needs human visual acceptance |
 | Long text | Needs evidence |
-| Dense Today data | Needs evidence |
+| Dense Today data | Partially automated by dense Today UI smoke; still needs human visual acceptance |
 | No HealthKit data | Needs evidence |
 | Denied HealthKit/notification permissions | Needs evidence |
 | Google disconnected | Needs evidence |
