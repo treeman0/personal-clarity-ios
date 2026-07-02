@@ -101,6 +101,29 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("Apple Health nutrition could not be loaded. Check Health permission and try again.", in: app))
     }
 
+    func testGoogleDisconnectedStateRendersWithoutCalendarAPIAccess() {
+        let app = launchGoogleDisconnectedFixture(interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        assertScreenTitle("Today", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Calendar blocks", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Add a Google OAuth client ID in Settings.", in: app))
+
+        openMoreTab("Settings", in: app)
+        assertScreenTitle("Settings", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Save Google settings", in: app))
+        app.buttons["Save Google settings"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Google settings saved.", in: app))
+
+        openMoreTab("Calendar", in: app)
+        assertScreenTitle("Calendar", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Add a Google OAuth client ID in Settings.", in: app))
+        XCTAssertTrue(scrollUntilButton("Refresh", in: app))
+        app.buttons["Refresh"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Add a Google OAuth client ID in Settings.", in: app))
+        XCTAssertFalse(app.buttons["Connect"].isEnabled)
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -155,6 +178,16 @@ final class ClarityHubUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
         app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = state
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
+    }
+
+    private func launchGoogleDisconnectedFixture(interfaceStyle: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "fail-if-called"
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")

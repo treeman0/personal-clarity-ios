@@ -24,7 +24,7 @@ struct ClarityHubApp: App {
                 .environment(\.healthKitWeightStore, Self.healthKitWeightStore)
                 .environment(\.nutritionHealthStore, Self.nutritionHealthStore)
                 .environment(\.weighInReminderScheduler, WeighInReminderScheduler())
-                .environment(\.googleCalendarClient, GoogleCalendarClient())
+                .environment(\.googleCalendarClient, Self.googleCalendarClient)
         }
     }
 
@@ -76,6 +76,18 @@ struct ClarityHubApp: App {
         #endif
 
         return NutritionHealthStore()
+    }
+
+    private static var googleCalendarClient: GoogleCalendarClient {
+        #if DEBUG
+        if ProcessInfo.processInfo.environment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] == "fail-if-called" {
+            return GoogleCalendarClient { _ in
+                preconditionFailure("Google Calendar API was called while the disconnected UI fixture was active.")
+            }
+        }
+        #endif
+
+        return GoogleCalendarClient()
     }
 }
 

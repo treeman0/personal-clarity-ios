@@ -72,6 +72,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Dense fixture smoke | `ClarityHubUITests.testDenseTodayDataRendersInLightAndDarkMode` and `testDenseFixtureRecordsRenderAcrossPrimaryAreas` launch an in-memory fixture with goals, habits, long tasks, lists/projects, nutrition, preferences, and review focus | Added; needs latest CI evidence |
 | Disk-backed persistence smoke | `PersistenceIntegrationTests.testDiskBackedStoreSurvivesContainerRecreationWithoutCloudKit` saves every V1 app-owned record type into a local non-CloudKit store, recreates the container, and fetches the records again | Added; needs latest CI evidence |
 | HealthKit empty/denied smoke | `HealthKitStoreInjectionTests` verifies injectable HealthKit stores; `ClarityHubUITests.testHealthKitEmptyStateCopyRendersInBodyAndNutrition` and `testHealthKitDeniedStateCopyRendersInSetupBodyAndNutrition` render empty and denied HealthKit states in the app shell | Added; needs latest CI evidence |
+| Google disconnected smoke | `ClarityHubUITests.testGoogleDisconnectedStateRendersWithoutCalendarAPIAccess` launches blank OAuth settings with a fail-if-called Google Calendar client and verifies Today, Settings, and Calendar disconnected states | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -85,7 +86,7 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | Dense Today data | Partially automated by dense Today UI smoke; still needs human visual acceptance |
 | No HealthKit data | Partially automated by HealthKit empty-state UI smoke; still needs device/manual HealthKit acceptance |
 | Denied HealthKit/notification permissions | Partially automated by HealthKit denied-state UI smoke and reminder scheduler tests; still needs device/manual permission acceptance |
-| Google disconnected | Needs evidence |
+| Google disconnected | Partially automated by disconnected-state UI smoke with fail-if-called Google Calendar client; still needs manual acceptance |
 | Google connected with real OAuth credentials | Needs evidence |
 | Reminder schedule/snooze/skip | Needs evidence |
 | Relaunch persistence | Partially automated by disk-backed SwiftData recreation test; still needs app relaunch manual acceptance |
