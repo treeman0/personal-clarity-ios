@@ -180,11 +180,13 @@ struct CalendarView: View {
 
     private func refreshEvents(showMissingTokenMessage: Bool = true) async {
         guard configuration.isConfigured else {
+            events = []
             statusMessage = "Add a Google OAuth client ID in Settings."
             return
         }
 
         guard let accessToken = await calendarSession.validAccessToken(configuration: configuration) else {
+            events = []
             if showMissingTokenMessage {
                 statusMessage = "Connect Google Calendar before refreshing."
             }
@@ -198,6 +200,7 @@ struct CalendarView: View {
             events = try await googleCalendarClient.upcomingEvents(accessToken: accessToken)
             statusMessage = events.isEmpty ? "No upcoming Google Calendar events found." : "Loaded \(events.count) events."
         } catch {
+            events = []
             statusMessage = "Google Calendar events could not be loaded."
         }
     }

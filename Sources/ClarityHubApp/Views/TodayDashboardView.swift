@@ -334,11 +334,13 @@ struct TodayDashboardView: View {
 
     private func refreshCalendar(showMissingTokenMessage: Bool = true) async {
         guard calendarConfiguration.isConfigured else {
+            calendarEvents = []
             calendarStatus = "Add a Google OAuth client ID in Settings."
             return
         }
 
         guard let accessToken = await calendarSession.validAccessToken(configuration: calendarConfiguration) else {
+            calendarEvents = []
             if showMissingTokenMessage {
                 calendarStatus = "Connect Google Calendar from the Calendar tab."
             }
@@ -353,6 +355,7 @@ struct TodayDashboardView: View {
             calendarEvents = todayEvents(from: events)
             calendarStatus = calendarEvents.isEmpty ? "No remaining Google Calendar blocks today." : "Loaded \(calendarEvents.count) calendar blocks."
         } catch {
+            calendarEvents = []
             calendarStatus = "Google Calendar blocks could not be loaded."
         }
     }
