@@ -10,13 +10,12 @@ Update this block when performing a final V1 audit. Do not treat stale commit ID
 Current local HEAD: run `git log -1 --oneline`
 Current remote HEAD: run `git log -1 --oneline origin/main`
 Current local/remote status: run `git status -sb`
-Last verified release-candidate commit: 8af9d2b Verify privacy release metadata
-Last verified CI status: success, https://github.com/treeman0/personal-clarity-ios/actions/runs/28567318631
+Latest CI status: run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3`
 Manual acceptance: not executed
 Goal status: active, not complete
 ```
 
-Known state as of 2026-07-02: the repository is public, local `main` matches `origin/main`, and the latest remote CI run completed successfully on the pushed release-candidate commit.
+Known state as of 2026-07-02: the repository is public and GitHub Actions can start hosted macOS jobs without the previous private-repository billing block.
 
 On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loop gate, release verifier, Swift availability, and latest GitHub Actions summary in one pass.
 
@@ -27,7 +26,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | New repo named `personal-clarity-ios` | GitHub repo `treeman0/personal-clarity-ios` and local worktree | Achieved |
 | `treeman0/claude-loop-system` installed with Codex flow | `AGENTS.md`, `.claude-loop.json`, `.agents/skills/`, `.codex/loop.md`, `.codex/config.toml`, `.codex/hooks.json`, `.codex/hooks/`, `wiki/`; loop status report | Achieved |
 | Loop defaults enabled | `.claude/scripts/status-report.ps1` reports TDD, verification gate, wiki memory/gate, skill tracking, manual review, safety guard, status report enabled | Achieved |
-| macOS CI runs Swift tests and Xcode builds on push/PR | `.github/workflows/ios-ci.yml`; green run for `8af9d2b` | Achieved |
+| macOS CI runs Swift tests and Xcode builds on push/PR | `.github/workflows/ios-ci.yml`; latest pushed commit must have a green `iOS CI` run | Achieved, rerun status before final acceptance |
 | Windows local development does not require Xcode | Local Windows gates run release verifier and loop status; macOS CI is authoritative for Swift/Xcode | Achieved with caveat |
 
 ## Product Requirements
@@ -36,7 +35,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | --- | --- | --- | --- |
 | App shell | Native SwiftUI iPhone app with Today, Body, Goals, Habits, Lists, Calendar, Nutrition, Review, Settings | `RootTabView.swift`, generated Xcode CI build | Achieved, needs manual UI pass |
 | Setup | Today setup checklist for defaults, core permissions, reminder scheduling, and denied notification feedback | `SetupChecklistView.swift`, reminder tests | Needs manual UI pass |
-| Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier, green CI | Needs signed-device sync smoke |
+| Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier, latest green CI | Needs signed-device sync smoke |
 | Body | HealthKit body weight, goal comparison, trend chart, moving average, unique-day weigh-in streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests | Needs device/manual HealthKit pass |
 | Reminders | Morning weigh-in reminders with configurable time, permission-denied handling, snooze, skip | `WeighInReminderScheduler.swift`, tests, Body/Settings UI | Needs device/manual notification pass |
 | Goals | Measurable goals, increase/decrease/maintain progress, optional due dates, current-value update, linked next actions, linked-task cleanup on delete | `GoalsView.swift`, goal progress and persistence tests | Needs manual UI pass |
@@ -44,7 +43,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Lists/projects | Todo/project/reference lists, project outcomes, priority/due/list/project/goal task capture, completed-task review, restore, and cleanup | `ListsView.swift`, task planner and persistence tests | Needs manual UI pass |
 | Calendar | Google OAuth PKCE/consent, official Calendar API read/write, upcoming-window reads, direct disconnect, clear states | `CalendarView.swift`, `GoogleOAuthClient.swift`, `GoogleCalendarClient.swift`, tests | Needs real Google OAuth manual pass |
 | Nutrition | Apple Health nutrition totals or Cal AI/manual import, comma-formatted import parsing, stale import clearing, history, averages, same-day replace/delete | `NutritionHealthStore.swift`, `NutritionView.swift`, parser/summary and persistence tests | Needs device/manual nutrition pass |
-| Today | Operating screen integrates setup, weight, focus, goals, habits, tasks, calendar, nutrition | `TodayDashboardView.swift`, green CI for release candidate | Needs manual dense-data pass |
+| Today | Operating screen integrates setup, weight, focus, goals, habits, tasks, calendar, nutrition | `TodayDashboardView.swift`, latest green CI | Needs manual dense-data pass |
 | Review | Daily/weekly reviews, same-day and same-week edit, deduplicated next-focus task creation | `ReviewView.swift`, review planner and persistence tests | Needs manual UI pass |
 | Settings | Goal weight, reminder time, Google OAuth settings, reminder scheduling with denied-permission feedback | `SettingsView.swift`, preference and reminder tests | Needs manual UI pass |
 
@@ -55,7 +54,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | App Store-compatible public integrations only | Product spec, HealthKit/Google API implementation, no Cal AI scraping code | Achieved |
 | Cal AI through Apple Health or user import only | `NutritionHealthStore.swift`, `NutritionImportParser.swift`, `NutritionView.swift` | Achieved, needs manual pass |
 | Google tokens in Keychain, not CloudKit preferences | `KeychainTokenStore.swift`, `GoogleCalendarSession.swift`, product spec | Achieved |
-| Read-only HealthKit metadata matches implementation | `Info.plist`, release verifier, release metadata tests, green CI for `8af9d2b` | Achieved |
+| Read-only HealthKit metadata matches implementation | `Info.plist`, release verifier, release metadata tests, latest green CI | Achieved, rerun status before final acceptance |
 
 ## Automated Verification
 
@@ -68,7 +67,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | `swift test` | Not available on Windows host | Needs macOS |
 | `xcodegen generate` | Not available on Windows host | Needs macOS |
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
-| Latest `main` CI green | `8af9d2b` succeeded in GitHub Actions run `28567318631` | Passed |
+| Latest `main` CI green | Run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3` and confirm the latest run for `origin/main` succeeded | Passed for latest checked state; rerun before final acceptance |
 
 ## Manual Acceptance
 
