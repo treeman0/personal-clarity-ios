@@ -4,15 +4,15 @@ final class ClarityHubUITests: XCTestCase {
     private let visibleTabs = ["Today", "Body", "Goals", "Habits"]
     private let moreTabs = ["Lists", "Calendar", "Nutrition", "Review", "Settings"]
     private let setupSectionExpectations: [String: String] = [
-        "Today": "sectionTitle.Setup",
-        "Body": "sectionTitle.Trend",
-        "Goals": "sectionTitle.Add goal",
-        "Habits": "sectionTitle.Add habit",
-        "Lists": "sectionTitle.Add list",
-        "Calendar": "sectionTitle.Upcoming",
-        "Nutrition": "sectionTitle.Today",
-        "Review": "sectionTitle.Daily review",
-        "Settings": "sectionTitle.Body target"
+        "Today": "section.Setup",
+        "Body": "section.Trend",
+        "Goals": "section.Add goal",
+        "Habits": "section.Add habit",
+        "Lists": "section.Add list",
+        "Calendar": "section.Upcoming",
+        "Nutrition": "section.Today",
+        "Review": "section.Wins",
+        "Settings": "section.Body target"
     ]
 
     override func setUp() {

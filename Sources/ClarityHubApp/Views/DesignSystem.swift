@@ -73,6 +73,7 @@ struct SectionPanel<Content: View>: View {
         .padding(16)
         .background(.background)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .accessibilityIdentifier("section.\(title)")
     }
 }
 
