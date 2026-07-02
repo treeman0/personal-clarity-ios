@@ -126,7 +126,8 @@ Google Calendar:
 3. Refresh upcoming events.
 4. Create a focus block.
 5. Verify the block exists in Google Calendar.
-6. Change OAuth settings and confirm Calendar requires reconnect instead of silently reusing stale tokens.
+6. Tap Disconnect in Calendar and confirm events clear with a reconnect message.
+7. Change OAuth settings and confirm Calendar requires reconnect instead of silently reusing stale tokens.
 
 Nutrition / Cal AI:
 

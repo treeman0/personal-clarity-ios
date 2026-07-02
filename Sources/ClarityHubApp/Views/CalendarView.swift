@@ -61,19 +61,29 @@ struct CalendarView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
 
-                HStack {
-                    Button {
-                        connect()
-                    } label: {
-                        Label("Connect", systemImage: "person.crop.circle.badge.checkmark")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(!configuration.isConfigured || isLoading)
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack {
+                        Button {
+                            connect()
+                        } label: {
+                            Label("Connect", systemImage: "person.crop.circle.badge.checkmark")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(!configuration.isConfigured || isLoading)
 
-                    Button {
-                        Task { await refreshEvents() }
+                        Button {
+                            Task { await refreshEvents() }
+                        } label: {
+                            Label(isLoading ? "Loading" : "Refresh", systemImage: "arrow.clockwise")
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(isLoading)
+                    }
+
+                    Button(role: .destructive) {
+                        disconnect()
                     } label: {
-                        Label(isLoading ? "Loading" : "Refresh", systemImage: "arrow.clockwise")
+                        Label("Disconnect", systemImage: "person.crop.circle.badge.xmark")
                     }
                     .buttonStyle(.bordered)
                     .disabled(isLoading)
@@ -121,6 +131,14 @@ struct CalendarView: View {
         session.presentationContextProvider = WebAuthenticationPresentationContextProvider.shared
         authSession = session
         session.start()
+    }
+
+    private func disconnect() {
+        authSession?.cancel()
+        authSession = nil
+        tokenStore.delete()
+        events = []
+        statusMessage = "Google Calendar disconnected. Connect again to load events."
     }
 
     private func finishAuthentication(

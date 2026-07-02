@@ -40,7 +40,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Goals | Measurable goals, optional due dates, current-value update, linked next actions | `GoalsView.swift`, persistence tests | Needs manual UI pass |
 | Habits | Daily/custom weekday habits, completion, cadence-aware streaks, delete with check-ins | `HabitsView.swift`, `HabitScheduleTests.swift` | Needs manual UI pass |
 | Lists/projects | Todo/project/reference lists, project outcomes, priority/due/list/project/goal task capture | `ListsView.swift`, task planner tests | Needs manual UI pass |
-| Calendar | Google OAuth PKCE, official Calendar API read/write, clear states | `GoogleOAuthClient.swift`, `GoogleCalendarClient.swift`, tests | Needs real Google OAuth manual pass |
+| Calendar | Google OAuth PKCE, official Calendar API read/write, direct disconnect, clear states | `CalendarView.swift`, `GoogleOAuthClient.swift`, `GoogleCalendarClient.swift`, tests | Needs real Google OAuth manual pass |
 | Nutrition | Apple Health nutrition totals or Cal AI/manual import, history, averages, same-day replace/delete | `NutritionHealthStore.swift`, `NutritionView.swift`, parser/summary tests | Needs device/manual nutrition pass |
 | Today | Operating screen integrates setup, weight, focus, goals, habits, tasks, calendar, nutrition | `TodayDashboardView.swift`, current local identity fix | Needs latest CI rerun and manual dense-data pass |
 | Review | Daily/weekly reviews, same-day edit, next-focus task creation | `ReviewView.swift`, review planner and persistence tests | Needs manual UI pass |
@@ -59,10 +59,10 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 
 | Gate | Current state | Status |
 | --- | --- | --- |
-| `git diff --check` | Run on current worktree | Needs final run |
-| `bash scripts/verify-release-config.sh` | Run on current worktree | Needs final run |
-| `.claude/scripts/status-report.ps1` | Run on current worktree | Needs final run |
-| `.\scripts\v1-local-status.ps1` | Run on Windows handoff state | Needs final run |
+| `git diff --check` | Passes on the current Windows worktree | Passed locally |
+| `bash scripts/verify-release-config.sh` | Passes on the current Windows worktree | Passed locally |
+| `.claude/scripts/status-report.ps1` | Passes with all loop defaults enabled | Passed locally |
+| `.\scripts\v1-local-status.ps1` | Reports local/remote state, loop status, release verifier, Swift availability, and latest Actions runs | Passed locally |
 | `swift test` | Not available on Windows host | Needs macOS |
 | `xcodegen generate` | Not available on Windows host | Needs macOS |
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
