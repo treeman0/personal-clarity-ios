@@ -18,6 +18,16 @@ final class ReleaseMetadataTests: XCTestCase {
         XCTAssertFalse(updateDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
     }
 
+    func testGoogleOAuthCallbackSchemeMatchesDefaultRedirectURI() throws {
+        let info = Bundle.main.infoDictionary ?? [:]
+        let urlTypes = try XCTUnwrap(info["CFBundleURLTypes"] as? [[String: Any]])
+        let firstURLType = try XCTUnwrap(urlTypes.first)
+        let schemes = try XCTUnwrap(firstURLType["CFBundleURLSchemes"] as? [String])
+        let defaultRedirectScheme = try XCTUnwrap(URL(string: AppPreferences.defaultGoogleRedirectURI)?.scheme)
+
+        XCTAssertTrue(schemes.contains(defaultRedirectScheme))
+    }
+
     func testPrivacyManifestDeclaresV1DataCategoriesAndNoTracking() throws {
         let manifestURL = try XCTUnwrap(Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy"))
         let data = try Data(contentsOf: manifestURL)
