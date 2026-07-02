@@ -112,7 +112,7 @@ grep -F "Tests/ClarityHubUITests" "$project_config" >/dev/null
 grep -F ".private(\"$expected_container\")" "$model_factory" >/dev/null
 grep -F "actions/checkout@v7" "$ios_ci_workflow" >/dev/null
 grep -F "actions/checkout@v7" "$codeql_workflow" >/dev/null
-grep -F "actions/upload-artifact@v5" "$ios_ci_workflow" >/dev/null
+grep -F "actions/upload-artifact@v7" "$ios_ci_workflow" >/dev/null
 grep -F "TestResults/ClarityHub.xcresult" "$ios_ci_workflow" >/dev/null
 grep -F "github/codeql-action/init@v4" "$codeql_workflow" >/dev/null
 grep -F "github/codeql-action/analyze@v4" "$codeql_workflow" >/dev/null
