@@ -75,6 +75,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Google disconnected smoke | `ClarityHubUITests.testGoogleDisconnectedStateRendersWithoutCalendarAPIAccess` launches blank OAuth settings with a fail-if-called Google Calendar client and verifies Today, Settings, and Calendar disconnected states | Added; needs latest CI evidence |
 | Reminder controls smoke | `WeighInReminderSchedulerTests` verify daily/snooze request construction and cancellation identifiers; `ClarityHubUITests.testReminderScheduleSnoozeSkipControlsRenderSuccessStates` taps Body and Settings schedule, snooze, and skip controls with an authorized reminder fixture | Added; needs latest CI evidence |
 | Google connected fixture smoke | `ClarityHubUITests.testGoogleConnectedFixtureRendersEventsAndCreatesBlock` launches configured OAuth settings with a fixture access token and fixture Google Calendar client, then verifies Today/Calendar event rendering and Calendar block creation | Added; needs latest CI evidence |
+| App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -91,7 +92,7 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 | Google disconnected | Partially automated by disconnected-state UI smoke with fail-if-called Google Calendar client; still needs manual acceptance |
 | Google connected with real OAuth credentials | Needs evidence; fixture smoke covers connected UI and API-client path, but not real Google consent |
 | Reminder schedule/snooze/skip | Partially automated by scheduler unit tests and reminder controls UI smoke; still needs device/manual notification acceptance |
-| Relaunch persistence | Partially automated by disk-backed SwiftData recreation test; still needs app relaunch manual acceptance |
+| Relaunch persistence | Automated by disk-backed SwiftData recreation test and app-shell relaunch UI smoke; still needs human acceptance for release-device behavior |
 | Private CloudKit two-device sync | Needs evidence |
 
 ## Completion Rule

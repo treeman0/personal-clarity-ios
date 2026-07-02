@@ -167,6 +167,43 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("Added Focus block to Google Calendar.", in: app))
     }
 
+    func testPersistentStoreSurvivesAppRelaunch() {
+        let storeName = "ClarityHubUIPersistence-\(UUID().uuidString)"
+        let firstLaunch = launchPersistentStoreFixture(
+            storeName: storeName,
+            seedDenseFixture: true,
+            interfaceStyle: "Light"
+        )
+
+        assertScreenTitle("Today", in: firstLaunch, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Reach 180 lb with steady weekly gain", in: firstLaunch))
+        XCTAssertTrue(scrollUntilStaticText("Protect the first training-support block and complete the highest priority clarity task.", in: firstLaunch))
+        firstLaunch.terminate()
+
+        let relaunch = launchPersistentStoreFixture(
+            storeName: storeName,
+            seedDenseFixture: false,
+            interfaceStyle: "Light"
+        )
+        defer { relaunch.terminate() }
+
+        assertScreenTitle("Today", in: relaunch, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Reach 180 lb with steady weekly gain", in: relaunch))
+        XCTAssertTrue(scrollUntilStaticText("Protect the first training-support block and complete the highest priority clarity task.", in: relaunch))
+
+        openVisibleTab("Goals", in: relaunch)
+        assertScreenTitle("Goals", in: relaunch, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Reach 180 lb with steady weekly gain", in: relaunch))
+
+        openMoreTab("Nutrition", in: relaunch)
+        assertScreenTitle("Nutrition", in: relaunch, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Cal AI import", in: relaunch))
+
+        openMoreTab("Review", in: relaunch)
+        assertScreenTitle("Review", in: relaunch, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Protect the first training-support block and complete the highest priority clarity task.", in: relaunch))
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -260,6 +297,25 @@ final class ClarityHubUITests: XCTestCase {
         app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
         app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
         app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "connected"
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
+    }
+
+    private func launchPersistentStoreFixture(
+        storeName: String,
+        seedDenseFixture: Bool,
+        interfaceStyle: String
+    ) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_PERSISTENT_UI_TEST_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_STORE_CONFIGURATION_NAME"] = storeName
+        app.launchEnvironment["CLARITYHUB_HEALTHKIT_FIXTURE"] = "empty"
+        app.launchEnvironment["CLARITYHUB_GOOGLE_CALENDAR_FIXTURE"] = "no-token"
+        if seedDenseFixture {
+            app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        }
         app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
         app.launch()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")

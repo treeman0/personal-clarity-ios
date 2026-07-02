@@ -10,6 +10,11 @@ enum UITestFixtureSeeder {
         }
 
         let context = container.mainContext
+        let existingGoals = try context.fetch(FetchDescriptor<GoalRecord>())
+        if existingGoals.contains(where: { $0.title == "Reach 180 lb with steady weekly gain" }) {
+            return
+        }
+
         let calendar = Calendar.current
         let now = Date()
         let today = calendar.startOfDay(for: now)

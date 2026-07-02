@@ -8,7 +8,12 @@ struct ClarityHubApp: App {
 
     init() {
         do {
-            modelContainer = try ClarityHubModelContainerFactory.make(inMemory: Self.shouldUseInMemoryStore)
+            let environment = ProcessInfo.processInfo.environment
+            modelContainer = try ClarityHubModelContainerFactory.make(
+                inMemory: Self.shouldUseInMemoryStore(environment: environment),
+                configurationName: Self.storeConfigurationName(environment: environment),
+                cloudKitSync: Self.cloudKitSync(environment: environment)
+            )
             #if DEBUG
             try UITestFixtureSeeder.seedIfRequested(in: modelContainer)
             #endif
@@ -29,10 +34,36 @@ struct ClarityHubApp: App {
         }
     }
 
-    private static var shouldUseInMemoryStore: Bool {
-        let environment = ProcessInfo.processInfo.environment
+    private static func shouldUseInMemoryStore(environment: [String: String]) -> Bool {
+        #if DEBUG
+        if environment["CLARITYHUB_PERSISTENT_UI_TEST_STORE"] == "1" {
+            return false
+        }
+        #endif
+
         return environment["XCTestConfigurationFilePath"] != nil
             || environment["CLARITYHUB_IN_MEMORY_STORE"] == "1"
+    }
+
+    private static func storeConfigurationName(environment: [String: String]) -> String {
+        #if DEBUG
+        if let name = environment["CLARITYHUB_STORE_CONFIGURATION_NAME"],
+           !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return name
+        }
+        #endif
+
+        return "ClarityHub"
+    }
+
+    private static func cloudKitSync(environment: [String: String]) -> ClarityHubModelContainerFactory.CloudKitSync {
+        #if DEBUG
+        if environment["CLARITYHUB_PERSISTENT_UI_TEST_STORE"] == "1" {
+            return .disabled
+        }
+        #endif
+
+        return .productionPrivate
     }
 
     private static var healthKitWeightStore: HealthKitWeightStore {
