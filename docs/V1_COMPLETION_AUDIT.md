@@ -33,7 +33,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 
 | Area | Requirement | Evidence | Status |
 | --- | --- | --- | --- |
-| App shell | Native SwiftUI iPhone app with Today, Body, Goals, Habits, Lists, Calendar, Nutrition, Review, Settings | `RootTabView.swift`, generated Xcode CI build | Achieved, needs manual UI pass |
+| App shell | Native SwiftUI iPhone app with Today, Body, Goals, Habits, Lists, Calendar, Nutrition, Review, Settings | `RootTabView.swift`, generated Xcode CI build, `ClarityHubUITests` light/dark tab smoke | Achieved, needs full manual UI pass |
 | Setup | Today setup checklist for defaults, core permissions, reminder scheduling, and denied notification feedback | `SetupChecklistView.swift`, reminder tests | Needs manual UI pass |
 | Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier, latest green CI | Needs signed-device sync smoke |
 | Body | HealthKit body weight, goal comparison, trend chart, moving average, unique-day weigh-in streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests | Needs device/manual HealthKit pass |
@@ -68,6 +68,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | `xcodegen generate` | Not available on Windows host | Needs macOS |
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
 | Latest `main` CI green | Run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3` and confirm the latest run for `origin/main` succeeded | Passed for latest checked state; rerun before final acceptance |
+| Light/dark app-shell smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Added; needs latest CI evidence |
 
 ## Manual Acceptance
 
@@ -75,7 +76,7 @@ Manual acceptance must be executed with `docs/V1_ACCEPTANCE_RUNBOOK.md`.
 
 | Manual area | Status |
 | --- | --- |
-| Light/dark tab pass | Needs evidence |
+| Light/dark tab pass | Partially automated by UI smoke; still needs human visual acceptance |
 | Empty states | Needs evidence |
 | Long text | Needs evidence |
 | Dense Today data | Needs evidence |

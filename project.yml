@@ -46,6 +46,13 @@ targets:
     dependencies:
       - target: ClarityHub
     hostApplication: ClarityHub
+  ClarityHubUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - Tests/ClarityHubUITests
+    dependencies:
+      - target: ClarityHub
 schemes:
   ClarityHub:
     build:
@@ -56,3 +63,4 @@ schemes:
       targets:
         - ClarityHubTests
         - ClarityHubAppTests
+        - ClarityHubUITests

@@ -12,6 +12,7 @@ struct ScreenScaffold<Content: View>: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(title)
                             .font(.largeTitle.weight(.bold))
+                            .accessibilityIdentifier("screenTitle.\(title)")
                         Text(subtitle)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
@@ -79,4 +80,3 @@ extension Double {
         formatted(.number.precision(.fractionLength(1)))
     }
 }
-

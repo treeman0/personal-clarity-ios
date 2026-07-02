@@ -8,7 +8,7 @@ struct ClarityHubApp: App {
 
     init() {
         do {
-            modelContainer = try ClarityHubModelContainerFactory.make(inMemory: Self.isRunningTests)
+            modelContainer = try ClarityHubModelContainerFactory.make(inMemory: Self.shouldUseInMemoryStore)
         } catch {
             fatalError("Unable to create ClarityHub model container: \(error)")
         }
@@ -25,7 +25,9 @@ struct ClarityHubApp: App {
         }
     }
 
-    private static var isRunningTests: Bool {
-        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    private static var shouldUseInMemoryStore: Bool {
+        let environment = ProcessInfo.processInfo.environment
+        return environment["XCTestConfigurationFilePath"] != nil
+            || environment["CLARITYHUB_IN_MEMORY_STORE"] == "1"
     }
 }

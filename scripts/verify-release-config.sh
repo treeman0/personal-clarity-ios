@@ -105,6 +105,8 @@ for entry in collected_types:
 PY
 
 grep -F "CODE_SIGN_ENTITLEMENTS: Sources/ClarityHubApp/ClarityHub.entitlements" "$project_config" >/dev/null
+grep -F "ClarityHubUITests:" "$project_config" >/dev/null
+grep -F "Tests/ClarityHubUITests" "$project_config" >/dev/null
 grep -F ".private(\"$expected_container\")" "$model_factory" >/dev/null
 
 echo "Release configuration verified."
