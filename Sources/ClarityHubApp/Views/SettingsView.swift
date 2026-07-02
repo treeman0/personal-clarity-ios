@@ -108,9 +108,8 @@ struct SettingsView: View {
         AppPreferences.upsert(.weighInReminderMinute, value: String(minute), in: modelContext, preferences: preferences)
 
         do {
-            _ = try await reminderScheduler.requestAuthorization()
-            try await reminderScheduler.scheduleDailyReminder(hour: hour, minute: minute)
-            reminderMessage = "Saved and scheduled."
+            let scheduled = try await reminderScheduler.authorizeAndScheduleDailyReminder(hour: hour, minute: minute)
+            reminderMessage = scheduled ? "Saved and scheduled." : "Saved, but notification permission was denied."
         } catch {
             reminderMessage = "Saved, but notification permission or scheduling failed."
         }

@@ -88,10 +88,14 @@ struct BodyView: View {
             SectionPanel(title: "Automation") {
                 Button {
                     Task {
-                        _ = try? await reminderScheduler.requestAuthorization()
                         do {
-                            try await reminderScheduler.scheduleDailyReminder(hour: reminderHour, minute: reminderMinute)
-                            reminderMessage = "Daily reminder scheduled for \(reminderLabel)."
+                            let scheduled = try await reminderScheduler.authorizeAndScheduleDailyReminder(
+                                hour: reminderHour,
+                                minute: reminderMinute
+                            )
+                            reminderMessage = scheduled
+                                ? "Daily reminder scheduled for \(reminderLabel)."
+                                : "Notification permission was denied."
                         } catch {
                             reminderMessage = "Reminder scheduling failed."
                         }

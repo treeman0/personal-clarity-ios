@@ -37,6 +37,13 @@ struct WeighInReminderScheduler {
         try await requestScheduler(Self.dailyRequest(hour: hour, minute: minute))
     }
 
+    func authorizeAndScheduleDailyReminder(hour: Int, minute: Int) async throws -> Bool {
+        let authorized = try await requestAuthorization()
+        guard authorized else { return false }
+        try await scheduleDailyReminder(hour: hour, minute: minute)
+        return true
+    }
+
     func snoozeReminder(minutes: Int = 15) async throws {
         try await requestScheduler(Self.snoozeRequest(minutes: minutes))
     }

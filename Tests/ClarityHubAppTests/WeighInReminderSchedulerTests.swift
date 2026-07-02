@@ -54,6 +54,38 @@ final class WeighInReminderSchedulerTests: XCTestCase {
         ])
     }
 
+    func testAuthorizeAndScheduleDailyReminderSchedulesOnlyWhenAuthorized() async throws {
+        var scheduledRequests: [UNNotificationRequest] = []
+        let scheduler = WeighInReminderScheduler(
+            authorizationRequester: { _ in true },
+            requestScheduler: { request in
+                scheduledRequests.append(request)
+            },
+            requestCanceller: { _ in }
+        )
+
+        let scheduled = try await scheduler.authorizeAndScheduleDailyReminder(hour: 8, minute: 15)
+
+        XCTAssertTrue(scheduled)
+        XCTAssertEqual(scheduledRequests.map(\.identifier), [WeighInReminderScheduler.dailyNotificationID])
+    }
+
+    func testAuthorizeAndScheduleDailyReminderDoesNotScheduleWhenDenied() async throws {
+        var scheduledRequests: [UNNotificationRequest] = []
+        let scheduler = WeighInReminderScheduler(
+            authorizationRequester: { _ in false },
+            requestScheduler: { request in
+                scheduledRequests.append(request)
+            },
+            requestCanceller: { _ in }
+        )
+
+        let scheduled = try await scheduler.authorizeAndScheduleDailyReminder(hour: 8, minute: 15)
+
+        XCTAssertFalse(scheduled)
+        XCTAssertTrue(scheduledRequests.isEmpty)
+    }
+
     func testSkipSnoozeAndCancelDailyUseExpectedIdentifiers() {
         var cancelledIdentifiers: [[String]] = []
         let scheduler = WeighInReminderScheduler(

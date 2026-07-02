@@ -18,14 +18,14 @@ Current GitHub Actions CI runs these checks on macOS except that `xcodegen gener
 ## Product Acceptance
 
 - Today: shows setup readiness, current HealthKit weight state or empty state, latest review focus, goal progress, due habit count, priority next actions with due-date/list/project/goal context, recent nutrition average, same-day Google Calendar blocks, and nutrition status.
-- Body: can request HealthKit access, refresh Apple Health body weight, show empty state when no samples exist, show current/goal/average/streak metrics, render raw and moving-average chart with goal rule, schedule daily reminder, snooze reminder, and skip snooze.
+- Body: can request HealthKit access, refresh Apple Health body weight, show empty state when no samples exist, show current/goal/average/streak metrics, render raw and moving-average chart with goal rule, schedule daily reminder only after notification permission, show a clear denied-permission message, snooze reminder, and skip snooze.
 - Goals: can create measurable increase/decrease/maintain goals with optional due date, update current value directly, show progress, capture linked next actions, complete linked actions, and delete a goal with linked tasks.
 - Habits: can create daily and custom weekday habits, prevent empty weekday schedules, complete/uncomplete due-today habits, show cadence-aware streaks, show all scheduled habits, and delete habits with check-ins.
 - Lists: can create todo/project/reference lists, create projects with desired outcomes, capture tasks with priority, due date, list, project, and goal, sort by shared planner priority/due-date behavior, complete tasks from Lists, review completed tasks, restore or delete completed tasks, and surface projects/lists with open counts.
 - Calendar: can save Google OAuth settings, start native OAuth with PKCE, refresh upcoming Google Calendar events, create a focus block on the primary calendar, and show clear not-configured/not-connected/error states.
 - Nutrition: can request HealthKit nutrition access, save Apple Health totals if present, parse Cal AI/manual text imports, clear stale parsed imports when date/source/text changes, replace an existing same-day record, delete records, show recent history, and show recent calorie/macro averages in Nutrition and Today.
 - Review: can save one daily review per day, create a deduplicated next-focus task due tomorrow, save/update the current weekly review, and show recent daily/weekly review history.
-- Settings: can persist goal weight, weigh-in reminder time, Google OAuth client ID, and redirect URI, and can schedule the daily reminder from saved settings.
+- Settings: can persist goal weight, weigh-in reminder time, Google OAuth client ID, and redirect URI, and can schedule the daily reminder from saved settings with clear denied-permission feedback.
 
 ## Manual Device Matrix
 
