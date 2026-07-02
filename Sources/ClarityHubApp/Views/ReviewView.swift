@@ -99,7 +99,10 @@ struct ReviewView: View {
                 }
             }
         }
-        .onAppear(perform: loadCurrentWeeklyReview)
+        .onAppear {
+            loadCurrentDailyReview()
+            loadCurrentWeeklyReview()
+        }
     }
 
     private func reviewField(_ title: String, text: Binding<String>, prompt: String) -> some View {
@@ -114,7 +117,12 @@ struct ReviewView: View {
         let reviewDate = Date()
         let todayReviews = RecordDateMatcher.records(reviews, on: reviewDate) { $0.date }
         todayReviews.forEach(modelContext.delete)
-        modelContext.insert(DailyReviewRecord(date: reviewDate, wins: wins, friction: friction, nextFocus: nextFocus))
+        modelContext.insert(DailyReviewRecord(
+            date: reviewDate,
+            wins: wins.trimmingCharacters(in: .whitespacesAndNewlines),
+            friction: friction.trimmingCharacters(in: .whitespacesAndNewlines),
+            nextFocus: nextFocus.trimmingCharacters(in: .whitespacesAndNewlines)
+        ))
         insertFocusTaskIfNeeded(reviewDate: reviewDate)
     }
 
@@ -142,6 +150,16 @@ struct ReviewView: View {
         changeNextWeek = review.changeNextWeek
         weeklyFocus = review.focus
         commitments = review.commitments
+    }
+
+    private func loadCurrentDailyReview() {
+        guard let review = RecordDateMatcher.records(reviews, on: Date()) { $0.date }.first else {
+            return
+        }
+
+        wins = review.wins
+        friction = review.friction
+        nextFocus = review.nextFocus
     }
 
     private func currentWeekStart() -> Date {

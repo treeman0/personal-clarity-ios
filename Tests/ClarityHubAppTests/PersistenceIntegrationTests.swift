@@ -146,4 +146,40 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(task.item.dueDate, taskDueDate)
         XCTAssertEqual(task.item.title, "Buy groceries")
     }
+
+    func testRecordDateMatcherFindsReviewForSameCalendarDay() throws {
+        let calendar = Calendar(identifier: .gregorian)
+        let today = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1, hour: 20)))
+        let morning = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1, hour: 7)))
+        let yesterday = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 6, day: 30, hour: 22)))
+        let reviews = [
+            DailyReviewRecord(date: yesterday, wins: "Old", friction: "", nextFocus: "Old focus"),
+            DailyReviewRecord(date: morning, wins: "Lifted", friction: "", nextFocus: "Plan breakfast")
+        ]
+
+        let matches = RecordDateMatcher.records(reviews, on: today, calendar: calendar) { $0.date }
+
+        XCTAssertEqual(matches.map(\.nextFocus), ["Plan breakfast"])
+    }
+
+    func testReplacingDailyReviewLeavesOneReviewForTheDay() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let calendar = Calendar(identifier: .gregorian)
+        let morning = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1, hour: 7)))
+        let evening = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1, hour: 20)))
+
+        context.insert(DailyReviewRecord(date: morning, wins: "Started", friction: "Late", nextFocus: "Walk"))
+        try context.save()
+
+        let existingReviews = try context.fetch(FetchDescriptor<DailyReviewRecord>())
+        RecordDateMatcher.records(existingReviews, on: evening, calendar: calendar) { $0.date }
+            .forEach(context.delete)
+        context.insert(DailyReviewRecord(date: evening, wins: "Finished", friction: "", nextFocus: "Plan lift"))
+        try context.save()
+
+        let savedReviews = try context.fetch(FetchDescriptor<DailyReviewRecord>())
+        XCTAssertEqual(savedReviews.count, 1)
+        XCTAssertEqual(savedReviews.first?.nextFocus, "Plan lift")
+    }
 }
