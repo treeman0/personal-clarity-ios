@@ -302,6 +302,55 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(matches.map(\.nextFocus), ["Plan breakfast"])
     }
 
+    func testReplacingNutritionDayLeavesOneRecordForThatDay() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let calendar = Calendar(identifier: .gregorian)
+        let selectedDay = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1, hour: 18)))
+        let sameDayMorning = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 7, day: 1, hour: 7)))
+        let previousDay = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 6, day: 30, hour: 18)))
+
+        context.insert(NutritionDayRecord(
+            date: sameDayMorning,
+            calories: 2_400,
+            proteinGrams: 140,
+            carbohydrateGrams: 260,
+            fatGrams: 70,
+            source: "Manual import"
+        ))
+        context.insert(NutritionDayRecord(
+            date: previousDay,
+            calories: 2_700,
+            proteinGrams: 160,
+            carbohydrateGrams: 300,
+            fatGrams: 80,
+            source: "Cal AI import"
+        ))
+        try context.save()
+
+        let existingRecords = try context.fetch(FetchDescriptor<NutritionDayRecord>())
+        RecordDateMatcher.records(existingRecords, on: selectedDay, calendar: calendar) { $0.date }
+            .forEach(context.delete)
+        context.insert(NutritionDayRecord(
+            date: selectedDay,
+            calories: 3_000,
+            proteinGrams: 180,
+            carbohydrateGrams: 320,
+            fatGrams: 90,
+            source: "Apple Health"
+        ))
+        try context.save()
+
+        let savedRecords = try context.fetch(FetchDescriptor<NutritionDayRecord>())
+        let selectedDayRecords = RecordDateMatcher.records(savedRecords, on: selectedDay, calendar: calendar) { $0.date }
+        let previousDayRecords = RecordDateMatcher.records(savedRecords, on: previousDay, calendar: calendar) { $0.date }
+
+        XCTAssertEqual(savedRecords.count, 2)
+        XCTAssertEqual(selectedDayRecords.map(\.calories), [3_000])
+        XCTAssertEqual(selectedDayRecords.map(\.source), ["Apple Health"])
+        XCTAssertEqual(previousDayRecords.map(\.calories), [2_700])
+    }
+
     func testReplacingDailyReviewLeavesOneReviewForTheDay() throws {
         let container = try ClarityHubModelContainerFactory.make(inMemory: true)
         let context = ModelContext(container)
