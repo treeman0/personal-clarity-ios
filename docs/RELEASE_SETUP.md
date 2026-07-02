@@ -24,6 +24,8 @@ The app bundle includes `Sources/ClarityHubApp/PrivacyInfo.xcprivacy`. V1 declar
 
 App Store Connect privacy answers must match the privacy manifest and the actual enabled integrations.
 
+V1 only reads authorized HealthKit data. It must not declare `NSHealthUpdateUsageDescription` or request HealthKit write access unless a future version adds a real Apple Health write path.
+
 ## Google Calendar
 
 Create an iOS OAuth client for the app bundle ID and configure the redirect URI:

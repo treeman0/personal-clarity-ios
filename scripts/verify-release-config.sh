@@ -60,6 +60,12 @@ if [[ "$google_callback_scheme" != "$expected_google_callback_scheme" ]]; then
   exit 1
 fi
 
+grep -F "NSHealthShareUsageDescription" "$info_plist" >/dev/null
+if grep -F "NSHealthUpdateUsageDescription" "$info_plist" >/dev/null; then
+  echo "V1 should not declare HealthKit write usage because it only reads authorized Health data" >&2
+  exit 1
+fi
+
 grep -F "CODE_SIGN_ENTITLEMENTS: Sources/ClarityHubApp/ClarityHub.entitlements" "$project_config" >/dev/null
 grep -F ".private(\"$expected_container\")" "$model_factory" >/dev/null
 

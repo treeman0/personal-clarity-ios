@@ -9,13 +9,12 @@ final class ReleaseMetadataTests: XCTestCase {
         XCTAssertEqual(modes, ["remote-notification"])
     }
 
-    func testHealthKitUsageDescriptionsArePresent() throws {
+    func testHealthKitUsageDescriptionMatchesReadOnlyV1() throws {
         let info = Bundle.main.infoDictionary ?? [:]
         let shareDescription = try XCTUnwrap(info["NSHealthShareUsageDescription"] as? String)
-        let updateDescription = try XCTUnwrap(info["NSHealthUpdateUsageDescription"] as? String)
 
         XCTAssertFalse(shareDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-        XCTAssertFalse(updateDescription.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        XCTAssertNil(info["NSHealthUpdateUsageDescription"])
     }
 
     func testGoogleOAuthCallbackSchemeMatchesDefaultRedirectURI() throws {
