@@ -44,7 +44,7 @@ This scope is used for reading upcoming events and creating user-requested calen
 
 ## Device Acceptance
 
-Run the full V1 checklist in `docs/V1_ACCEPTANCE.md` on iPhone or simulator before TestFlight. At minimum, cover:
+Run the full V1 checklist in `docs/V1_ACCEPTANCE.md` and record evidence with `docs/V1_ACCEPTANCE_RUNBOOK.md` on iPhone or simulator before TestFlight. At minimum, cover:
 
 - Light and dark mode.
 - Empty states.

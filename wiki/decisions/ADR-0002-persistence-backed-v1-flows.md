@@ -39,4 +39,4 @@ The initial shell used preview data to prove the app shape and CI build. V1 need
 - XCTest launches use an in-memory app container so unsigned CI builds do not attempt to initialize private CloudKit before tests execute.
 - Release metadata tests verify read-only HealthKit usage metadata, CloudKit remote-notification background mode, Google OAuth callback scheme, and the bundled privacy manifest; Apple/Google console setup remains documented in `docs/RELEASE_SETUP.md`.
 - macOS CI also runs `scripts/verify-release-config.sh` to keep the HealthKit entitlement, private CloudKit container, Google OAuth callback scheme, Xcode entitlements path, and SwiftData CloudKit identifier aligned.
-- V1 release candidates use `docs/V1_ACCEPTANCE.md` as the manual acceptance contract for device/simulator checks that CI cannot prove from Windows or unsigned macOS runners.
+- V1 release candidates use `docs/V1_ACCEPTANCE.md` as the manual acceptance contract and `docs/V1_ACCEPTANCE_RUNBOOK.md` as the evidence-capture runbook for device/simulator checks that CI cannot prove from Windows or unsigned macOS runners.
