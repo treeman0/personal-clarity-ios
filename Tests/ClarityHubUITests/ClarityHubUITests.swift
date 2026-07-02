@@ -222,7 +222,7 @@ final class ClarityHubUITests: XCTestCase {
     }
 
     private func scrollUntilStaticText(_ text: String, in app: XCUIApplication) -> Bool {
-        let element = app.staticTexts[text]
+        let element = app.staticTexts.matching(NSPredicate(format: "label == %@", text)).firstMatch
         if element.waitForExistence(timeout: 2) {
             return true
         }
