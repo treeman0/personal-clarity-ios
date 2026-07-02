@@ -30,6 +30,43 @@ final class ClarityHubUITests: XCTestCase {
         assertDenseTodayDataRenders(interfaceStyle: "Dark")
     }
 
+    func testDenseFixtureRecordsRenderAcrossPrimaryAreas() {
+        let app = launchDenseFixture(interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        openVisibleTab("Goals", in: app)
+        assertScreenTitle("Goals", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Reach 180 lb with steady weekly gain", in: app))
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Reach 180 lb with steady weekly gain", in: app))
+
+        openVisibleTab("Habits", in: app)
+        assertScreenTitle("Habits", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Prepare high-protein breakfast before first work block", in: app))
+
+        openMoreTab("Lists", in: app)
+        assertScreenTitle("Lists", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Write the focused next action with enough detail to test long text wrapping in the Today priority queue", in: app))
+        XCTAssertTrue(scrollUntilStaticText("A working daily hub that survives dense real-life data without losing scanability.", in: app))
+
+        openMoreTab("Calendar", in: app)
+        assertScreenTitle("Calendar", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Google OAuth is configured.", in: app))
+
+        openMoreTab("Nutrition", in: app)
+        assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Cal AI import", in: app))
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Recent average", in: app))
+
+        openMoreTab("Review", in: app)
+        assertScreenTitle("Review", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Protect the first training-support block and complete the highest priority clarity task.", in: app))
+
+        openMoreTab("Settings", in: app)
+        assertScreenTitle("Settings", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("180.0 lb", in: app))
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Google Calendar", in: app))
+    }
+
     private func assertV1SurfacesRender(interfaceStyle: String) {
         let app = XCUIApplication()
         app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
@@ -53,11 +90,7 @@ final class ClarityHubUITests: XCTestCase {
     }
 
     private func assertDenseTodayDataRenders(interfaceStyle: String) {
-        let app = XCUIApplication()
-        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
-        app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
-        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
-        app.launch()
+        let app = launchDenseFixture(interfaceStyle: interfaceStyle)
         defer { app.terminate() }
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
@@ -72,6 +105,16 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Nutrition signal", in: app), "Dense Today should show nutrition signal in \(interfaceStyle) mode.")
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Goal signal", in: app), "Dense Today should show goal signal in \(interfaceStyle) mode.")
         XCTAssertTrue(app.staticTexts["Reach 180 lb with steady weekly gain"].waitForExistence(timeout: 2))
+    }
+
+    private func launchDenseFixture(interfaceStyle: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchEnvironment["CLARITYHUB_IN_MEMORY_STORE"] = "1"
+        app.launchEnvironment["CLARITYHUB_UI_TEST_FIXTURE"] = "dense"
+        app.launchArguments += ["-AppleInterfaceStyle", interfaceStyle]
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "Tab bar should render in \(interfaceStyle) mode.")
+        return app
     }
 
     private func openVisibleTab(_ title: String, in app: XCUIApplication) {
@@ -125,6 +168,27 @@ final class ClarityHubUITests: XCTestCase {
         }
 
         for _ in 0..<4 {
+            scrollView.swipeUp()
+            if element.waitForExistence(timeout: 1) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private func scrollUntilStaticText(_ text: String, in app: XCUIApplication) -> Bool {
+        let element = app.staticTexts[text]
+        if element.waitForExistence(timeout: 2) {
+            return true
+        }
+
+        let scrollView = app.scrollViews.firstMatch
+        guard scrollView.exists else {
+            return false
+        }
+
+        for _ in 0..<5 {
             scrollView.swipeUp()
             if element.waitForExistence(timeout: 1) {
                 return true
