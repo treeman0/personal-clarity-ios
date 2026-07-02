@@ -294,4 +294,37 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(savedReviews.count, 1)
         XCTAssertEqual(savedReviews.first?.nextFocus, "Plan lift")
     }
+
+    func testReplacingWeeklyReviewLeavesOneReviewForTheWeek() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        let calendar = Calendar(identifier: .gregorian)
+        let weekStart = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 6, day: 28)))
+
+        context.insert(WeeklyReviewRecord(
+            weekStart: weekStart,
+            keepDoing: "Morning planning",
+            changeNextWeek: "Prep earlier",
+            focus: "Training",
+            commitments: "Lift three times"
+        ))
+        try context.save()
+
+        let existingReviews = try context.fetch(FetchDescriptor<WeeklyReviewRecord>())
+        existingReviews
+            .filter { calendar.isDate($0.weekStart, inSameDayAs: weekStart) }
+            .forEach(context.delete)
+        context.insert(WeeklyReviewRecord(
+            weekStart: weekStart,
+            keepDoing: "Morning weigh-in",
+            changeNextWeek: "Shop earlier",
+            focus: "Nutrition consistency",
+            commitments: "Hit calories daily"
+        ))
+        try context.save()
+
+        let savedReviews = try context.fetch(FetchDescriptor<WeeklyReviewRecord>())
+        XCTAssertEqual(savedReviews.count, 1)
+        XCTAssertEqual(savedReviews.first?.focus, "Nutrition consistency")
+    }
 }
