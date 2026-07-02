@@ -90,9 +90,17 @@ Invoke-OptionalCommand "Open security alerts" {
 
 Invoke-OptionalCommand "Latest iOS result bundle artifact" {
     Invoke-GitHubCommand {
-        $run = gh run list --repo treeman0/personal-clarity-ios --workflow "iOS CI" --branch main --limit 1 --json databaseId,headSha,status,conclusion | ConvertFrom-Json | Select-Object -First 1
+        $remoteHead = (git rev-parse origin/main).Trim()
+        $runs = gh run list --repo treeman0/personal-clarity-ios --workflow "iOS CI" --branch main --limit 20 --json databaseId,headSha,status,conclusion | ConvertFrom-Json
+        $run = $null
+        foreach ($candidate in $runs) {
+            if ($candidate.headSha -eq $remoteHead) {
+                $run = $candidate
+                break
+            }
+        }
         if (-not $run) {
-            Write-Output "No iOS CI run found."
+            Write-Output "No iOS CI run found for origin/main $remoteHead."
             return
         }
 
