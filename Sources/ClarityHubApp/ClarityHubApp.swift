@@ -1,3 +1,4 @@
+import ClarityHubCore
 import Foundation
 import SwiftData
 import SwiftUI
@@ -75,6 +76,12 @@ struct ClarityHubApp: App {
                 requestAuthorization: {},
                 fetchWeights: { _ in [] }
             )
+        case "sample":
+            return HealthKitWeightStore(
+                isAvailable: { true },
+                requestAuthorization: {},
+                fetchWeights: { _ in Self.fixtureWeightEntries() }
+            )
         case "denied":
             return HealthKitWeightStore(
                 isAvailable: { true },
@@ -96,6 +103,20 @@ struct ClarityHubApp: App {
             return NutritionHealthStore(
                 requestAuthorization: {},
                 fetchTodayNutrition: { _ in nil }
+            )
+        case "sample":
+            return NutritionHealthStore(
+                requestAuthorization: {},
+                fetchTodayNutrition: { calendar in
+                    NutritionDay(
+                        date: calendar.startOfDay(for: Date()),
+                        calories: 3_125,
+                        proteinGrams: 186,
+                        carbohydrateGrams: 348,
+                        fatGrams: 94,
+                        source: "Apple Health"
+                    )
+                }
             )
         case "denied":
             return NutritionHealthStore(
@@ -178,6 +199,21 @@ struct ClarityHubApp: App {
         #endif
 
         return WeighInReminderScheduler()
+    }
+
+    private static func fixtureWeightEntries() -> [WeightEntry] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let values = [168.0, 168.3, 168.6, 168.8, 169.0, 169.2, 169.5]
+
+        return values.enumerated().compactMap { offset, pounds in
+            guard let day = calendar.date(byAdding: .day, value: offset - 6, to: today),
+                  let date = calendar.date(byAdding: .hour, value: 7, to: day)
+            else {
+                return nil
+            }
+            return WeightEntry(date: date, pounds: pounds)
+        }
     }
 
     private static func fixtureUpcomingCalendarEventsData() -> Data {

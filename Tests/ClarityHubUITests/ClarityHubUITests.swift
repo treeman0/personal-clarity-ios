@@ -82,6 +82,40 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("Apple Health has no calorie or macro totals for today, or nutrition permission was not granted.", in: app))
     }
 
+    func testHealthKitSampleDataRendersBodyTodayAndNutritionSignals() {
+        let app = launchHealthKitFixture(state: "sample", interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        assertScreenTitle("Today", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("169.5 lb", in: app))
+        XCTAssertTrue(scrollUntilStaticText("10.5 lb to goal", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Last weigh-in: 169.5 lb", in: app))
+        XCTAssertTrue(scrollUntilStaticText("1.5 lb over 7 days", in: app))
+
+        openVisibleTab("Body", in: app)
+        assertScreenTitle("Body", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("169.5 lb", in: app))
+        XCTAssertTrue(scrollUntilStaticText("168.8 lb", in: app))
+        XCTAssertTrue(scrollUntilStaticText("10.5 lb remaining", in: app))
+        XCTAssertTrue(scrollUntilStaticText("7d", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Loaded 7 Apple Health weight samples.", in: app))
+
+        openMoreTab("Nutrition", in: app)
+        assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Connect nutrition totals", in: app))
+        app.buttons["Connect nutrition totals"].tap()
+        XCTAssertTrue(scrollUntilStaticText(containing: "Saved", in: app))
+
+        openVisibleTab("Today", in: app)
+        openMoreTab("Nutrition", in: app)
+        assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Apple Health", in: app))
+        XCTAssertTrue(scrollUntilStaticText("3,125", in: app))
+        XCTAssertTrue(scrollUntilStaticText("186.0g", in: app))
+        XCTAssertTrue(scrollUntilStaticText("348.0g", in: app))
+        XCTAssertTrue(scrollUntilStaticText("94.0g", in: app))
+    }
+
     func testHealthKitDeniedStateCopyRendersInSetupBodyAndNutrition() {
         let app = launchHealthKitFixture(state: "denied", interfaceStyle: "Light")
         defer { app.terminate() }
