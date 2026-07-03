@@ -5,8 +5,8 @@ This record is the manual execution artifact for `docs/V1_ACCEPTANCE_RUNBOOK.md`
 ## Release Candidate
 
 ```text
-Candidate commit: b421cf0 Cover V1 list type fixtures
-Date: 2026-07-03
+Candidate commit: run .\scripts\v1-local-status.ps1 and copy Local HEAD
+Date:
 Tester:
 Device or simulator:
 iOS version:
@@ -19,15 +19,17 @@ Cal AI writes nutrition to Apple Health: yes/no/unknown
 ## Automated Evidence
 
 ```text
-Local/remote status: clean at b421cf0
-Loop status: clean; TDD, verification gate, wiki memory/gate, skill tracking, manual review, safety guard, and status report enabled
-Release verifier: passed
-iOS CI: passed, run 28634755036
-CodeQL: passed, run 28634755048
-Result bundle artifact: clarityhub-xcresult-b421cf076943c63727d5fae612c394031dda1668
-Repository visibility: public
-Open security alerts: code_scanning_alerts=0, secret_scanning_alerts=0, dependabot_alerts=0
-Additional automated coverage: todo, project-support, and reference list kinds persist and render in dense fixture UI
+Source command: .\scripts\v1-local-status.ps1
+Local/remote status:
+Loop status:
+Release verifier:
+iOS CI:
+CodeQL:
+Result bundle artifact:
+Repository visibility:
+GitHub security features:
+Open security alerts:
+Additional automated coverage:
 ```
 
 ## Clean Install Pass
