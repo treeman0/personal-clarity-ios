@@ -153,7 +153,7 @@ Invoke-OptionalCommand "Latest iOS result bundle artifact" {
 }
 
 Invoke-OptionalCommand "Acceptance record auto-fill" {
-    $gitStatus = Get-CommandOutput { git status -sb }
+    $gitStatus = Get-CommandOutput { git status --short --branch -- . ':(exclude)docs/V1_ACCEPTANCE_RECORD.md' }
     $localHead = Get-CommandOutput { git log -1 --oneline }
     $remoteHead = Get-CommandOutput { git log -1 --oneline origin/main }
     $releaseVerifier = Get-CommandOutput { bash scripts/verify-release-config.sh }
@@ -240,7 +240,7 @@ Invoke-OptionalCommand "Acceptance record auto-fill" {
     }
 
     Write-Output "Candidate commit: $localHead"
-    Write-Output "Local/remote status: $(Format-OneLine $gitStatus); remote HEAD: $remoteHead"
+    Write-Output "Local/remote status: $(Format-OneLine $gitStatus); remote HEAD: $remoteHead; excluding docs/V1_ACCEPTANCE_RECORD.md"
     Write-Output "Loop status: $(if ($loopClean) { "clean; no pending verification/wiki gates or waivers" } else { "review Loop status section" })"
     Write-Output "Release verifier: $(Format-OneLine $releaseVerifier)"
     Write-Output "Current release-candidate GitHub Actions runs: $currentRunsText"

@@ -14,10 +14,10 @@ $resolvedOutputPath = if ([System.IO.Path]::IsPathRooted($OutputPath)) {
 
 Push-Location $root
 try {
-    $gitStatus = (git status --short --branch | Out-String).Trim()
+    $gitStatus = (git status --short --branch -- . ':(exclude)docs/V1_ACCEPTANCE_RECORD.md' | Out-String).Trim()
     if ($gitStatus -notmatch "^## main\.\.\.origin/main\s*$") {
-        Write-Output "Warning: final V1 acceptance should start from a clean, pushed worktree."
-        Write-Output "Current git status:"
+        Write-Output "Warning: final V1 acceptance should start from a clean, pushed candidate."
+        Write-Output "Current git status excluding docs\V1_ACCEPTANCE_RECORD.md:"
         Write-Output $gitStatus
         Write-Output ""
     }

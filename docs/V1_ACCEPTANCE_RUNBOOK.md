@@ -4,7 +4,7 @@ Use this runbook to execute `docs/V1_ACCEPTANCE.md` for a release candidate, and
 
 ## Preflight
 
-Before starting final manual acceptance, commit and push all intended release-candidate changes, wait for the current `origin/main` iOS CI and CodeQL runs to pass, and confirm `git status --short --branch` shows only `## main...origin/main`. Then generate the acceptance record so its automated evidence points at the same candidate that will be tested manually.
+Before starting final manual acceptance, commit and push all intended release-candidate changes, wait for the current `origin/main` iOS CI and CodeQL runs to pass, and confirm `git status --short --branch -- . ':(exclude)docs/V1_ACCEPTANCE_RECORD.md'` shows only `## main...origin/main`. Then generate the acceptance record so its automated evidence points at the same candidate that will be tested manually. The acceptance record itself is allowed to be dirty while it is being filled.
 
 Record this before starting:
 
