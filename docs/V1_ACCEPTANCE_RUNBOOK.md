@@ -4,6 +4,8 @@ Use this runbook to execute `docs/V1_ACCEPTANCE.md` for a release candidate, and
 
 ## Preflight
 
+Before starting final manual acceptance, commit and push all intended release-candidate changes, wait for the current `origin/main` iOS CI and CodeQL runs to pass, and confirm `git status --short --branch` shows only `## main...origin/main`. Then generate the acceptance record so its automated evidence points at the same candidate that will be tested manually.
+
 Record this before starting:
 
 ```text
@@ -37,11 +39,25 @@ On Windows, run this helper before handoff. It records local/remote Git state, l
 .\scripts\v1-local-status.ps1
 ```
 
-To start a fresh manual acceptance artifact from the current release-candidate evidence, generate the record instead of copying fields by hand:
+To start a fresh manual acceptance artifact from the current release-candidate evidence, run the starter. It generates `docs/V1_ACCEPTANCE_RECORD.md`, runs the validator, and prints the remaining manual steps:
+
+```powershell
+.\scripts\start-v1-acceptance.ps1
+```
+
+If you only need to regenerate the record without the starter summary, run:
 
 ```powershell
 .\scripts\new-v1-acceptance-record.ps1 -OutputPath docs\V1_ACCEPTANCE_RECORD.md
 ```
+
+After filling the record, run the local validator before calling V1 accepted. It must pass before the goal can be marked complete:
+
+```powershell
+.\scripts\test-v1-acceptance-record.ps1
+```
+
+`Private CloudKit sync pass/fail/not available` may be marked `not available` while setup is still blocked, but the validator requires `pass` or `fail` before final V1 acceptance because private iCloud sync is in scope for V1.
 
 ## Clean Install Pass
 

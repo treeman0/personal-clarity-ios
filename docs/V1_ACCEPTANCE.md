@@ -46,4 +46,4 @@ Run on iPhone or iOS Simulator before calling V1 complete:
 
 ## Completion Rule
 
-V1 can be called complete only after the latest `main` CI run is green, the loop status report has no pending gates, the runbook in `docs/V1_ACCEPTANCE_RUNBOOK.md` has been executed for the release candidate, and any manual acceptance defects are either fixed or explicitly deferred outside V1.
+V1 can be called complete only after the latest `main` CI run is green, the loop status report has no pending gates, the runbook in `docs/V1_ACCEPTANCE_RUNBOOK.md` has been executed for the release candidate, `.\scripts\test-v1-acceptance-record.ps1` passes, and any manual acceptance defects are either fixed or explicitly deferred outside V1.

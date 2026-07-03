@@ -59,6 +59,8 @@ $recordTemplate = @'
 
 This record is the manual execution artifact for `docs/V1_ACCEPTANCE_RUNBOOK.md`. It is intentionally not marked accepted until each pass/fail field is filled with real iPhone or simulator evidence.
 
+After filling the record, validate it with `.\scripts\test-v1-acceptance-record.ps1`.
+
 ## Release Candidate
 
 ```text
@@ -131,6 +133,8 @@ Private CloudKit sync pass/fail/not available:
 Notes:
 Screenshots captured:
 ```
+
+`Private CloudKit sync pass/fail/not available` may be marked `not available` while setup is still blocked, but final V1 acceptance requires `pass` or `fail` because private iCloud sync is in scope.
 
 ## Defect Log
 

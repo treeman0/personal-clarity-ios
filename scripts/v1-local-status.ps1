@@ -163,7 +163,8 @@ Invoke-OptionalCommand "Acceptance record auto-fill" {
         -and ($loopStatus -match "verification waiver present: False") `
         -and ($loopStatus -match "wiki waiver present: False")
 
-    $latestRunsText = "gh unavailable"
+    $currentRunsText = "gh unavailable"
+    $recentRunsText = "gh unavailable"
     $iosRunText = "not found"
     $codeqlRunText = "not found"
     $artifactText = "not found"
@@ -176,16 +177,24 @@ Invoke-OptionalCommand "Acceptance record auto-fill" {
     }
     if ($runsJson) {
         $runs = $runsJson | ConvertFrom-Json
-        $latestRunsText = (($runs | Select-Object -First 3 | ForEach-Object {
+        $remoteSha = (git rev-parse origin/main).Trim()
+        $currentRuns = $runs | Where-Object { $_.headSha -eq $remoteSha }
+        if ($currentRuns) {
+            $currentRunsText = (($currentRuns | ForEach-Object {
+                "$($_.workflowName) $($_.databaseId) $($_.status)/$($_.conclusion) $($_.headSha)"
+            }) -join "; ")
+        } else {
+            $currentRunsText = "no runs found for origin/main $remoteSha"
+        }
+        $recentRunsText = (($runs | Select-Object -First 3 | ForEach-Object {
             "$($_.workflowName) $($_.databaseId) $($_.status)/$($_.conclusion) $($_.headSha)"
         }) -join "; ")
 
-        $remoteSha = (git rev-parse origin/main).Trim()
         $iosRun = $runs | Where-Object { $_.workflowName -eq "iOS CI" -and $_.headSha -eq $remoteSha } | Select-Object -First 1
         $codeqlRun = $runs | Where-Object { $_.workflowName -eq "CodeQL" -and $_.headSha -eq $remoteSha } | Select-Object -First 1
 
         if ($iosRun) {
-            $iosRunText = "run $($iosRun.databaseId), $($iosRun.status)/$($iosRun.conclusion), $($iosRun.url)"
+            $iosRunText = "run $($iosRun.databaseId), $($iosRun.status)/$($iosRun.conclusion), $($iosRun.headSha), $($iosRun.url)"
             $artifactJson = Get-GitHubJson {
                 gh api "repos/treeman0/personal-clarity-ios/actions/runs/$($iosRun.databaseId)/artifacts"
             }
@@ -200,7 +209,7 @@ Invoke-OptionalCommand "Acceptance record auto-fill" {
         }
 
         if ($codeqlRun) {
-            $codeqlRunText = "run $($codeqlRun.databaseId), $($codeqlRun.status)/$($codeqlRun.conclusion), $($codeqlRun.url)"
+            $codeqlRunText = "run $($codeqlRun.databaseId), $($codeqlRun.status)/$($codeqlRun.conclusion), $($codeqlRun.headSha), $($codeqlRun.url)"
         }
     }
 
@@ -234,7 +243,8 @@ Invoke-OptionalCommand "Acceptance record auto-fill" {
     Write-Output "Local/remote status: $(Format-OneLine $gitStatus); remote HEAD: $remoteHead"
     Write-Output "Loop status: $(if ($loopClean) { "clean; no pending verification/wiki gates or waivers" } else { "review Loop status section" })"
     Write-Output "Release verifier: $(Format-OneLine $releaseVerifier)"
-    Write-Output "Latest GitHub Actions runs: $latestRunsText"
+    Write-Output "Current release-candidate GitHub Actions runs: $currentRunsText"
+    Write-Output "Recent branch GitHub Actions runs: $recentRunsText"
     Write-Output "iOS CI: $iosRunText"
     Write-Output "CodeQL: $codeqlRunText"
     Write-Output "Result bundle artifact: $artifactText"

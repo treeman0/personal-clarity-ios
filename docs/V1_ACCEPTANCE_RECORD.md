@@ -4,6 +4,8 @@ This record is the manual execution artifact for `docs/V1_ACCEPTANCE_RUNBOOK.md`
 
 Generate a current release-candidate copy with `.\scripts\new-v1-acceptance-record.ps1 -OutputPath docs\V1_ACCEPTANCE_RECORD.md` immediately before starting manual acceptance.
 
+After filling the record, validate it with `.\scripts\test-v1-acceptance-record.ps1`.
+
 ## Release Candidate
 
 ```text
@@ -26,7 +28,8 @@ Copy from section: Acceptance record auto-fill
 Local/remote status:
 Loop status:
 Release verifier:
-Latest GitHub Actions runs:
+Current release-candidate GitHub Actions runs:
+Recent branch GitHub Actions runs:
 iOS CI:
 CodeQL:
 Result bundle artifact:
@@ -86,6 +89,8 @@ Private CloudKit sync pass/fail/not available:
 Notes:
 Screenshots captured:
 ```
+
+`Private CloudKit sync pass/fail/not available` may be marked `not available` while setup is still blocked, but final V1 acceptance requires `pass` or `fail` because private iCloud sync is in scope.
 
 ## Defect Log
 
