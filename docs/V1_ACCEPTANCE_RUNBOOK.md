@@ -57,6 +57,12 @@ After filling the record, run the local validator before calling V1 accepted. It
 .\scripts\test-v1-acceptance-record.ps1
 ```
 
+To see a shorter grouped list of remaining manual evidence gaps while filling the record, run:
+
+```powershell
+.\scripts\show-v1-acceptance-gaps.ps1
+```
+
 `Private CloudKit sync pass/fail/not available` may be marked `not available` while setup is still blocked, but the validator requires `pass` or `fail` before final V1 acceptance because private iCloud sync is in scope for V1.
 
 ## Clean Install Pass

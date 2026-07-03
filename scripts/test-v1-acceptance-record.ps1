@@ -23,7 +23,7 @@ function Get-FieldValue {
     )
 
     $escapedField = [regex]::Escape($Field)
-    $match = [regex]::Match($Content, "(?m)^$escapedField\s*(.*)$")
+    $match = [regex]::Match($Content, "(?m)^$escapedField[ \t]*(.*)$")
     if (-not $match.Success) {
         return $null
     }
@@ -60,7 +60,7 @@ function Test-AllFieldOccurrencesFilled {
     )
 
     $escapedField = [regex]::Escape($Field)
-    $matches = [regex]::Matches($Content, "(?m)^$escapedField\s*(.*)$")
+    $matches = [regex]::Matches($Content, "(?m)^$escapedField[ \t]*(.*)$")
     if ($matches.Count -eq 0) {
         Add-Failure "Missing field: $Field"
         return
@@ -84,7 +84,7 @@ function Test-AllFieldOccurrencesAvoidValues {
     )
 
     $escapedField = [regex]::Escape($Field)
-    $matches = [regex]::Matches($Content, "(?m)^$escapedField\s*(.*)$")
+    $matches = [regex]::Matches($Content, "(?m)^$escapedField[ \t]*(.*)$")
     foreach ($match in $matches) {
         $value = $match.Groups[1].Value.Trim().ToLowerInvariant()
         if ($InvalidValues -contains $value) {

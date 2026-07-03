@@ -69,6 +69,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | `.claude/scripts/status-report.ps1` | Passes with all loop defaults enabled | Rerun after any new commit |
 | `.\scripts\v1-local-status.ps1` | Reports local/remote state, loop status, release verifier, Swift availability, latest Actions runs, repository visibility/security settings, open security-alert counts, latest retained iOS result bundle artifact, and acceptance-record auto-fill text | Run for the current release candidate |
 | `.\scripts\start-v1-acceptance.ps1` | Generates the release-candidate acceptance record, runs the validator, and prints the remaining manual acceptance steps | Use to start manual acceptance |
+| `.\scripts\show-v1-acceptance-gaps.ps1` | Prints a grouped summary of unfilled manual acceptance fields and evidence gaps while the record is being completed | Use during manual acceptance |
 | `.\scripts\test-v1-acceptance-record.ps1` | Fails until the acceptance record has current automated evidence, all manual pass/fail fields filled, all screenshots/notes recorded, defects fixed or deferred outside V1, and `Accepted for V1: yes` | Run after manual acceptance |
 | `.\scripts\test-v1-acceptance-tooling.ps1` | Fast smoke for the acceptance generator and validator: valid synthetic records pass, invalid preflight choices fail, missing screenshot evidence fails, mismatched candidate evidence fails, and generated blank records stay incomplete | Run after editing acceptance tooling |
 | `swift test` | Not available on Windows host | Needs macOS |
