@@ -9,6 +9,7 @@ model_factory="Sources/ClarityHubApp/Persistence/ClarityHubModelContainerFactory
 project_config="project.yml"
 ios_ci_workflow=".github/workflows/ios-ci.yml"
 codeql_workflow=".github/workflows/codeql.yml"
+dependabot_config=".github/dependabot.yml"
 expected_google_callback_scheme="com.treeman0.ClarityHub"
 
 python_bin="python3"
@@ -116,5 +117,7 @@ grep -F "actions/upload-artifact@v7" "$ios_ci_workflow" >/dev/null
 grep -F "TestResults/ClarityHub.xcresult" "$ios_ci_workflow" >/dev/null
 grep -F "github/codeql-action/init@v4" "$codeql_workflow" >/dev/null
 grep -F "github/codeql-action/analyze@v4" "$codeql_workflow" >/dev/null
+grep -F 'package-ecosystem: "github-actions"' "$dependabot_config" >/dev/null
+grep -F 'package-ecosystem: "swift"' "$dependabot_config" >/dev/null
 
 echo "Release configuration verified."

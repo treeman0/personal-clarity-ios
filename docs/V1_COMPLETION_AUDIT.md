@@ -12,13 +12,13 @@ Current remote HEAD: run `git log -1 --oneline origin/main`
 Current local/remote status: run `git status -sb`
 Latest CI status: run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3`
 Current automated release-candidate evidence: run `.\scripts\v1-local-status.ps1` and use its latest local/remote HEAD, CI, security, and artifact output as authoritative.
-Last collected evidence before this audit update: 7053a0b Fix HealthKit sample UI assertion; iOS CI 28630154244 passed; CodeQL 28630154239 passed; artifact `clarityhub-xcresult-7053a0bd365adaf9b4361c3d53068f2f714d9dfc` uploaded; code-scanning, secret-scanning, and Dependabot alerts were all 0
+Last collected evidence before this audit update: 164e545 Record HealthKit sample acceptance evidence; iOS CI 28630920165 passed; CodeQL 28630920199 passed; artifact `clarityhub-xcresult-164e54559c64db96a6acded4d91b67d5d10ab24a` uploaded; code-scanning, secret-scanning, and Dependabot alerts were all 0
 Manual acceptance: not executed
 Goal status: active, not complete
 ```
 
 Known state as of 2026-07-03: the repository is public and GitHub Actions can start hosted macOS jobs without the previous private-repository billing block.
-The latest release-candidate status pass found green iOS CI and CodeQL for `7053a0b`, uploaded `clarityhub-xcresult-7053a0bd365adaf9b4361c3d53068f2f714d9dfc`, empty code-scanning/secret-scanning/Dependabot alerts, and enabled secret scanning, push protection, and Dependabot security updates.
+The latest release-candidate status pass found green iOS CI and CodeQL for `164e545`, uploaded `clarityhub-xcresult-164e54559c64db96a6acded4d91b67d5d10ab24a`, empty code-scanning/secret-scanning/Dependabot alerts, and enabled secret scanning, push protection, and Dependabot security updates.
 
 On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loop gate, release verifier, Swift availability, latest GitHub Actions summary, repository visibility/security settings, open security-alert counts, and latest retained iOS result bundle artifact in one pass.
 
@@ -29,7 +29,8 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | New repo named `personal-clarity-ios` | GitHub repo `treeman0/personal-clarity-ios` and local worktree | Achieved |
 | `treeman0/claude-loop-system` installed with Codex flow | `AGENTS.md`, `.claude-loop.json`, `.agents/skills/`, `.codex/loop.md`, `.codex/config.toml`, `.codex/hooks.json`, `.codex/hooks/`, `wiki/`; loop status report | Achieved |
 | Loop defaults enabled | `.claude/scripts/status-report.ps1` reports TDD, verification gate, wiki memory/gate, skill tracking, manual review, safety guard, status report enabled | Achieved |
-| macOS CI runs Swift tests and Xcode builds on push/PR | `.github/workflows/ios-ci.yml`; latest pushed commit must have a green `iOS CI` run | Achieved for `7053a0b`; rerun after any new commit |
+| macOS CI runs Swift tests and Xcode builds on push/PR | `.github/workflows/ios-ci.yml`; latest pushed commit must have a green `iOS CI` run | Achieved for `164e545`; rerun after any new commit |
+| Public-repo dependency update monitoring | `.github/dependabot.yml` monitors GitHub Actions and Swift package manifests; release verifier asserts the config remains present | Achieved, rerun after any new commit |
 | Windows local development does not require Xcode | Local Windows gates run release verifier and loop status; macOS CI is authoritative for Swift/Xcode | Achieved with caveat |
 
 ## Product Requirements
@@ -63,26 +64,26 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 
 | Gate | Current state | Status |
 | --- | --- | --- |
-| `git diff --check` | Passes on the current Windows worktree | Passed locally for `7053a0b` |
-| `bash scripts/verify-release-config.sh` | Passes on the current Windows worktree | Passed locally; now also guards against deprecated checkout/CodeQL Action refs |
-| `.claude/scripts/status-report.ps1` | Passes with all loop defaults enabled | Passed locally for `7053a0b` |
-| `.\scripts\v1-local-status.ps1` | Reports local/remote state, loop status, release verifier, Swift availability, latest Actions runs, repository visibility/security settings, open security-alert counts, and latest retained iOS result bundle artifact | Passed locally for `7053a0b` |
+| `git diff --check` | Passes on the current Windows worktree | Passed locally for `164e545`; rerun after any new commit |
+| `bash scripts/verify-release-config.sh` | Passes on the current Windows worktree | Passed locally; now also guards against deprecated checkout/CodeQL Action refs and missing Dependabot config |
+| `.claude/scripts/status-report.ps1` | Passes with all loop defaults enabled | Passed locally for `164e545`; rerun after any new commit |
+| `.\scripts\v1-local-status.ps1` | Reports local/remote state, loop status, release verifier, Swift availability, latest Actions runs, repository visibility/security settings, open security-alert counts, and latest retained iOS result bundle artifact | Passed locally for `164e545` |
 | `swift test` | Not available on Windows host | Needs macOS |
 | `xcodegen generate` | Not available on Windows host | Needs macOS |
 | `xcodebuild test ...` | Not available on Windows host | Needs macOS |
-| Latest `main` CI green | Run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3` and confirm the latest run for `origin/main` succeeded | Passed for `7053a0b`; iOS CI 28630154244 succeeded |
-| Light/dark app-shell and setup-section smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Passed for `7053a0b` in iOS CI 28630154244 |
-| Dense fixture smoke | `ClarityHubUITests.testDenseTodayDataRendersInLightAndDarkMode` and `testDenseFixtureRecordsRenderAcrossPrimaryAreas` launch an in-memory fixture with goals, habits, long tasks, lists/projects, nutrition, preferences, and review focus | Passed for `7053a0b` in iOS CI 28630154244 |
-| Disk-backed persistence smoke | `PersistenceIntegrationTests.testDiskBackedStoreSurvivesContainerRecreationWithoutCloudKit` saves every V1 app-owned record type into a local non-CloudKit store, recreates the container, and fetches the records again | Passed for `7053a0b` in iOS CI 28630154244 |
-| HealthKit empty/denied smoke | `HealthKitStoreInjectionTests` verifies injectable HealthKit stores; `ClarityHubUITests.testHealthKitEmptyStateCopyRendersInBodyAndNutrition` and `testHealthKitDeniedStateCopyRendersInSetupBodyAndNutrition` render empty and denied HealthKit states in the app shell | Passed for `7053a0b` in iOS CI 28630154244 |
-| HealthKit sample-data smoke | `ClarityHubUITests.testHealthKitSampleDataRendersBodyTodayAndNutritionSignals` launches a DEBUG HealthKit fixture with seven weight samples and Apple Health nutrition totals, then verifies Today, Body, and Nutrition render current weight, goal delta, moving average, streak, and saved Health nutrition metrics | Passed for `7053a0b` in iOS CI 28630154244 |
-| Google disconnected smoke | `ClarityHubUITests.testGoogleDisconnectedStateRendersWithoutCalendarAPIAccess` launches blank OAuth settings with a fail-if-called Google Calendar client and verifies Today, Settings, and Calendar disconnected states | Passed for `7053a0b` in iOS CI 28630154244 |
-| Reminder controls smoke | `WeighInReminderSchedulerTests` verify daily/snooze request construction and cancellation identifiers; `ClarityHubUITests.testReminderScheduleSnoozeSkipControlsRenderSuccessStates` taps Body and Settings schedule, snooze, and skip controls with an authorized reminder fixture and verifies Today shows the reminder as scheduled | Passed for `7053a0b` in iOS CI 28630154244 |
-| Google connected fixture smoke | `ClarityHubUITests.testGoogleConnectedFixtureRendersEventsAndCreatesBlock` launches configured OAuth settings with a fixture access token and fixture Google Calendar client, then verifies Today/Calendar event rendering and Calendar block creation | Passed for `7053a0b` in iOS CI 28630154244 |
-| App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Passed for `7053a0b` in iOS CI 28630154244 |
-| Nutrition import workflow smoke | `ClarityHubUITests.testNutritionImportFlowUpdatesTodaySignal` launches Nutrition with DEBUG-prefilled Cal AI-style totals, parses them through the visible UI, saves the day, verifies the recent average, and confirms Today's nutrition signal updates | Passed for `7053a0b` in iOS CI 28630154244 |
-| Visual acceptance evidence | Light/dark tab smoke and dense Today smoke attach XCTest screenshots; iOS CI uploads `TestResults/ClarityHub.xcresult` as a retained artifact; `.\scripts\v1-local-status.ps1` prints the latest retained artifact | Passed for `7053a0b`; retained artifact `clarityhub-xcresult-7053a0bd365adaf9b4361c3d53068f2f714d9dfc` uploaded |
-| Core data-entry workflow smoke | `ClarityHubUITests.testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas` creates a goal, habit/check-in, list, project, task completion/restore, daily review, and weekly review through the visible UI and attaches screenshots | Passed for `7053a0b` in iOS CI 28630154244 |
+| Latest `main` CI green | Run `gh run list --repo treeman0/personal-clarity-ios --branch main --limit 3` and confirm the latest run for `origin/main` succeeded | Passed for `164e545`; iOS CI 28630920165 succeeded |
+| Light/dark app-shell and setup-section smoke | `ClarityHubUITests.testV1SurfacesRenderInLightAndDarkMode` runs in the app scheme on macOS CI | Passed for `164e545` in iOS CI 28630920165 |
+| Dense fixture smoke | `ClarityHubUITests.testDenseTodayDataRendersInLightAndDarkMode` and `testDenseFixtureRecordsRenderAcrossPrimaryAreas` launch an in-memory fixture with goals, habits, long tasks, lists/projects, nutrition, preferences, and review focus | Passed for `164e545` in iOS CI 28630920165 |
+| Disk-backed persistence smoke | `PersistenceIntegrationTests.testDiskBackedStoreSurvivesContainerRecreationWithoutCloudKit` saves every V1 app-owned record type into a local non-CloudKit store, recreates the container, and fetches the records again | Passed for `164e545` in iOS CI 28630920165 |
+| HealthKit empty/denied smoke | `HealthKitStoreInjectionTests` verifies injectable HealthKit stores; `ClarityHubUITests.testHealthKitEmptyStateCopyRendersInBodyAndNutrition` and `testHealthKitDeniedStateCopyRendersInSetupBodyAndNutrition` render empty and denied HealthKit states in the app shell | Passed for `164e545` in iOS CI 28630920165 |
+| HealthKit sample-data smoke | `ClarityHubUITests.testHealthKitSampleDataRendersBodyTodayAndNutritionSignals` launches a DEBUG HealthKit fixture with seven weight samples and Apple Health nutrition totals, then verifies Today, Body, and Nutrition render current weight, goal delta, moving average, streak, and saved Health nutrition metrics | Passed for `164e545` in iOS CI 28630920165 |
+| Google disconnected smoke | `ClarityHubUITests.testGoogleDisconnectedStateRendersWithoutCalendarAPIAccess` launches blank OAuth settings with a fail-if-called Google Calendar client and verifies Today, Settings, and Calendar disconnected states | Passed for `164e545` in iOS CI 28630920165 |
+| Reminder controls smoke | `WeighInReminderSchedulerTests` verify daily/snooze request construction and cancellation identifiers; `ClarityHubUITests.testReminderScheduleSnoozeSkipControlsRenderSuccessStates` taps Body and Settings schedule, snooze, and skip controls with an authorized reminder fixture and verifies Today shows the reminder as scheduled | Passed for `164e545` in iOS CI 28630920165 |
+| Google connected fixture smoke | `ClarityHubUITests.testGoogleConnectedFixtureRendersEventsAndCreatesBlock` launches configured OAuth settings with a fixture access token and fixture Google Calendar client, then verifies Today/Calendar event rendering and Calendar block creation | Passed for `164e545` in iOS CI 28630920165 |
+| App relaunch persistence smoke | `ClarityHubUITests.testPersistentStoreSurvivesAppRelaunch` launches a debug-only disk-backed store, seeds dense V1 records, terminates the app, relaunches without reseeding, and verifies Today, Goals, Nutrition, and Review still render the saved records | Passed for `164e545` in iOS CI 28630920165 |
+| Nutrition import workflow smoke | `ClarityHubUITests.testNutritionImportFlowUpdatesTodaySignal` launches Nutrition with DEBUG-prefilled Cal AI-style totals, parses them through the visible UI, saves the day, verifies the recent average, and confirms Today's nutrition signal updates | Passed for `164e545` in iOS CI 28630920165 |
+| Visual acceptance evidence | Light/dark tab smoke and dense Today smoke attach XCTest screenshots; iOS CI uploads `TestResults/ClarityHub.xcresult` as a retained artifact; `.\scripts\v1-local-status.ps1` prints the latest retained artifact | Passed for `164e545`; retained artifact `clarityhub-xcresult-164e54559c64db96a6acded4d91b67d5d10ab24a` uploaded |
+| Core data-entry workflow smoke | `ClarityHubUITests.testCoreDataEntryFlowCreatesRecordsAcrossPrimaryAreas` creates a goal, habit/check-in, list, project, task completion/restore, daily review, and weekly review through the visible UI and attaches screenshots | Passed for `164e545` in iOS CI 28630920165 |
 
 ## Manual Acceptance
 
