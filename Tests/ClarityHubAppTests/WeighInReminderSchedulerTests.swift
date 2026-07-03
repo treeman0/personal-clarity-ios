@@ -10,6 +10,7 @@ final class WeighInReminderSchedulerTests: XCTestCase {
         XCTAssertEqual(request.identifier, WeighInReminderScheduler.dailyNotificationID)
         XCTAssertEqual(request.content.title, "Weigh in")
         XCTAssertEqual(request.content.body, "Step on the scale before the day gets noisy.")
+        XCTAssertEqual(request.content.categoryIdentifier, WeighInReminderNotificationActions.categoryIdentifier)
         XCTAssertEqual(trigger.dateComponents.hour, 7)
         XCTAssertEqual(trigger.dateComponents.minute, 30)
         XCTAssertTrue(trigger.repeats)
@@ -22,8 +23,63 @@ final class WeighInReminderSchedulerTests: XCTestCase {
         XCTAssertEqual(request.identifier, WeighInReminderScheduler.snoozeNotificationID)
         XCTAssertEqual(request.content.title, "Weigh in")
         XCTAssertEqual(request.content.body, "Snoozed for 15 minutes.")
+        XCTAssertEqual(request.content.categoryIdentifier, WeighInReminderNotificationActions.categoryIdentifier)
         XCTAssertEqual(trigger.timeInterval, 15 * 60, accuracy: 0.001)
         XCTAssertFalse(trigger.repeats)
+    }
+
+    func testReminderNotificationCategoryExposesSnoozeAndSkipActions() {
+        let category = WeighInReminderNotificationActions.category()
+
+        XCTAssertEqual(category.identifier, WeighInReminderNotificationActions.categoryIdentifier)
+        XCTAssertEqual(category.actions.map(\.identifier), [
+            WeighInReminderNotificationActions.snoozeActionIdentifier,
+            WeighInReminderNotificationActions.skipSnoozeActionIdentifier
+        ])
+        XCTAssertEqual(category.actions.map(\.title), [
+            "Snooze 15 min",
+            "Skip snooze"
+        ])
+    }
+
+    func testRegisterReminderNotificationCategoryPassesCategoryToRegistrar() {
+        var registeredCategories: Set<UNNotificationCategory> = []
+
+        WeighInReminderNotificationActions.registerCategories { categories in
+            registeredCategories = categories
+        }
+
+        XCTAssertEqual(registeredCategories.map(\.identifier), [
+            WeighInReminderNotificationActions.categoryIdentifier
+        ])
+    }
+
+    func testReminderNotificationActionHandlerRoutesSnoozeAndSkip() async {
+        var snoozedMinutes: [Int] = []
+        var skipCount = 0
+        let handler = WeighInReminderNotificationActions.Handler(
+            snooze: { minutes in snoozedMinutes.append(minutes) },
+            skipPendingSnooze: { skipCount += 1 }
+        )
+
+        let snoozeHandled = await WeighInReminderNotificationActions.handle(
+            actionIdentifier: WeighInReminderNotificationActions.snoozeActionIdentifier,
+            handler: handler
+        )
+        let skipHandled = await WeighInReminderNotificationActions.handle(
+            actionIdentifier: WeighInReminderNotificationActions.skipSnoozeActionIdentifier,
+            handler: handler
+        )
+        let unknownHandled = await WeighInReminderNotificationActions.handle(
+            actionIdentifier: "unknown",
+            handler: handler
+        )
+
+        XCTAssertTrue(snoozeHandled)
+        XCTAssertTrue(skipHandled)
+        XCTAssertFalse(unknownHandled)
+        XCTAssertEqual(snoozedMinutes, [15])
+        XCTAssertEqual(skipCount, 1)
     }
 
     func testSchedulerUsesInjectedAuthorizationAndSchedulingOperations() async throws {

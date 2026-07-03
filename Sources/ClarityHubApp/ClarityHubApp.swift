@@ -5,6 +5,8 @@ import SwiftUI
 
 @main
 struct ClarityHubApp: App {
+    @UIApplicationDelegateAdaptor(ClarityHubAppDelegate.self) private var appDelegate
+
     private let modelContainer: ModelContainer
 
     init() {

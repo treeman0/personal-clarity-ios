@@ -125,9 +125,11 @@ HealthKit:
 Notifications:
 
 1. Schedule the daily weigh-in reminder.
-2. Snooze from Body.
-3. Skip pending snooze.
-4. Confirm no duplicate pending snooze remains.
+2. Trigger or wait for a reminder notification and confirm Snooze 15 min and Skip snooze actions are available.
+3. Use the notification Snooze 15 min action and confirm a snooze reminder is scheduled.
+4. Snooze from Body.
+5. Skip pending snooze from the notification action or Body.
+6. Confirm no duplicate pending snooze remains.
 
 Google Calendar:
 
