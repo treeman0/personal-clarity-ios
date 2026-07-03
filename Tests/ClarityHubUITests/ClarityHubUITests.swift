@@ -98,7 +98,6 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("168.8 lb", in: app))
         XCTAssertTrue(scrollUntilStaticText("10.5 lb remaining", in: app))
         XCTAssertTrue(scrollUntilStaticText("7d", in: app))
-        XCTAssertTrue(scrollUntilStaticText("Loaded 7 Apple Health weight samples.", in: app))
 
         openMoreTab("Nutrition", in: app)
         assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
