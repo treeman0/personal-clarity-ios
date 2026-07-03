@@ -34,6 +34,7 @@ struct WeighInReminderScheduler {
     }
 
     func scheduleDailyReminder(hour: Int, minute: Int) async throws {
+        requestCanceller([Self.dailyNotificationID])
         try await requestScheduler(Self.dailyRequest(hour: hour, minute: minute))
     }
 
@@ -45,6 +46,7 @@ struct WeighInReminderScheduler {
     }
 
     func snoozeReminder(minutes: Int = 15) async throws {
+        requestCanceller([Self.snoozeNotificationID])
         try await requestScheduler(Self.snoozeRequest(minutes: minutes))
     }
 
