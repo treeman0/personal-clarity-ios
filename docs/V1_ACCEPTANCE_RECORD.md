@@ -2,6 +2,8 @@
 
 This record is the manual execution artifact for `docs/V1_ACCEPTANCE_RUNBOOK.md`. It is intentionally not marked accepted until each pass/fail field is filled with real iPhone or simulator evidence.
 
+Generate a current release-candidate copy with `.\scripts\new-v1-acceptance-record.ps1 -OutputPath docs\V1_ACCEPTANCE_RECORD.md` immediately before starting manual acceptance.
+
 ## Release Candidate
 
 ```text
