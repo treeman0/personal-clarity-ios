@@ -1,6 +1,6 @@
 # ClarityHub V1 Acceptance Runbook
 
-Use this runbook to execute `docs/V1_ACCEPTANCE.md` for a release candidate. V1 is not complete until this runbook has been executed, the latest `main` CI run is green, loop status is clean, and every defect found here is fixed or explicitly deferred outside V1.
+Use this runbook to execute `docs/V1_ACCEPTANCE.md` for a release candidate, and record the result in `docs/V1_ACCEPTANCE_RECORD.md`. V1 is not complete until this runbook has been executed, the latest `main` CI run is green, loop status is clean, and every defect found here is fixed or explicitly deferred outside V1.
 
 ## Preflight
 
@@ -17,6 +17,8 @@ HealthKit data state:
 Google OAuth client ID available: yes/no
 Cal AI writes nutrition to Apple Health: yes/no/unknown
 ```
+
+Use `docs/V1_ACCEPTANCE_RECORD.md` as the working evidence file for this release candidate. Do not mark `Accepted for V1` as `yes` until every pass/fail field is filled from a real iPhone or simulator run and all defect rows are fixed or explicitly deferred outside V1.
 
 Required automated evidence:
 
