@@ -39,7 +39,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | --- | --- | --- | --- |
 | App shell | Native SwiftUI iPhone app with Today, Body, Goals, Habits, Lists, Calendar, Nutrition, Review, Settings | `RootTabView.swift`, generated Xcode CI build, `ClarityHubUITests` light/dark tab smoke | Achieved, needs full manual UI pass |
 | Setup | Today setup checklist for defaults, core permissions, reminder scheduling, and denied notification feedback | `SetupChecklistView.swift`, reminder tests | Needs manual UI pass |
-| Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, entitlements, release verifier, disk-backed persistence recreation test, latest green CI | Needs signed-device sync smoke |
+| Persistence | SwiftData with private CloudKit for app-owned data | `ClarityHubModelContainerFactory.swift`, iCloud/APNs entitlements, release verifier, disk-backed persistence recreation test, latest green CI | Needs signed-device sync smoke |
 | Body | HealthKit body weight, goal comparison, trend chart, moving average, unique-day weigh-in streak | `HealthKitWeightStore.swift`, `BodyView.swift`, weight tests, sample-data UI smoke | Needs device/manual HealthKit pass |
 | Reminders | Morning weigh-in reminders with configurable time, permission-denied handling, notification Snooze 15 min and Skip snooze actions, in-app snooze, and in-app skip | `WeighInReminderScheduler.swift`, `WeighInReminderNotificationActions.swift`, tests, Body/Settings UI | Needs device/manual notification delivery pass |
 | Goals | Measurable goals, increase/decrease/maintain progress, optional due dates, current-value update, linked next actions, linked-task cleanup on delete | `GoalsView.swift`, goal progress and persistence tests | Needs manual UI pass |
@@ -65,7 +65,7 @@ On Windows, run `.\scripts\v1-local-status.ps1` to collect the local status, loo
 | Gate | Current state | Status |
 | --- | --- | --- |
 | `git diff --check` | Passes on the current Windows worktree | Rerun after any new commit |
-| `bash scripts/verify-release-config.sh` | Passes on the current Windows worktree | Passed locally; now also guards against deprecated checkout/CodeQL Action refs, missing Dependabot config, and missing CI timeouts |
+| `bash scripts/verify-release-config.sh` | Passes on the current Windows worktree | Passed locally; now also guards against missing APNs entitlement, deprecated checkout/CodeQL Action refs, missing Dependabot config, and missing CI timeouts |
 | `.claude/scripts/status-report.ps1` | Passes with all loop defaults enabled | Rerun after any new commit |
 | `.\scripts\v1-local-status.ps1` | Reports local/remote state, loop status, release verifier, Swift availability, latest Actions runs, repository visibility/security settings, open security-alert counts, latest retained iOS result bundle artifact, and acceptance-record auto-fill text | Run for the current release candidate |
 | `.\scripts\start-v1-acceptance.ps1` | Generates the release-candidate acceptance record, runs the validator, and prints the remaining manual acceptance steps | Use to start manual acceptance |

@@ -59,6 +59,12 @@ if [[ "$healthkit_enabled" != "true" ]]; then
   exit 1
 fi
 
+aps_environment=$(read_plist_value "$entitlements" "aps-environment" "")
+if [[ "$aps_environment" != "development" && "$aps_environment" != "production" ]]; then
+  echo "Expected aps-environment entitlement for CloudKit remote notifications, found $aps_environment" >&2
+  exit 1
+fi
+
 google_callback_scheme=$(read_plist_value "$info_plist" "CFBundleURLTypes" "0.CFBundleURLSchemes.0")
 if [[ "$google_callback_scheme" != "$expected_google_callback_scheme" ]]; then
   echo "Expected Google callback scheme $expected_google_callback_scheme, found $google_callback_scheme" >&2
