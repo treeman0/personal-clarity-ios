@@ -13,7 +13,7 @@ ClarityHub keeps one person on track across the daily systems that affect clarit
 - Habits: daily and custom weekday habit cadence with due-today completion, cadence-aware streak momentum, and scheduled habit visibility.
 - Lists: todos, projects, and reusable lists, with task capture able to assign a next action to a due date, list, project, and linked goal.
 - Calendar: Google Calendar event context and block creation through the official API boundary.
-- Nutrition: HealthKit nutrition totals first, dated Cal AI/manual daily calorie and macro imports second, with recent nutrition history and 7-day calorie/macro averages.
+- Nutrition: HealthKit nutrition totals first, dated Cal AI/manual daily calorie and macro imports second, with label-before-value and value-before-label parser support, recent nutrition history, and 7-day calorie/macro averages.
 - Review: editable same-day daily reflection that turns next focus into a priority task, plus weekly keep/change/focus/commitment review.
 
 ## Integration Policy
