@@ -12,7 +12,28 @@ struct GoogleOAuthConfiguration: Equatable {
     }
 
     var callbackScheme: String? {
-        URL(string: redirectURI)?.scheme
+        let trimmed = redirectURI.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard
+            let scheme = URLComponents(string: trimmed)?.scheme,
+            Self.isValidCallbackScheme(scheme)
+        else {
+            return nil
+        }
+
+        return scheme
+    }
+
+    private static func isValidCallbackScheme(_ scheme: String) -> Bool {
+        guard
+            let first = scheme.unicodeScalars.first,
+            CharacterSet.letters.contains(first)
+        else {
+            return false
+        }
+
+        var allowedCharacters = CharacterSet.alphanumerics
+        allowedCharacters.insert(charactersIn: "+-.")
+        return scheme.unicodeScalars.allSatisfy { allowedCharacters.contains($0) }
     }
 }
 

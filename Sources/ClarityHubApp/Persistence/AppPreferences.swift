@@ -52,7 +52,10 @@ enum AppPreferences {
 
     static func normalizedGoogleRedirectURI(_ value: String) -> String {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, URL(string: trimmed)?.scheme != nil else {
+        guard
+            !trimmed.isEmpty,
+            GoogleOAuthConfiguration(clientID: "validation-only", redirectURI: trimmed).callbackScheme != nil
+        else {
             return defaultGoogleRedirectURI
         }
 
