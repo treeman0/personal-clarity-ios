@@ -3,11 +3,19 @@ import Foundation
 import HealthKit
 
 struct NutritionHealthStore {
+    private let isAvailableProvider: () -> Bool
     private let requestAuthorizationAction: () async throws -> Void
     private let fetchTodayNutritionAction: (Calendar) async throws -> NutritionDay?
 
+    var isAvailable: Bool {
+        isAvailableProvider()
+    }
+
     init() {
         let healthStore = HKHealthStore()
+        isAvailableProvider = {
+            HKHealthStore.isHealthDataAvailable()
+        }
         requestAuthorizationAction = {
             guard HKHealthStore.isHealthDataAvailable() else { return }
             let readTypes = NutritionHealthStore.nutritionTypes()
@@ -56,9 +64,11 @@ struct NutritionHealthStore {
     }
 
     init(
+        isAvailable: @escaping () -> Bool = { true },
         requestAuthorization: @escaping () async throws -> Void,
         fetchTodayNutrition: @escaping (Calendar) async throws -> NutritionDay?
     ) {
+        isAvailableProvider = isAvailable
         requestAuthorizationAction = requestAuthorization
         fetchTodayNutritionAction = fetchTodayNutrition
     }

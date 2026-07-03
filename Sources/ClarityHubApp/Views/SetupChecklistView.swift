@@ -167,6 +167,8 @@ struct SetupChecklistView: View {
     }
 
     private func authorizeCoreIntegrations() async {
+        let bodyAvailable = healthKitWeightStore.isAvailable
+        let nutritionAvailable = nutritionHealthStore.isAvailable
         let bodyAuthorized = await requestBodyAuthorization()
         let nutritionAuthorized = await requestNutritionAuthorization()
         let reminderScheduled = await scheduleSetupReminder()
@@ -178,6 +180,8 @@ struct SetupChecklistView: View {
             preferences: preferences
         )
         statusMessage = HealthKitStatusCopy.setupAuthorizationMessage(
+            bodyAvailable: bodyAvailable,
+            nutritionAvailable: nutritionAvailable,
             bodyAuthorized: bodyAuthorized,
             nutritionAuthorized: nutritionAuthorized,
             reminderScheduled: reminderScheduled
@@ -185,6 +189,7 @@ struct SetupChecklistView: View {
     }
 
     private func requestBodyAuthorization() async -> Bool {
+        guard healthKitWeightStore.isAvailable else { return false }
         do {
             try await healthKitWeightStore.requestAuthorization()
             return true
@@ -194,6 +199,7 @@ struct SetupChecklistView: View {
     }
 
     private func requestNutritionAuthorization() async -> Bool {
+        guard nutritionHealthStore.isAvailable else { return false }
         do {
             try await nutritionHealthStore.requestAuthorization()
             return true

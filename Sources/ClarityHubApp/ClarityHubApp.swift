@@ -88,6 +88,12 @@ struct ClarityHubApp: App {
                 requestAuthorization: { throw UITestHealthKitFixtureError.denied },
                 fetchWeights: { _ in throw UITestHealthKitFixtureError.denied }
             )
+        case "unavailable":
+            return HealthKitWeightStore(
+                isAvailable: { false },
+                requestAuthorization: { preconditionFailure("Unavailable HealthKit fixture should not request body authorization.") },
+                fetchWeights: { _ in preconditionFailure("Unavailable HealthKit fixture should not fetch body weights.") }
+            )
         default:
             break
         }
@@ -122,6 +128,12 @@ struct ClarityHubApp: App {
             return NutritionHealthStore(
                 requestAuthorization: { throw UITestHealthKitFixtureError.denied },
                 fetchTodayNutrition: { _ in throw UITestHealthKitFixtureError.denied }
+            )
+        case "unavailable":
+            return NutritionHealthStore(
+                isAvailable: { false },
+                requestAuthorization: { preconditionFailure("Unavailable HealthKit fixture should not request nutrition authorization.") },
+                fetchTodayNutrition: { _ in preconditionFailure("Unavailable HealthKit fixture should not fetch nutrition totals.") }
             )
         default:
             break

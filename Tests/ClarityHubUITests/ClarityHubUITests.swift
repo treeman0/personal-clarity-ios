@@ -138,6 +138,25 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilStaticText("Apple Health nutrition could not be loaded. Check Health permission and try again.", in: app))
     }
 
+    func testHealthKitUnavailableStateCopyRendersInSetupBodyAndNutrition() {
+        let app = launchHealthKitFixture(state: "unavailable", interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        XCTAssertTrue(scrollUntilButton("Authorize", in: app))
+        app.buttons["Authorize"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Setup access requested. Needs attention: body-weight Health data unavailable, nutrition Health data unavailable.", in: app))
+
+        openVisibleTab("Body", in: app)
+        assertScreenTitle("Body", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilStaticText("Apple Health body-weight data is not available on this device.", in: app))
+
+        openMoreTab("Nutrition", in: app)
+        assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Connect nutrition totals", in: app))
+        app.buttons["Connect nutrition totals"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Apple Health nutrition data is not available on this device.", in: app))
+    }
+
     func testGoogleDisconnectedStateRendersWithoutCalendarAPIAccess() {
         let app = launchGoogleDisconnectedFixture(interfaceStyle: "Light")
         defer { app.terminate() }

@@ -20,6 +20,16 @@ final class HealthKitStoreInjectionTests: XCTestCase {
         XCTAssertTrue(entries.isEmpty)
     }
 
+    func testWeightStoreReportsInjectedAvailability() {
+        let store = HealthKitWeightStore(
+            isAvailable: { false },
+            requestAuthorization: {},
+            fetchWeights: { _ in [] }
+        )
+
+        XCTAssertFalse(store.isAvailable)
+    }
+
     func testWeightStoreCanReturnInjectedAuthorizationFailure() async {
         let store = HealthKitWeightStore(
             isAvailable: { true },
@@ -39,13 +49,25 @@ final class HealthKitStoreInjectionTests: XCTestCase {
 
     func testNutritionStoreCanReturnInjectedEmptyDay() async throws {
         let store = NutritionHealthStore(
+            isAvailable: { true },
             requestAuthorization: {},
             fetchTodayNutrition: { _ in nil }
         )
 
+        XCTAssertTrue(store.isAvailable)
         try await store.requestAuthorization()
         let day = try await store.fetchTodayNutrition()
         XCTAssertNil(day)
+    }
+
+    func testNutritionStoreReportsInjectedAvailability() {
+        let store = NutritionHealthStore(
+            isAvailable: { false },
+            requestAuthorization: {},
+            fetchTodayNutrition: { _ in nil }
+        )
+
+        XCTAssertFalse(store.isAvailable)
     }
 
     func testNutritionStoreCanReturnInjectedAuthorizationFailure() async {

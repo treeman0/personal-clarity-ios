@@ -198,6 +198,12 @@ struct NutritionView: View {
     }
 
     private func connectAndSaveHealthNutrition() async {
+        guard nutritionHealthStore.isAvailable else {
+            parsedDay = nil
+            statusMessage = HealthKitStatusCopy.nutritionUnavailable
+            return
+        }
+
         do {
             try await nutritionHealthStore.requestAuthorization()
             if let healthDay = try await nutritionHealthStore.fetchTodayNutrition() {

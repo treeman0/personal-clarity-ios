@@ -161,6 +161,12 @@ struct BodyView: View {
         isLoading = true
         defer { isLoading = false }
 
+        guard healthKitWeightStore.isAvailable else {
+            entries = []
+            statusMessage = HealthKitStatusCopy.weightUnavailable
+            return
+        }
+
         do {
             if requestAuthorization {
                 try await healthKitWeightStore.requestAuthorization()

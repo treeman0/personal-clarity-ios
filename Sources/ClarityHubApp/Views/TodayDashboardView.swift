@@ -318,6 +318,12 @@ struct TodayDashboardView: View {
         isLoadingWeight = true
         defer { isLoadingWeight = false }
 
+        guard healthKitWeightStore.isAvailable else {
+            weightEntries = []
+            weightStatus = HealthKitStatusCopy.weightUnavailable
+            return
+        }
+
         do {
             let start = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
             weightEntries = try await healthKitWeightStore.fetchWeights(since: start)
