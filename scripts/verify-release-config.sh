@@ -10,6 +10,7 @@ project_config="project.yml"
 ios_ci_workflow=".github/workflows/ios-ci.yml"
 codeql_workflow=".github/workflows/codeql.yml"
 dependabot_config=".github/dependabot.yml"
+gitignore_file=".gitignore"
 expected_google_callback_scheme="com.treeman0.ClarityHub"
 
 python_bin="python3"
@@ -122,5 +123,11 @@ grep -F "github/codeql-action/analyze@v4" "$codeql_workflow" >/dev/null
 grep -F "timeout-minutes: 45" "$codeql_workflow" >/dev/null
 grep -F 'package-ecosystem: "github-actions"' "$dependabot_config" >/dev/null
 grep -F 'package-ecosystem: "swift"' "$dependabot_config" >/dev/null
+grep -F "*.p12" "$gitignore_file" >/dev/null
+grep -F "*.mobileprovision" "$gitignore_file" >/dev/null
+grep -F ".env.*" "$gitignore_file" >/dev/null
+grep -F "GoogleService-Info.plist" "$gitignore_file" >/dev/null
+grep -F "AppleHealthExport/" "$gitignore_file" >/dev/null
+grep -F "cloudkit-export/" "$gitignore_file" >/dev/null
 
 echo "Release configuration verified."

@@ -2,9 +2,25 @@
 .build/
 .swiftpm/
 DerivedData/
+TestResults/
 *.xcworkspace
 *.xcodeproj/
+*.xcarchive
+*.xcresult
 xcuserdata/
 *.xcuserstate
 *.moved-aside
 
+# Local secrets, signing material, and user data must stay out of this public repo.
+.env
+.env.*
+!.env.example
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+GoogleService-Info.plist
+AppleHealthExport/
+HealthExport/
+apple_health_export/
+cloudkit-export/

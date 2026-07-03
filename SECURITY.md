@@ -11,4 +11,4 @@ Report security concerns through GitHub's private vulnerability reporting for th
 - expected impact
 - any safe proof of concept that does not expose real user data or secrets
 
-The app must not commit signing certificates, provisioning profiles, OAuth client secrets, API keys, HealthKit exports, CloudKit production data, or user nutrition/body data.
+The app must not commit signing certificates, provisioning profiles, OAuth client secrets, API keys, HealthKit exports, CloudKit production data, or user nutrition/body data. The repository `.gitignore` blocks common local secret, signing, Health export, CloudKit export, and generated Xcode result paths; keep those rules intact and rely on GitHub secret scanning/push protection as a second line of defense.
