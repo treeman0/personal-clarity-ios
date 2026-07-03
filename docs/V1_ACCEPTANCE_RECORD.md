@@ -20,9 +20,11 @@ Cal AI writes nutrition to Apple Health: yes/no/unknown
 
 ```text
 Source command: .\scripts\v1-local-status.ps1
+Copy from section: Acceptance record auto-fill
 Local/remote status:
 Loop status:
 Release verifier:
+Latest GitHub Actions runs:
 iOS CI:
 CodeQL:
 Result bundle artifact:
