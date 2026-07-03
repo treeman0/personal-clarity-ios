@@ -33,6 +33,14 @@ final class GoogleCalendarIntegrationTests: XCTestCase {
         XCTAssertNil(GoogleOAuthClient().makeAuthorizationRequest(configuration: configuration))
     }
 
+    func testOAuthAuthorizationRequestRequiresValidRedirectScheme() {
+        let configuration = GoogleOAuthConfiguration(clientID: "client-id", redirectURI: "not a redirect uri")
+
+        XCTAssertFalse(configuration.isConfigured)
+        XCTAssertNil(configuration.callbackScheme)
+        XCTAssertNil(GoogleOAuthClient().makeAuthorizationRequest(configuration: configuration))
+    }
+
     func testOAuthExchangeBuildsFormRequestAndDecodesTokens() async throws {
         var capturedRequest: URLRequest?
         let client = GoogleOAuthClient { request in

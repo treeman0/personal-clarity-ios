@@ -179,6 +179,11 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(AppPreferences.normalizedGoogleRedirectURI("   \n"), AppPreferences.defaultGoogleRedirectURI)
     }
 
+    func testGoogleRedirectNormalizationFallsBackToDefaultForInvalidValues() {
+        XCTAssertEqual(AppPreferences.normalizedGoogleRedirectURI("not a redirect uri"), AppPreferences.defaultGoogleRedirectURI)
+        XCTAssertEqual(AppPreferences.normalizedGoogleRedirectURI("://missing-scheme"), AppPreferences.defaultGoogleRedirectURI)
+    }
+
     func testGoogleRedirectNormalizationPreservesExplicitValues() {
         XCTAssertEqual(
             AppPreferences.normalizedGoogleRedirectURI("  com.example.ClarityHub:/oauth2redirect/google  "),

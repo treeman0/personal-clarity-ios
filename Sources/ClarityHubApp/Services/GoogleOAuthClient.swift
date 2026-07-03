@@ -8,7 +8,7 @@ struct GoogleOAuthConfiguration: Equatable {
 
     var isConfigured: Bool {
         !clientID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !redirectURI.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        callbackScheme != nil
     }
 
     var callbackScheme: String? {
