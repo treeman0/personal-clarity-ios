@@ -355,6 +355,23 @@ final class PersistenceIntegrationTests: XCTestCase {
         XCTAssertEqual(goals.map(\.title).filter { $0 == "Gain weight" }.count, 2)
     }
 
+    func testListKindsPersistForTodoProjectAndReferenceLists() throws {
+        let container = try ClarityHubModelContainerFactory.make(inMemory: true)
+        let context = ModelContext(container)
+        context.insert(ClarityListRecord(title: "Today", kind: "todo"))
+        context.insert(ClarityListRecord(title: "Launch support", kind: "project"))
+        context.insert(ClarityListRecord(title: "Nutrition reference", kind: "reference"))
+
+        try context.save()
+
+        let lists = try context.fetch(FetchDescriptor<ClarityListRecord>())
+        let kindsByTitle = Dictionary(uniqueKeysWithValues: lists.map { ($0.title, $0.kind) })
+
+        XCTAssertEqual(kindsByTitle["Today"], "todo")
+        XCTAssertEqual(kindsByTitle["Launch support"], "project")
+        XCTAssertEqual(kindsByTitle["Nutrition reference"], "reference")
+    }
+
     func testRecordMappingsPreserveGoalAndTaskIntegrationFields() {
         let goalID = UUID()
         let listID = UUID()

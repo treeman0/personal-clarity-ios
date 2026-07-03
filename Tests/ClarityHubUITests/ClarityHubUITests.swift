@@ -47,6 +47,10 @@ final class ClarityHubUITests: XCTestCase {
         assertScreenTitle("Lists", in: app, interfaceStyle: "Light")
         XCTAssertTrue(scrollUntilStaticText("Write the focused next action with enough detail to test long text wrapping in the Today priority queue", in: app))
         XCTAssertTrue(scrollUntilStaticText("A working daily hub that survives dense real-life data without losing scanability.", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Launch support list", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Project - 0 open", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Nutrition reference shelf", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Reference - 0 open", in: app))
 
         openMoreTab("Calendar", in: app)
         assertScreenTitle("Calendar", in: app, interfaceStyle: "Light")

@@ -21,6 +21,8 @@ enum UITestFixtureSeeder {
         let tomorrow = calendar.date(byAdding: .day, value: 1, to: today) ?? today
         let nextWeek = calendar.date(byAdding: .day, value: 7, to: today) ?? today
         let listID = UUID()
+        let projectListID = UUID()
+        let referenceListID = UUID()
         let projectID = UUID()
         let goalID = UUID()
         let checkedHabitID = UUID()
@@ -90,6 +92,18 @@ enum UITestFixtureSeeder {
             title: "Today operating list",
             kind: "todo",
             createdAt: today
+        ))
+        context.insert(ClarityListRecord(
+            id: projectListID,
+            title: "Launch support list",
+            kind: "project",
+            createdAt: today.addingTimeInterval(30)
+        ))
+        context.insert(ClarityListRecord(
+            id: referenceListID,
+            title: "Nutrition reference shelf",
+            kind: "reference",
+            createdAt: today.addingTimeInterval(45)
         ))
         context.insert(ProjectRecord(
             id: projectID,
