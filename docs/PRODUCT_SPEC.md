@@ -40,7 +40,7 @@ Today loads the last 90 days of authorized Apple Health body-weight samples and 
 
 ## Reminder Behavior
 
-The morning weigh-in reminder uses local notifications with a configurable daily time. Reminder notifications register Snooze 15 min and Skip snooze actions, and Body also exposes the same one-shot snooze and pending-snooze skip controls inside the app.
+The morning weigh-in reminder uses local notifications with a configurable daily time. Daily reminder notifications expose a Snooze 15 min action, snoozed reminder notifications expose a Skip snooze action, and Body also exposes the same one-shot snooze and pending-snooze skip controls inside the app.
 
 ## Verification Coverage
 

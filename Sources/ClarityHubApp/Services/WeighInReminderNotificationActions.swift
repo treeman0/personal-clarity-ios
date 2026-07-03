@@ -15,19 +15,30 @@ enum WeighInReminderNotificationActions {
         )
     }
 
-    static let categoryIdentifier = "clarityhub.weigh-in.actions"
+    static let dailyCategoryIdentifier = "clarityhub.weigh-in.daily-actions"
+    static let snoozeCategoryIdentifier = "clarityhub.weigh-in.snooze-actions"
     static let snoozeActionIdentifier = "clarityhub.weigh-in.action.snooze"
     static let skipSnoozeActionIdentifier = "clarityhub.weigh-in.action.skip-snooze"
 
-    static func category() -> UNNotificationCategory {
+    static func dailyCategory() -> UNNotificationCategory {
         UNNotificationCategory(
-            identifier: categoryIdentifier,
+            identifier: dailyCategoryIdentifier,
             actions: [
                 UNNotificationAction(
                     identifier: snoozeActionIdentifier,
                     title: "Snooze 15 min",
                     options: []
-                ),
+                )
+            ],
+            intentIdentifiers: [],
+            options: []
+        )
+    }
+
+    static func snoozeCategory() -> UNNotificationCategory {
+        UNNotificationCategory(
+            identifier: snoozeCategoryIdentifier,
+            actions: [
                 UNNotificationAction(
                     identifier: skipSnoozeActionIdentifier,
                     title: "Skip snooze",
@@ -40,7 +51,7 @@ enum WeighInReminderNotificationActions {
     }
 
     static func registerCategories(_ registrar: (Set<UNNotificationCategory>) -> Void) {
-        registrar([category()])
+        registrar([dailyCategory(), snoozeCategory()])
     }
 
     @discardableResult

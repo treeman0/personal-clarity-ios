@@ -63,7 +63,7 @@ struct WeighInReminderScheduler {
         content.title = "Weigh in"
         content.body = "Step on the scale before the day gets noisy."
         content.sound = .default
-        content.categoryIdentifier = WeighInReminderNotificationActions.categoryIdentifier
+        content.categoryIdentifier = WeighInReminderNotificationActions.dailyCategoryIdentifier
 
         var components = DateComponents()
         components.hour = hour
@@ -78,7 +78,7 @@ struct WeighInReminderScheduler {
         content.title = "Weigh in"
         content.body = "Snoozed for \(minutes) minutes."
         content.sound = .default
-        content.categoryIdentifier = WeighInReminderNotificationActions.categoryIdentifier
+        content.categoryIdentifier = WeighInReminderNotificationActions.snoozeCategoryIdentifier
 
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: TimeInterval(minutes * 60), repeats: false)
         return UNNotificationRequest(identifier: snoozeNotificationID, content: content, trigger: trigger)

@@ -10,7 +10,7 @@ final class WeighInReminderSchedulerTests: XCTestCase {
         XCTAssertEqual(request.identifier, WeighInReminderScheduler.dailyNotificationID)
         XCTAssertEqual(request.content.title, "Weigh in")
         XCTAssertEqual(request.content.body, "Step on the scale before the day gets noisy.")
-        XCTAssertEqual(request.content.categoryIdentifier, WeighInReminderNotificationActions.categoryIdentifier)
+        XCTAssertEqual(request.content.categoryIdentifier, WeighInReminderNotificationActions.dailyCategoryIdentifier)
         XCTAssertEqual(trigger.dateComponents.hour, 7)
         XCTAssertEqual(trigger.dateComponents.minute, 30)
         XCTAssertTrue(trigger.repeats)
@@ -23,34 +23,37 @@ final class WeighInReminderSchedulerTests: XCTestCase {
         XCTAssertEqual(request.identifier, WeighInReminderScheduler.snoozeNotificationID)
         XCTAssertEqual(request.content.title, "Weigh in")
         XCTAssertEqual(request.content.body, "Snoozed for 15 minutes.")
-        XCTAssertEqual(request.content.categoryIdentifier, WeighInReminderNotificationActions.categoryIdentifier)
+        XCTAssertEqual(request.content.categoryIdentifier, WeighInReminderNotificationActions.snoozeCategoryIdentifier)
         XCTAssertEqual(trigger.timeInterval, 15 * 60, accuracy: 0.001)
         XCTAssertFalse(trigger.repeats)
     }
 
-    func testReminderNotificationCategoryExposesSnoozeAndSkipActions() {
-        let category = WeighInReminderNotificationActions.category()
+    func testDailyReminderNotificationCategoryExposesSnoozeAction() {
+        let category = WeighInReminderNotificationActions.dailyCategory()
 
-        XCTAssertEqual(category.identifier, WeighInReminderNotificationActions.categoryIdentifier)
-        XCTAssertEqual(category.actions.map(\.identifier), [
-            WeighInReminderNotificationActions.snoozeActionIdentifier,
-            WeighInReminderNotificationActions.skipSnoozeActionIdentifier
-        ])
-        XCTAssertEqual(category.actions.map(\.title), [
-            "Snooze 15 min",
-            "Skip snooze"
-        ])
+        XCTAssertEqual(category.identifier, WeighInReminderNotificationActions.dailyCategoryIdentifier)
+        XCTAssertEqual(category.actions.map(\.identifier), [WeighInReminderNotificationActions.snoozeActionIdentifier])
+        XCTAssertEqual(category.actions.map(\.title), ["Snooze 15 min"])
     }
 
-    func testRegisterReminderNotificationCategoryPassesCategoryToRegistrar() {
+    func testSnoozeReminderNotificationCategoryExposesSkipAction() {
+        let category = WeighInReminderNotificationActions.snoozeCategory()
+
+        XCTAssertEqual(category.identifier, WeighInReminderNotificationActions.snoozeCategoryIdentifier)
+        XCTAssertEqual(category.actions.map(\.identifier), [WeighInReminderNotificationActions.skipSnoozeActionIdentifier])
+        XCTAssertEqual(category.actions.map(\.title), ["Skip snooze"])
+    }
+
+    func testRegisterReminderNotificationCategoriesPassesBothCategoriesToRegistrar() {
         var registeredCategories: Set<UNNotificationCategory> = []
 
         WeighInReminderNotificationActions.registerCategories { categories in
             registeredCategories = categories
         }
 
-        XCTAssertEqual(registeredCategories.map(\.identifier), [
-            WeighInReminderNotificationActions.categoryIdentifier
+        XCTAssertEqual(Set(registeredCategories.map(\.identifier)), [
+            WeighInReminderNotificationActions.dailyCategoryIdentifier,
+            WeighInReminderNotificationActions.snoozeCategoryIdentifier
         ])
     }
 
