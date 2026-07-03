@@ -11,6 +11,7 @@ jobs:
   swift-package:
     name: Swift Package Tests
     runs-on: macos-15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - name: Show toolchain
@@ -23,6 +24,7 @@ jobs:
   xcode-build:
     name: Xcode Build
     runs-on: macos-15
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v7
       - name: Install XcodeGen
@@ -37,6 +39,7 @@ jobs:
       - name: Build app
         run: xcodebuild build -project ClarityHub.xcodeproj -scheme ClarityHub -destination "${{ steps.destination.outputs.value }}" CODE_SIGNING_ALLOWED=NO
       - name: Test app scheme
+        timeout-minutes: 25
         run: |
           rm -rf TestResults
           xcodebuild test -project ClarityHub.xcodeproj -scheme ClarityHub -destination "${{ steps.destination.outputs.value }}" -resultBundlePath TestResults/ClarityHub.xcresult CODE_SIGNING_ALLOWED=NO

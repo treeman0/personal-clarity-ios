@@ -115,8 +115,11 @@ grep -F "actions/checkout@v7" "$ios_ci_workflow" >/dev/null
 grep -F "actions/checkout@v7" "$codeql_workflow" >/dev/null
 grep -F "actions/upload-artifact@v7" "$ios_ci_workflow" >/dev/null
 grep -F "TestResults/ClarityHub.xcresult" "$ios_ci_workflow" >/dev/null
+grep -F "timeout-minutes: 35" "$ios_ci_workflow" >/dev/null
+grep -F "timeout-minutes: 25" "$ios_ci_workflow" >/dev/null
 grep -F "github/codeql-action/init@v4" "$codeql_workflow" >/dev/null
 grep -F "github/codeql-action/analyze@v4" "$codeql_workflow" >/dev/null
+grep -F "timeout-minutes: 45" "$codeql_workflow" >/dev/null
 grep -F 'package-ecosystem: "github-actions"' "$dependabot_config" >/dev/null
 grep -F 'package-ecosystem: "swift"' "$dependabot_config" >/dev/null
 

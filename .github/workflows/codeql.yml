@@ -13,6 +13,7 @@ jobs:
   analyze:
     name: CodeQL Swift
     runs-on: macos-15
+    timeout-minutes: 45
     permissions:
       actions: read
       contents: read
