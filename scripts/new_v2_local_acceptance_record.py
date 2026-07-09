@@ -13,13 +13,18 @@ DEFAULT_RECORD = ROOT / "docs" / "V2_LOCAL_ACCEPTANCE_RECORD.md"
 
 
 def run(*args: str, check: bool = True) -> str:
-    result = subprocess.run(
-        args,
-        cwd=ROOT,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            args,
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError as error:
+        if check:
+            raise RuntimeError(f"Required command not found: {args[0]}") from error
+        return ""
     if check and result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or result.stdout.strip() or f"Command failed: {' '.join(args)}")
     return result.stdout.strip()

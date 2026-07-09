@@ -4,7 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 from typing import List
+from unittest.mock import patch
 
+from new_v2_local_acceptance_record import run
 from validate_v2_local_acceptance import validate
 
 
@@ -75,6 +77,13 @@ class V2AcceptanceToolingTests(unittest.TestCase):
             "Open V2-blocking defects: 1",
         ))
         self.assertIn("Open V2-blocking defects must be 0.", failures)
+
+    def test_optional_command_missing_returns_empty_output(self) -> None:
+        with patch(
+            "new_v2_local_acceptance_record.subprocess.run",
+            side_effect=FileNotFoundError,
+        ):
+            self.assertEqual(run("gh", "api", "example", check=False), "")
 
 
 if __name__ == "__main__":
