@@ -125,17 +125,19 @@ final class ClarityHubUITests: XCTestCase {
 
         XCTAssertTrue(scrollUntilButton("Authorize", in: app))
         app.buttons["Authorize"].tap()
-        XCTAssertTrue(scrollUntilStaticText("Setup access requested. Needs attention: body-weight Health permission, nutrition Health permission, notification permission.", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Apple Health access was denied. Review Body Measurements and Nutrition in Health settings. Notification permission still needs attention.", in: app))
 
         openVisibleTab("Body", in: app)
         assertScreenTitle("Body", in: app, interfaceStyle: "Light")
-        XCTAssertTrue(scrollUntilStaticText("Apple Health weight could not be loaded. Check Health permission and try again.", in: app))
+        XCTAssertTrue(scrollUntilButton("Connect and refresh Apple Health", in: app))
+        app.buttons["Connect and refresh Apple Health"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Body-weight access was denied. Enable Body Measurements access in the Health app settings, then try again.", in: app))
 
         openMoreTab("Nutrition", in: app)
         assertScreenTitle("Nutrition", in: app, interfaceStyle: "Light")
         XCTAssertTrue(scrollUntilButton("Connect nutrition totals", in: app))
         app.buttons["Connect nutrition totals"].tap()
-        XCTAssertTrue(scrollUntilStaticText("Apple Health nutrition could not be loaded. Check Health permission and try again.", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Nutrition access was denied. Enable Nutrition access in the Health app settings, then try again.", in: app))
     }
 
     func testHealthKitUnavailableStateCopyRendersInSetupBodyAndNutrition() {
@@ -144,7 +146,7 @@ final class ClarityHubUITests: XCTestCase {
 
         XCTAssertTrue(scrollUntilButton("Authorize", in: app))
         app.buttons["Authorize"].tap()
-        XCTAssertTrue(scrollUntilStaticText("Setup access requested. Needs attention: body-weight Health data unavailable, nutrition Health data unavailable.", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Apple Health data is unavailable on this device. Morning reminder scheduled.", in: app))
 
         openVisibleTab("Body", in: app)
         assertScreenTitle("Body", in: app, interfaceStyle: "Light")
@@ -155,6 +157,30 @@ final class ClarityHubUITests: XCTestCase {
         XCTAssertTrue(scrollUntilButton("Connect nutrition totals", in: app))
         app.buttons["Connect nutrition totals"].tap()
         XCTAssertTrue(scrollUntilStaticText("Apple Health nutrition data is not available on this device.", in: app))
+    }
+
+    func testHealthKitTimeoutStopsProgressAndShowsRecoveryCopy() {
+        let app = launchHealthKitFixture(state: "timeout", interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        openVisibleTab("Body", in: app)
+        assertScreenTitle("Body", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Connect and refresh Apple Health", in: app))
+        app.buttons["Connect and refresh Apple Health"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Apple Health did not respond in time. The app stopped waiting; try again when Health is available.", in: app))
+        XCTAssertTrue(app.buttons["Connect and refresh Apple Health"].isEnabled)
+    }
+
+    func testHealthKitFailureStopsProgressAndAllowsRetry() {
+        let app = launchHealthKitFixture(state: "failure", interfaceStyle: "Light")
+        defer { app.terminate() }
+
+        openVisibleTab("Body", in: app)
+        assertScreenTitle("Body", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilButton("Connect and refresh Apple Health", in: app))
+        app.buttons["Connect and refresh Apple Health"].tap()
+        XCTAssertTrue(scrollUntilStaticText("Apple Health weight could not be loaded. Check Health permission and try again.", in: app))
+        XCTAssertTrue(app.buttons["Connect and refresh Apple Health"].isEnabled)
     }
 
     func testGoogleDisconnectedStateRendersWithoutCalendarAPIAccess() {

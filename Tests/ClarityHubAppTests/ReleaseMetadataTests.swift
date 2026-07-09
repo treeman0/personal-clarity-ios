@@ -3,6 +3,12 @@ import XCTest
 @testable import ClarityHub
 
 final class ReleaseMetadataTests: XCTestCase {
+    func testReleaseAppCompilesInCloudMode() {
+        XCTAssertEqual(ClarityHubBuildConfiguration.mode, .cloud)
+        XCTAssertEqual(ClarityHubBuildConfiguration.cloudKitSync, .productionPrivate)
+        XCTAssertEqual(ClarityHubBuildConfiguration.defaultStoreName, "ClarityHub")
+    }
+
     func testCloudKitRemoteNotificationBackgroundModeIsDeclared() {
         let modes = Bundle.main.object(forInfoDictionaryKey: "UIBackgroundModes") as? [String]
 

@@ -29,8 +29,7 @@ struct ClarityHubApp: App {
         WindowGroup {
             RootTabView()
                 .modelContainer(modelContainer)
-                .environment(\.healthKitWeightStore, Self.healthKitWeightStore)
-                .environment(\.nutritionHealthStore, Self.nutritionHealthStore)
+                .environment(\.healthKitAuthorizationCoordinator, Self.healthKitAuthorizationCoordinator)
                 .environment(\.weighInReminderScheduler, Self.weighInReminderScheduler)
                 .environment(\.googleCalendarClient, Self.googleCalendarClient)
                 .environment(\.googleCalendarSession, Self.googleCalendarSession)
@@ -56,7 +55,7 @@ struct ClarityHubApp: App {
         }
         #endif
 
-        return "ClarityHub"
+        return ClarityHubBuildConfiguration.defaultStoreName
     }
 
     private static func cloudKitSync(environment: [String: String]) -> ClarityHubModelContainerFactory.CloudKitSync {
@@ -66,56 +65,18 @@ struct ClarityHubApp: App {
         }
         #endif
 
-        return .productionPrivate
+        return ClarityHubBuildConfiguration.cloudKitSync
     }
 
-    private static var healthKitWeightStore: HealthKitWeightStore {
+    private static let healthKitAuthorizationCoordinator: HealthKitAuthorizationCoordinator = {
         #if DEBUG
         switch ProcessInfo.processInfo.environment["CLARITYHUB_HEALTHKIT_FIXTURE"] {
         case "empty":
-            return HealthKitWeightStore(
-                isAvailable: { true },
-                requestAuthorization: {},
-                fetchWeights: { _ in [] }
-            )
+            return fixtureHealthKitCoordinator(fetchWeights: { _ in [] }, fetchNutrition: { _ in nil })
         case "sample":
-            return HealthKitWeightStore(
-                isAvailable: { true },
-                requestAuthorization: {},
-                fetchWeights: { _ in Self.fixtureWeightEntries() }
-            )
-        case "denied":
-            return HealthKitWeightStore(
-                isAvailable: { true },
-                requestAuthorization: { throw UITestHealthKitFixtureError.denied },
-                fetchWeights: { _ in throw UITestHealthKitFixtureError.denied }
-            )
-        case "unavailable":
-            return HealthKitWeightStore(
-                isAvailable: { false },
-                requestAuthorization: { preconditionFailure("Unavailable HealthKit fixture should not request body authorization.") },
-                fetchWeights: { _ in preconditionFailure("Unavailable HealthKit fixture should not fetch body weights.") }
-            )
-        default:
-            break
-        }
-        #endif
-
-        return HealthKitWeightStore()
-    }
-
-    private static var nutritionHealthStore: NutritionHealthStore {
-        #if DEBUG
-        switch ProcessInfo.processInfo.environment["CLARITYHUB_HEALTHKIT_FIXTURE"] {
-        case "empty":
-            return NutritionHealthStore(
-                requestAuthorization: {},
-                fetchTodayNutrition: { _ in nil }
-            )
-        case "sample":
-            return NutritionHealthStore(
-                requestAuthorization: {},
-                fetchTodayNutrition: { calendar in
+            return fixtureHealthKitCoordinator(
+                fetchWeights: { _ in fixtureWeightEntries() },
+                fetchNutrition: { calendar in
                     NutritionDay(
                         date: calendar.startOfDay(for: Date()),
                         calories: 3_125,
@@ -127,23 +88,55 @@ struct ClarityHubApp: App {
                 }
             )
         case "denied":
-            return NutritionHealthStore(
-                requestAuthorization: { throw UITestHealthKitFixtureError.denied },
-                fetchTodayNutrition: { _ in throw UITestHealthKitFixtureError.denied }
+            return fixtureHealthKitCoordinator(
+                requestStatus: .shouldRequest,
+                requestAuthorization: { throw HealthKitClientError.authorizationDenied },
+                fetchWeights: { _ in throw HealthKitClientError.authorizationDenied },
+                fetchNutrition: { _ in throw HealthKitClientError.authorizationDenied }
+            )
+        case "timeout":
+            return fixtureHealthKitCoordinator(
+                timeoutNanoseconds: 100_000_000,
+                requestStatus: .shouldRequest,
+                requestAuthorization: { try await Task.sleep(nanoseconds: 60_000_000_000) }
+            )
+        case "failure":
+            return fixtureHealthKitCoordinator(
+                requestStatusProvider: { throw UITestHealthKitFixtureError.failed },
+                fetchWeights: { _ in throw UITestHealthKitFixtureError.failed },
+                fetchNutrition: { _ in throw UITestHealthKitFixtureError.failed }
             )
         case "unavailable":
-            return NutritionHealthStore(
-                isAvailable: { false },
-                requestAuthorization: { preconditionFailure("Unavailable HealthKit fixture should not request nutrition authorization.") },
-                fetchTodayNutrition: { _ in preconditionFailure("Unavailable HealthKit fixture should not fetch nutrition totals.") }
-            )
+            return fixtureHealthKitCoordinator(isAvailable: false)
         default:
             break
         }
         #endif
+        return HealthKitAuthorizationCoordinator()
+    }()
 
-        return NutritionHealthStore()
+    #if DEBUG
+    private static func fixtureHealthKitCoordinator(
+        isAvailable: Bool = true,
+        timeoutNanoseconds: UInt64 = 1_000_000_000,
+        requestStatus: HealthKitAuthorizationRequestStatus = .unnecessary,
+        requestStatusProvider: (@Sendable () async throws -> HealthKitAuthorizationRequestStatus)? = nil,
+        requestAuthorization: @escaping @Sendable () async throws -> Void = {},
+        fetchWeights: @escaping @Sendable (Date) async throws -> [WeightEntry] = { _ in [] },
+        fetchNutrition: @escaping @Sendable (Calendar) async throws -> NutritionDay? = { _ in nil }
+    ) -> HealthKitAuthorizationCoordinator {
+        HealthKitAuthorizationCoordinator(
+            client: HealthKitClient(
+                isAvailable: { isAvailable },
+                authorizationRequestStatus: requestStatusProvider ?? { requestStatus },
+                requestAuthorization: requestAuthorization,
+                fetchWeights: fetchWeights,
+                fetchTodayNutrition: fetchNutrition
+            ),
+            timeoutNanoseconds: timeoutNanoseconds
+        )
     }
+    #endif
 
     private static var googleCalendarClient: GoogleCalendarClient {
         #if DEBUG
@@ -275,6 +268,6 @@ struct ClarityHubApp: App {
 
 #if DEBUG
 private enum UITestHealthKitFixtureError: Error {
-    case denied
+    case failed
 }
 #endif

@@ -5,13 +5,14 @@ import SwiftUI
 
 struct BodyView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.healthKitWeightStore) private var healthKitWeightStore
+    @Environment(\.healthKitAuthorizationCoordinator) private var healthKitCoordinator
     @Environment(\.weighInReminderScheduler) private var reminderScheduler
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @State private var entries: [WeightEntry] = []
     @State private var statusMessage = HealthKitStatusCopy.weightConnectPrompt
     @State private var reminderMessage = ""
     @State private var isLoading = false
+    @State private var isAuthorizing = false
 
     private var goalWeight: Double {
         AppPreferences.double(.goalWeightPounds, in: preferences, default: AppPreferences.defaultGoalWeightPounds)
@@ -146,10 +147,17 @@ struct BodyView: View {
                 Button {
                     Task { await refreshWeight(requestAuthorization: true) }
                 } label: {
-                    Label(isLoading ? "Loading weight..." : "Connect and refresh Apple Health", systemImage: "heart.text.square")
+                    Label(healthButtonLabel, systemImage: "heart.text.square")
                 }
                 .buttonStyle(.bordered)
                 .disabled(isLoading)
+                .accessibilityIdentifier("body.connectHealth")
+
+                if isLoading {
+                    ProgressView(isAuthorizing ? "Requesting Apple Health access..." : "Loading weight samples...")
+                        .font(.caption)
+                        .accessibilityIdentifier("body.healthProgress")
+                }
             }
         }
         .task {
@@ -159,26 +167,39 @@ struct BodyView: View {
 
     private func refreshWeight(requestAuthorization: Bool) async {
         isLoading = true
-        defer { isLoading = false }
+        isAuthorizing = requestAuthorization
+        defer {
+            isLoading = false
+            isAuthorizing = false
+        }
 
-        guard healthKitWeightStore.isAvailable else {
+        let outcome = await healthKitCoordinator.loadWeights(requestAuthorization: requestAuthorization)
+        switch outcome {
+        case let .success(loadedEntries):
+            entries = loadedEntries
+            statusMessage = "Loaded \(loadedEntries.count) Apple Health weight samples."
+        case .empty:
+            entries = []
+            statusMessage = HealthKitStatusCopy.weightNoDataOrPermission
+        case .denied:
+            entries = []
+            statusMessage = HealthKitStatusCopy.weightDenied
+        case .unavailable:
             entries = []
             statusMessage = HealthKitStatusCopy.weightUnavailable
-            return
-        }
-
-        do {
-            if requestAuthorization {
-                try await healthKitWeightStore.requestAuthorization()
-            }
-            let start = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
-            entries = try await healthKitWeightStore.fetchWeights(since: start)
-            statusMessage = entries.isEmpty
-                ? HealthKitStatusCopy.weightNoDataOrPermission
-                : "Loaded \(entries.count) Apple Health weight samples."
-        } catch {
+        case .failed(.timedOut):
+            entries = []
+            statusMessage = HealthKitStatusCopy.weightTimedOut
+        case .failed(.healthKit):
+            entries = []
             statusMessage = HealthKitStatusCopy.weightLoadFailed
         }
+    }
+
+    private var healthButtonLabel: String {
+        if isAuthorizing { return "Connecting Apple Health..." }
+        if isLoading { return "Loading weight..." }
+        return "Connect and refresh Apple Health"
     }
 }
 

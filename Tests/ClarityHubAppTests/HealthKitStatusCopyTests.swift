@@ -18,6 +18,23 @@ final class HealthKitStatusCopyTests: XCTestCase {
         XCTAssertFalse(HealthKitStatusCopy.nutritionUnavailable.contains("permission was not granted"))
     }
 
+    func testCoordinatorOutcomesHaveDistinctRecoveryCopy() {
+        XCTAssertTrue(HealthKitStatusCopy.weightDenied.contains("Health app settings"))
+        XCTAssertTrue(HealthKitStatusCopy.weightTimedOut.contains("stopped waiting"))
+        XCTAssertTrue(HealthKitStatusCopy.nutritionDenied.contains("Nutrition access"))
+        XCTAssertTrue(HealthKitStatusCopy.nutritionTimedOut.contains("stopped waiting"))
+    }
+
+    func testSetupCoordinatorCopySeparatesHealthAndReminderResults() {
+        let message = HealthKitStatusCopy.setupAuthorizationMessage(
+            healthOutcome: .failed(.timedOut),
+            reminderScheduled: true
+        )
+
+        XCTAssertTrue(message.contains("did not respond in time"))
+        XCTAssertTrue(message.contains("Morning reminder scheduled"))
+    }
+
     func testSetupAuthorizationMessagesSeparateNotificationDenialFromHealthPrompt() {
         XCTAssertTrue(
             HealthKitStatusCopy

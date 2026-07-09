@@ -14,7 +14,11 @@ enum AppPreferences {
     static let defaultGoalWeightPounds = 180.0
     static let defaultReminderHour = 7
     static let defaultReminderMinute = 30
+    #if CLARITYHUB_LOCAL
+    static let defaultGoogleRedirectURI = "com.treeman0.ClarityHub.Personal:/oauth2redirect/google"
+    #else
     static let defaultGoogleRedirectURI = "com.treeman0.ClarityHub:/oauth2redirect/google"
+    #endif
 
     static func string(_ key: AppPreferenceKey, in preferences: [AppPreferenceRecord], default defaultValue: String = "") -> String {
         preferences.first(where: { $0.key == key.rawValue })?.value ?? defaultValue

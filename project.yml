@@ -31,6 +31,22 @@ targets:
         INFOPLIST_FILE: Sources/ClarityHubApp/Info.plist
         CODE_SIGN_ENTITLEMENTS: Sources/ClarityHubApp/ClarityHub.entitlements
         GENERATE_INFOPLIST_FILE: NO
+  ClarityHubLocal:
+    type: application
+    platform: iOS
+    sources:
+      - Sources/ClarityHubApp
+    dependencies:
+      - target: ClarityHubCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.treeman0.ClarityHub.Personal
+        PRODUCT_NAME: ClarityHubLocal
+        PRODUCT_MODULE_NAME: ClarityHub
+        INFOPLIST_FILE: Sources/ClarityHubLocal/Info.plist
+        CODE_SIGN_ENTITLEMENTS: Sources/ClarityHubLocal/ClarityHubLocal.entitlements
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CLARITYHUB_LOCAL"
   ClarityHubTests:
     type: bundle.unit-test
     platform: iOS
@@ -46,6 +62,17 @@ targets:
     dependencies:
       - target: ClarityHub
     hostApplication: ClarityHub
+  ClarityHubLocalAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/ClarityHubAppTests
+        excludes:
+          - ReleaseMetadataTests.swift
+      - Tests/ClarityHubLocalAppTests
+    dependencies:
+      - target: ClarityHubLocal
+    hostApplication: ClarityHubLocal
   ClarityHubUITests:
     type: bundle.ui-testing
     platform: iOS
@@ -64,3 +91,12 @@ schemes:
         - ClarityHubTests
         - ClarityHubAppTests
         - ClarityHubUITests
+  ClarityHubLocal:
+    build:
+      targets:
+        ClarityHubLocal: all
+        ClarityHubCore: all
+    test:
+      targets:
+        - ClarityHubTests
+        - ClarityHubLocalAppTests

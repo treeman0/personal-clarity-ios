@@ -3,8 +3,7 @@ import SwiftUI
 
 struct SetupChecklistView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.healthKitWeightStore) private var healthKitWeightStore
-    @Environment(\.nutritionHealthStore) private var nutritionHealthStore
+    @Environment(\.healthKitAuthorizationCoordinator) private var healthKitCoordinator
     @Environment(\.weighInReminderScheduler) private var reminderScheduler
     @Query(sort: \AppPreferenceRecord.key) private var preferences: [AppPreferenceRecord]
     @Query(sort: \GoalRecord.createdAt) private var goals: [GoalRecord]
@@ -12,6 +11,7 @@ struct SetupChecklistView: View {
     @Query(sort: \TaskRecord.createdAt) private var tasks: [TaskRecord]
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
     @State private var statusMessage = ""
+    @State private var isAuthorizing = false
 
     private var setupProgress: Double {
         let completedCount = checklistItems.filter(\.isComplete).count
@@ -126,9 +126,21 @@ struct SetupChecklistView: View {
                     Button {
                         Task { await authorizeCoreIntegrations() }
                     } label: {
-                        Label("Authorize", systemImage: "lock.open")
+                        if isAuthorizing {
+                            Label("Connecting...", systemImage: "heart.text.square")
+                        } else {
+                            Label("Authorize", systemImage: "lock.open")
+                        }
                     }
                     .buttonStyle(.borderedProminent)
+                    .disabled(isAuthorizing)
+                    .accessibilityIdentifier("setup.authorize")
+                }
+
+                if isAuthorizing {
+                    ProgressView("Connecting Health and reminders...")
+                        .font(.caption)
+                        .accessibilityIdentifier("setup.authorizationProgress")
                 }
 
                 if !statusMessage.isEmpty {
@@ -167,11 +179,12 @@ struct SetupChecklistView: View {
     }
 
     private func authorizeCoreIntegrations() async {
-        let bodyAvailable = healthKitWeightStore.isAvailable
-        let nutritionAvailable = nutritionHealthStore.isAvailable
-        let bodyAuthorized = await requestBodyAuthorization()
-        let nutritionAuthorized = await requestNutritionAuthorization()
-        let reminderScheduled = await scheduleSetupReminder()
+        isAuthorizing = true
+        defer { isAuthorizing = false }
+
+        async let healthOutcome = healthKitCoordinator.authorize()
+        async let reminderOutcome = scheduleSetupReminder()
+        let (health, reminderScheduled) = await (healthOutcome, reminderOutcome)
 
         AppPreferences.upsert(
             .weighInReminderScheduled,
@@ -180,32 +193,9 @@ struct SetupChecklistView: View {
             preferences: preferences
         )
         statusMessage = HealthKitStatusCopy.setupAuthorizationMessage(
-            bodyAvailable: bodyAvailable,
-            nutritionAvailable: nutritionAvailable,
-            bodyAuthorized: bodyAuthorized,
-            nutritionAuthorized: nutritionAuthorized,
+            healthOutcome: health,
             reminderScheduled: reminderScheduled
         )
-    }
-
-    private func requestBodyAuthorization() async -> Bool {
-        guard healthKitWeightStore.isAvailable else { return false }
-        do {
-            try await healthKitWeightStore.requestAuthorization()
-            return true
-        } catch {
-            return false
-        }
-    }
-
-    private func requestNutritionAuthorization() async -> Bool {
-        guard nutritionHealthStore.isAvailable else { return false }
-        do {
-            try await nutritionHealthStore.requestAuthorization()
-            return true
-        } catch {
-            return false
-        }
     }
 
     private func scheduleSetupReminder() async -> Bool {
