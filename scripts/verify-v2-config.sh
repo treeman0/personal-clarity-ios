@@ -34,6 +34,8 @@ PY
 grep -F "PRODUCT_BUNDLE_IDENTIFIER: com.treeman0.ClarityHub.Personal" project.yml >/dev/null
 grep -F "CODE_SIGN_ENTITLEMENTS: Sources/ClarityHubLocal/ClarityHubLocal.entitlements" project.yml >/dev/null
 grep -F 'SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) CLARITYHUB_LOCAL"' project.yml >/dev/null
+grep -F -- "- Info.plist" project.yml >/dev/null
+grep -F -- "- ClarityHub.entitlements" project.yml >/dev/null
 grep -F "ClarityHubLocalAppTests:" project.yml >/dev/null
 grep -F "return .disabled" Sources/ClarityHubApp/Configuration/ClarityHubBuildConfiguration.swift >/dev/null
 

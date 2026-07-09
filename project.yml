@@ -35,7 +35,10 @@ targets:
     type: application
     platform: iOS
     sources:
-      - Sources/ClarityHubApp
+      - path: Sources/ClarityHubApp
+        excludes:
+          - Info.plist
+          - ClarityHub.entitlements
     dependencies:
       - target: ClarityHubCore
     settings:
