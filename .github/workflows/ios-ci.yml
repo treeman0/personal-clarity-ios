@@ -20,6 +20,8 @@ jobs:
           swift --version
       - name: Test core package
         run: swift test
+      - name: Test V2 acceptance tooling
+        run: python3 scripts/test_v2_acceptance_tooling.py
 
   xcode-build:
     name: Xcode Build

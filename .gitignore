@@ -24,3 +24,5 @@ AppleHealthExport/
 HealthExport/
 apple_health_export/
 cloudkit-export/
+__pycache__/
+docs/evidence/*.log

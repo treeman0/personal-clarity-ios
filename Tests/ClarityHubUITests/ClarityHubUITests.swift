@@ -67,6 +67,9 @@ final class ClarityHubUITests: XCTestCase {
 
         openMoreTab("Settings", in: app)
         assertScreenTitle("Settings", in: app, interfaceStyle: "Light")
+        XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Data mode", in: app))
+        XCTAssertTrue(scrollUntilStaticText("Private iCloud", in: app))
+        XCTAssertTrue(scrollUntilStaticText("CloudKit sync enabled", in: app))
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Body target", in: app))
         XCTAssertTrue(scrollUntilElement(withIdentifier: "section.Google Calendar", in: app))
     }

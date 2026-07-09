@@ -29,4 +29,31 @@ enum ClarityHubBuildConfiguration {
             return .disabled
         }
     }()
+
+    static let storageTitle: String = {
+        switch mode {
+        case .cloud:
+            return "Private iCloud"
+        case .local:
+            return "On this iPhone"
+        }
+    }()
+
+    static let storageDetail: String = {
+        switch mode {
+        case .cloud:
+            return "CloudKit sync enabled"
+        case .local:
+            return "Local storage, no iCloud sync"
+        }
+    }()
+
+    static let storageSystemImage: String = {
+        switch mode {
+        case .cloud:
+            return "icloud"
+        case .local:
+            return "iphone"
+        }
+    }()
 }

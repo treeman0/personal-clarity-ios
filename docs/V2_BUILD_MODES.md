@@ -15,6 +15,8 @@ Use the `ClarityHubLocal` scheme for a Personal Team or simulator.
 
 Generate the Xcode project with `xcodegen generate`, select `ClarityHubLocal`, choose the Personal Team in Signing & Capabilities, and run on the iPhone. This target is the supported no-cost V2 path; it is no longer maintained in a detached worktree.
 
+Settings identifies the active storage mode so device evidence cannot confuse Local and Cloud builds. Use `docs/V2_LOCAL_ACCEPTANCE.md` for the focused final iPhone pass.
+
 ## Cloud mode: paid Apple provisioning required
 
 Use the `ClarityHub` scheme for the release configuration.

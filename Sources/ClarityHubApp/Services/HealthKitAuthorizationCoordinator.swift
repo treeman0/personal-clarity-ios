@@ -310,14 +310,7 @@ actor HealthKitAuthorizationCoordinator {
         let operationTask = Task { try await operation() }
         return try await withCheckedThrowingContinuation { continuation in
             let gate = ContinuationGate(continuation)
-            Task {
-                do {
-                    gate.resume(with: .success(try await operationTask.value))
-                } catch {
-                    gate.resume(with: .failure(error))
-                }
-            }
-            Task {
+            let timeoutTask = Task {
                 do {
                     try await Task.sleep(nanoseconds: nanoseconds)
                 } catch {
@@ -325,6 +318,16 @@ actor HealthKitAuthorizationCoordinator {
                 }
                 gate.resume(with: .failure(HealthKitOperationFailure.timedOut))
                 operationTask.cancel()
+            }
+            Task {
+                do {
+                    let value = try await operationTask.value
+                    timeoutTask.cancel()
+                    gate.resume(with: .success(value))
+                } catch {
+                    timeoutTask.cancel()
+                    gate.resume(with: .failure(error))
+                }
             }
         }
     }

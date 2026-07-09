@@ -38,5 +38,15 @@ grep -F -- "- Info.plist" project.yml >/dev/null
 grep -F -- "- ClarityHub.entitlements" project.yml >/dev/null
 grep -F "ClarityHubLocalAppTests:" project.yml >/dev/null
 grep -F "return .disabled" Sources/ClarityHubApp/Configuration/ClarityHubBuildConfiguration.swift >/dev/null
+grep -F "python3 scripts/test_v2_acceptance_tooling.py" .github/workflows/ios-ci.yml >/dev/null
+grep -F "docs/V2_LOCAL_ACCEPTANCE.md" docs/V2_COMPLETION_AUDIT.md >/dev/null
+grep -F "__pycache__/" .gitignore >/dev/null
+grep -F "docs/evidence/*.log" .gitignore >/dev/null
+
+bash -n scripts/install_v2_local_device.sh
+"$python_bin" -m py_compile \
+  scripts/new_v2_local_acceptance_record.py \
+  scripts/validate_v2_local_acceptance.py \
+  scripts/test_v2_acceptance_tooling.py
 
 echo "V2 Cloud and Local configurations verified."

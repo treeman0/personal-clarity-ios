@@ -18,3 +18,5 @@ HealthKit authorization is also centralized in one coordinator for both targets.
 ## Consequences
 
 Local data does not sync through iCloud and is not release-candidate acceptance evidence. Google OAuth clients must register the redirect URI matching the selected target. Both generated schemes must build in CI, while the release scheme remains the full UI-test gate.
+
+V2 Local completion uses a separate evidence path from formal V1 acceptance. `install_v2_local_device.sh` builds, signs, installs, and launches only the Local target with a Personal Team. `new_v2_local_acceptance_record.py` captures candidate, CI, configuration, and security state; `validate_v2_local_acceptance.py` requires real iPhone HealthKit, delivered reminder, and relaunch-persistence evidence before V2 Local can be accepted. Device build logs remain local and ignored so hardware identifiers and developer paths are not published.

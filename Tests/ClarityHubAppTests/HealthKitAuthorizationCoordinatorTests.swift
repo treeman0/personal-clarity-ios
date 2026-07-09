@@ -10,6 +10,14 @@ private actor AuthorizationCallCounter {
     }
 }
 
+private actor OperationCancellationProbe {
+    private(set) var wasCancelled = false
+
+    func markCancelled() {
+        wasCancelled = true
+    }
+}
+
 final class HealthKitAuthorizationCoordinatorTests: XCTestCase {
     func testRepeatedAuthorizationSharesOneRequest() async {
         let calls = AuthorizationCallCounter()
@@ -56,17 +64,26 @@ final class HealthKitAuthorizationCoordinatorTests: XCTestCase {
     }
 
     func testWeightQueryTimeoutReturnsWithoutLeavingCallerBlocked() async {
+        let probe = OperationCancellationProbe()
         let coordinator = makeCoordinator(
             timeoutNanoseconds: 10_000_000,
             fetchWeights: { _ in
-                try await Task.sleep(nanoseconds: 5_000_000_000)
-                return []
+                do {
+                    try await Task.sleep(nanoseconds: 5_000_000_000)
+                    return []
+                } catch {
+                    await probe.markCancelled()
+                    throw error
+                }
             }
         )
 
         let outcome = await coordinator.loadWeights(requestAuthorization: false)
+        try? await Task.sleep(nanoseconds: 20_000_000)
+        let operationWasCancelled = await probe.wasCancelled
 
         XCTAssertEqual(outcome, .failed(.timedOut))
+        XCTAssertTrue(operationWasCancelled)
     }
 
     func testHealthKitQueryFailureIsReported() async {
