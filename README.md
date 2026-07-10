@@ -1,5 +1,9 @@
 # ClarityHub
 
+V2 provides two generated iPhone targets: the Cloud release target and a no-cost, device-local Personal Team target. See [V2 build modes](docs/V2_BUILD_MODES.md) for their exact capabilities and run instructions.
+
+V2 completion evidence is defined in [the completion audit](docs/V2_COMPLETION_AUDIT.md) and [the focused Local acceptance pass](docs/V2_LOCAL_ACCEPTANCE.md). These do not change or bypass formal V1 release acceptance.
+
 ClarityHub is a native iPhone app for daily clarity across body weight, goals, habits, tasks, calendar, and nutrition.
 
 V1 is personal-first and App Store-compatible:
@@ -29,4 +33,3 @@ xcodebuild test -project ClarityHub.xcodeproj -scheme ClarityHub -destination "p
 ```
 
 On Windows, edit and run repository-level validation where possible; GitHub Actions performs the macOS/iOS build.
-

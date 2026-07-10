@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 
 struct TodayDashboardView: View {
-    @Environment(\.healthKitWeightStore) private var healthKitWeightStore
+    @Environment(\.healthKitAuthorizationCoordinator) private var healthKitCoordinator
     @Environment(\.googleCalendarClient) private var googleCalendarClient
     @Environment(\.googleCalendarSession) private var calendarSession
     @Query(sort: \GoalRecord.createdAt) private var goalRecords: [GoalRecord]
@@ -318,21 +318,27 @@ struct TodayDashboardView: View {
         isLoadingWeight = true
         defer { isLoadingWeight = false }
 
-        guard healthKitWeightStore.isAvailable else {
+        let outcome = await healthKitCoordinator.loadWeights(requestAuthorization: false)
+        switch outcome {
+        case let .success(entries):
+            weightEntries = entries
+            if let latest = entries.last {
+                weightStatus = "Last weigh-in: \(latest.pounds.oneDecimal) lb"
+            }
+        case .empty:
+            weightEntries = []
+            weightStatus = "No Apple Health body-weight samples found yet."
+        case .denied:
+            weightEntries = []
+            weightStatus = HealthKitStatusCopy.weightDenied
+        case .unavailable:
             weightEntries = []
             weightStatus = HealthKitStatusCopy.weightUnavailable
-            return
-        }
-
-        do {
-            let start = Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date()
-            weightEntries = try await healthKitWeightStore.fetchWeights(since: start)
-            if let latest = weightEntries.last {
-                weightStatus = "Last weigh-in: \(latest.pounds.oneDecimal) lb"
-            } else {
-                weightStatus = "No Apple Health body-weight samples found yet."
-            }
-        } catch {
+        case .failed(.timedOut):
+            weightEntries = []
+            weightStatus = HealthKitStatusCopy.weightTimedOut
+        case .failed(.healthKit):
+            weightEntries = []
             weightStatus = "Apple Health weight is unavailable. Authorize it in Setup or Body."
         }
     }

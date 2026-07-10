@@ -4,13 +4,14 @@ import SwiftUI
 
 struct NutritionView: View {
     @Environment(\.modelContext) private var modelContext
-    @Environment(\.nutritionHealthStore) private var nutritionHealthStore
+    @Environment(\.healthKitAuthorizationCoordinator) private var healthKitCoordinator
     @Query(sort: \NutritionDayRecord.date, order: .reverse) private var nutritionRecords: [NutritionDayRecord]
     @State private var selectedDate = Date()
     @State private var importSource = NutritionImportSource.calAI
     @State private var importText: String
     @State private var parsedDay: NutritionDay?
     @State private var statusMessage = ""
+    @State private var isLoadingHealth = false
 
     init() {
         _importText = State(initialValue: Self.initialImportText)
@@ -102,9 +103,17 @@ struct NutritionView: View {
                 Button {
                     Task { await connectAndSaveHealthNutrition() }
                 } label: {
-                    Label("Connect nutrition totals", systemImage: "heart.text.square")
+                    Label(isLoadingHealth ? "Loading nutrition..." : "Connect nutrition totals", systemImage: "heart.text.square")
                 }
                 .buttonStyle(.bordered)
+                .disabled(isLoadingHealth)
+                .accessibilityIdentifier("nutrition.connectHealth")
+
+                if isLoadingHealth {
+                    ProgressView("Requesting access and loading today's totals...")
+                        .font(.caption)
+                        .accessibilityIdentifier("nutrition.healthProgress")
+                }
             }
 
             SectionPanel(title: "Recent average") {
@@ -198,20 +207,26 @@ struct NutritionView: View {
     }
 
     private func connectAndSaveHealthNutrition() async {
-        guard nutritionHealthStore.isAvailable else {
+        isLoadingHealth = true
+        defer { isLoadingHealth = false }
+
+        let outcome = await healthKitCoordinator.loadTodayNutrition(requestAuthorization: true)
+        switch outcome {
+        case let .success(healthDay):
+            save(healthDay)
+        case .empty:
+            parsedDay = nil
+            statusMessage = HealthKitStatusCopy.nutritionNoDataOrPermission
+        case .denied:
+            parsedDay = nil
+            statusMessage = HealthKitStatusCopy.nutritionDenied
+        case .unavailable:
             parsedDay = nil
             statusMessage = HealthKitStatusCopy.nutritionUnavailable
-            return
-        }
-
-        do {
-            try await nutritionHealthStore.requestAuthorization()
-            if let healthDay = try await nutritionHealthStore.fetchTodayNutrition() {
-                save(healthDay)
-            } else {
-                statusMessage = HealthKitStatusCopy.nutritionNoDataOrPermission
-            }
-        } catch {
+        case .failed(.timedOut):
+            parsedDay = nil
+            statusMessage = HealthKitStatusCopy.nutritionTimedOut
+        case .failed(.healthKit):
             parsedDay = nil
             statusMessage = HealthKitStatusCopy.nutritionLoadFailed
         }

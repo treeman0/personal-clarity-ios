@@ -1,11 +1,7 @@
 import SwiftUI
 
-private struct HealthKitWeightStoreKey: EnvironmentKey {
-    static let defaultValue = HealthKitWeightStore()
-}
-
-private struct NutritionHealthStoreKey: EnvironmentKey {
-    static let defaultValue = NutritionHealthStore()
+private struct HealthKitAuthorizationCoordinatorKey: EnvironmentKey {
+    static let defaultValue = HealthKitAuthorizationCoordinator()
 }
 
 private struct WeighInReminderSchedulerKey: EnvironmentKey {
@@ -21,14 +17,9 @@ private struct GoogleCalendarSessionKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    var healthKitWeightStore: HealthKitWeightStore {
-        get { self[HealthKitWeightStoreKey.self] }
-        set { self[HealthKitWeightStoreKey.self] = newValue }
-    }
-
-    var nutritionHealthStore: NutritionHealthStore {
-        get { self[NutritionHealthStoreKey.self] }
-        set { self[NutritionHealthStoreKey.self] = newValue }
+    var healthKitAuthorizationCoordinator: HealthKitAuthorizationCoordinator {
+        get { self[HealthKitAuthorizationCoordinatorKey.self] }
+        set { self[HealthKitAuthorizationCoordinatorKey.self] = newValue }
     }
 
     var weighInReminderScheduler: WeighInReminderScheduler {

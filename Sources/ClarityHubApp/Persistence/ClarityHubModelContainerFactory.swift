@@ -1,7 +1,7 @@
 import SwiftData
 
 enum ClarityHubModelContainerFactory {
-    enum CloudKitSync {
+    enum CloudKitSync: Equatable {
         case productionPrivate
         case disabled
     }

@@ -15,6 +15,22 @@ struct SettingsView: View {
 
     var body: some View {
         ScreenScaffold(title: "Settings", subtitle: "Personal targets and automation timing.") {
+            SectionPanel(title: "Data mode") {
+                Label {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(ClarityHubBuildConfiguration.storageTitle)
+                            .font(.subheadline.weight(.semibold))
+                        Text(ClarityHubBuildConfiguration.storageDetail)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                } icon: {
+                    Image(systemName: ClarityHubBuildConfiguration.storageSystemImage)
+                        .foregroundStyle(ClarityHubBuildConfiguration.mode == .cloud ? Color.blue : Color.teal)
+                }
+                .accessibilityIdentifier("settings.buildMode")
+            }
+
             SectionPanel(title: "Body target") {
                 Stepper(value: $goalWeight, in: 80...350, step: 0.5) {
                     HStack {
